@@ -1,8 +1,13 @@
-1. run pip install requirements.txt
-2. run app.py
+Starting:
+```
+pip install -r requirements.txt
+```
+```
+python app.py
+```
 
-file structure idea:
-
+File structure idea:
+```
 eztrip/
 │
 ├── app.py                     # Main Flask application file
@@ -25,3 +30,4 @@ eztrip/
 ├── auth/                      # handle our authentication here
 |
 ├── DB/                        # handle our DB related functions here
+```
