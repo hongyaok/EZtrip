@@ -5,7 +5,7 @@ app = Flask(__name__,
            static_folder='static',
            template_folder='templates')
 
-# Sample data for demonstration purposes
+# sample data
 sample_trips = [
     {
         "id": 1,
@@ -31,12 +31,10 @@ def home():
 
 @app.route('/create-trip')
 def create_trip():
-    # This would typically render a form page for creating a new trip
     return "Create Trip Form - To be implemented"
 
 @app.route('/login')
 def login():
-    # This would typically render a login page
     return "Login Page - To be implemented"
 
 @app.route('/api/trips', methods=['GET'])
@@ -45,9 +43,8 @@ def get_trips():
 
 @app.route('/api/trips', methods=['POST'])
 def create_trip_api():
-    # This would typically create a new trip in the database
     data = request.json
     return jsonify({"message": "Trip created successfully", "trip": data})
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
