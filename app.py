@@ -5,29 +5,10 @@ app = Flask(__name__,
            static_folder='static',
            template_folder='templates')
 
-# sample data
-sample_trips = [
-    {
-        "id": 1,
-        "title": "Tokyo Adventure",
-        "destination": "Tokyo, Japan",
-        "start_date": "2025-06-15",
-        "end_date": "2025-06-22",
-        "collaborators": 3
-    },
-    {
-        "id": 2,
-        "title": "European Tour",
-        "destination": "Multiple Cities, Europe",
-        "start_date": "2025-07-10",
-        "end_date": "2025-07-24", 
-        "collaborators": 5
-    }
-]
 
 @app.route('/')
 def home():
-    return render_template('index.html', trips=sample_trips)
+    return render_template('index.html')
 
 @app.route('/create-trip')
 def create_trip():
