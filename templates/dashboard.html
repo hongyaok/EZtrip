@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZtrip - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <a href="/" class="logo">
+                    <i class="fas fa-map-marked-alt"></i>
+                    EZtrip
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard" class="active">Dashboard</a>
+                    <a href="/create-trip">Create Trip</a>
+                </div>
+                <div class="user-profile">
+                    <img src="{{ picture }}" alt="{{ name }}" class="profile-pic">
+                    <span>{{ name }}</span>
+                    <a href="/" class="btn btn-outline">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>My Trips</h1>
+            <a href="/create-trip" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Trip
+            </a>
+        </div>
+
+        <div class="trips-grid">
+            <!-- Create trip card -->
+            <div class="trip-card create-trip-card">
+                <a href="/create-trip" class="create-trip-link">
+                    <i class="fas fa-plus-circle create-trip-icon"></i>
+                    <span>Create New Trip</span>
+                </a>
+            </div>
+            
+            <!-- Sample trip cards - replace with dynamic content later -->
+            <div class="trip-card">
+                <div class="trip-image">
+                    <i class="fas fa-mountain"></i>
+                </div>
+                <div class="trip-details">
+                    <h3>Japan Adventure</h3>
+                    <div class="trip-meta">
+                        <span><i class="far fa-calendar"></i> May 15-25, 2025</span>
+                        <span><i class="fas fa-map-marker-alt"></i> Tokyo</span>
+                    </div>
+                </div>
+                <div class="trip-footer">
+                    <div class="trip-collaborators">
+                        <i class="fas fa-users"></i> 4 collaborators
+                    </div>
+                    <a href="#" class="btn btn-outline">View</a>
+                </div>
+            </div>
+            
+            <div class="trip-card">
+                <div class="trip-image">
+                    <i class="fas fa-umbrella-beach"></i>
+                </div>
+                <div class="trip-details">
+                    <h3>Bali Weekend</h3>
+                    <div class="trip-meta">
+                        <span><i class="far fa-calendar"></i> June 3-5, 2025</span>
+                        <span><i class="fas fa-map-marker-alt"></i> Bali</span>
+                    </div>
+                </div>
+                <div class="trip-footer">
+                    <div class="trip-collaborators">
+                        <i class="fas fa-users"></i> 2 collaborators
+                    </div>
+                    <a href="#" class="btn btn-outline">View</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="copyright">
+                &copy; 2025 EZtrip. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
