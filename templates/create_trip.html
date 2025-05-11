@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Trip - EZtrip</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+        
+        .header {
+            background-color: blueviolet;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .form-box {
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        .button {
+            background-color: blue;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .tips {
+            background-color: #ffffcc;
+            padding: 10px;
+            border: 1px solid #ffcc00;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>EZtrip</h1>
+        <p>Plan your trip easily!</p>
+    </div>
+
+    <h2>Create New Trip</h2>
+    
+    <div class="form-box">
+        <form method="post">
+            <h3>Trip Details</h3>
+            
+            <label for="title">Trip Title:</label><br>
+            <input type="text" id="title" name="title" placeholder="Enter trip title"><br><br>
+            
+            <label for="destination">Destination:</label><br>
+            <input type="text" id="destination" name="destination" placeholder="Where are you going?"><br><br>
+            
+            <label for="theme">Trip Theme:</label><br>
+            <select id="theme" name="theme">
+                <option value="">Select a theme</option>
+                <option value="adventure">Adventure</option>
+                <option value="relaxation">Relaxation</option>
+                <option value="food">Food Tour</option>
+                <option value="other">Other</option>
+            </select><br><br>
+            
+            <label for="start">Start Date:</label><br>
+            <input type="date" id="start" name="start_date"><br><br>
+            
+            <label for="end">End Date:</label><br>
+            <input type="date" id="end" name="end_date"><br><br>
+            
+            <label for="description">Description:</label><br>
+            <textarea id="description" name="description" rows="3"></textarea><br><br>
+            
+            <h3>Privacy</h3>
+            
+            <input type="radio" id="private" name="privacy" value="private" checked>
+            <label for="private">Private</label><br>
+            
+            <input type="radio" id="public" name="privacy" value="public">
+            <label for="public">Public</label><br><br>
+            
+            <h3>Add Friends</h3>
+            
+            <label for="emails">Friend Emails:</label><br>
+            <input type="text" id="emails" name="emails" placeholder="friend@example.com"><br>
+            <small>Separate emails with commas</small><br><br>
+            
+            <input type="button" value="Cancel">
+            <input type="submit" value="Create Trip" class="button">
+        </form>
+    </div>
+    
+    <div class="tips">
+        <h3>Tips:</h3>
+        <ul>
+            <li>Create your trip first</li>
+            <li>Add locations later</li>
+            <li>Invite your friends</li>
+        </ul>
+    </div>
+</body>
+</html>
