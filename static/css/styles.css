@@ -476,3 +476,140 @@ footer {
     align-items: center;
     margin: 30px 0;
 }
+
+/* Create Trip Form Styles */
+.create-trip-header {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.create-trip-header h1 {
+    color: var(--primary);
+    font-size: 32px;
+}
+
+.create-trip-form-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 40px;
+}
+
+.create-trip-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E8EAED;
+}
+
+.form-section h2 {
+    color: var(--dark);
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #E8EAED;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+}
+
+.date-group {
+    display: flex;
+    gap: 20px;
+}
+
+.date-input {
+    flex: 1;
+}
+
+.radio-group {
+    display: flex;
+    gap: 30px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radio-option input[type="radio"] {
+    accent-color: var(--primary);
+}
+
+.form-tips {
+    background-color: #F8F9FA;
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 30px;
+}
+
+.form-tips h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--dark);
+}
+
+.form-tips ul {
+    padding-left: 20px;
+    color: var(--gray);
+}
+
+.form-tips li {
+    margin-bottom: 5px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Responsive adjustments for create trip form */
+@media (max-width: 768px) {
+    .date-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+}

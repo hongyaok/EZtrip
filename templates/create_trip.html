@@ -1,116 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Create Trip - EZtrip</title>
-    <style>
-        body {
-            font-family: Arial;
-            margin: 20px;
-        }
-        
-        .header {
-            background-color: blueviolet;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-        
-        .form-box {
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        
-        label {
-            font-weight: bold;
-        }
-        
-        .button {
-            background-color: blue;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .tips {
-            background-color: #ffffcc;
-            padding: 10px;
-            border: 1px solid #ffcc00;
-            margin-top: 20px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZtrip - Create Trip</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <h1>EZtrip</h1>
-        <p>Plan your trip easily!</p>
-    </div>
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <a href="/dashboard" class="logo">
+                    <i class="fas fa-map-marked-alt"></i>
+                    EZtrip
+                </a>
+                <div class="nav-links">
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/create-trip" class="active">Create Trip</a>
+                </div>
+                <div class="user-profile">
+                    <img src="{{ picture }}" alt="{{ name }}" class="profile-pic">
+                    <span>{{ name }}</span>
+                    <a href="/auth/logout" class="btn btn-outline">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <h2>Create New Trip</h2>
-    
-    <div class="form-box">
-        <form method="post">
-            <h3>Trip Details</h3>
-            
-            <label for="title">Trip Title:</label><br>
-            <input type="text" id="title" name="title" placeholder="Enter trip title"><br><br>
-            
-            <label for="destination">Destination:</label><br>
-            <input type="text" id="destination" name="destination" placeholder="Where are you going?"><br><br>
-            
-            <label for="theme">Trip Theme:</label><br>
-            <select id="theme" name="theme">
-                <option value="">Select a theme</option>
-                <option value="adventure">Adventure</option>
-                <option value="relaxation">Relaxation</option>
-                <option value="food">Food Tour</option>
-                <option value="other">Other</option>
-            </select><br><br>
-            
-            <label for="start">Start Date:</label><br>
-            <input type="date" id="start" name="start_date"><br><br>
-            
-            <label for="end">End Date:</label><br>
-            <input type="date" id="end" name="end_date"><br><br>
-            
-            <label for="description">Description:</label><br>
-            <textarea id="description" name="description" rows="3"></textarea><br><br>
-            
-            <h3>Privacy</h3>
-            
-            <input type="radio" id="private" name="privacy" value="private" checked>
-            <label for="private">Private</label><br>
-            
-            <input type="radio" id="public" name="privacy" value="public">
-            <label for="public">Public</label><br><br>
-            
-            <h3>Add Friends</h3>
-            
-            <label for="emails">Friend Emails:</label><br>
-            <input type="text" id="emails" name="emails" placeholder="friend@example.com"><br>
-            <small>Separate emails with commas</small><br><br>
-            
-            <input type="button" value="Cancel">
-            <input type="submit" value="Create Trip" class="button">
-        </form>
-    </div>
-    
-    <div class="tips">
-        <h3>Tips:</h3>
-        <ul>
-            <li>Create your trip first</li>
-            <li>Add locations later</li>
-            <li>Invite your friends</li>
-        </ul>
-    </div>
+    <main class="container">
+        <div class="create-trip-header">
+            <h1>Create New Trip</h1>
+        </div>
+
+        <div class="create-trip-form-container">
+            <form class="create-trip-form" action="/api/trips" method="POST">
+                <div class="form-section">
+                    <h2>Trip Details</h2>
+                    
+                    <div class="form-group">
+                        <label for="trip-title">Trip Title:</label>
+                        <input type="text" id="trip-title" name="title" required class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="destination">Destination:</label>
+                        <input type="text" id="destination" name="destination" required class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="theme">Trip Theme:</label>
+                        <select id="theme" name="theme" class="form-control">
+                            <option value="" disabled selected>Select a theme</option>
+                            <option value="adventure">Adventure</option>
+                            <option value="relaxation">Relaxation</option>
+                            <option value="food">Food Tour</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group date-group">
+                        <div class="date-input">
+                            <label for="start-date">Start Date:</label>
+                            <input type="date" id="start-date" name="start_date" required class="form-control">
+                        </div>
+                        
+                        <div class="date-input">
+                            <label for="end-date">End Date:</label>
+                            <input type="date" id="end-date" name="end_date" required class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="4" class="form-control"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Privacy</h2>
+                    <div class="form-group radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="private" name="privacy" value="private" checked>
+                            <label for="private">Private</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="public" name="privacy" value="public">
+                            <label for="public">Public</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h2>Add Friends</h2>
+                    <div class="form-group">
+                        <label for="friend-emails">Friend Emails:</label>
+                        <textarea id="friend-emails" name="friend_emails" rows="2" class="form-control" placeholder="Separate emails with commas"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-tips">
+                    <h3>Tips:</h3>
+                    <ul>
+                        <li>Create your trip first</li>
+                        <li>Add locations later</li>
+                        <li>Invite your friends</li>
+                    </ul>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Trip</button>
+                    <a href="/dashboard" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="copyright">
+                &copy; 2025 EZtrip. All rights reserved.
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

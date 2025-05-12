@@ -21,7 +21,10 @@ def home():
 @app.route('/create-trip')
 @login_required
 def create_trip():
-    return "Create Trip Form - To be implemented"
+    return render_template('create_trip.html', 
+                          name=session['name'], 
+                          email=session['email'],
+                          picture=session['picture'])
 
 @app.route('/dashboard')
 @login_required

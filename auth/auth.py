@@ -116,4 +116,4 @@ def callback():
 def logout():
     # Clear the session
     session.clear()
-    return redirect(url_for('home'))
+    return redirect(url_for('home', message="You have been logged out."))
