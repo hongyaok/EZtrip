@@ -35,10 +35,40 @@ def get_trips():
     return jsonify({"trips": []})
 
 @app.route('/api/trips', methods=['POST'])
+@login_required
 def create_trip_api():
+    #extract out the info from the form 
+    trip_title = request.form['title']
+    trip_destination = request.form['destination']
+    trip_theme = request.form['theme']
+    trip_start_date = request.form['start_date']
+    trip_end_date = request.form['end_date']
+    trip_description = request.form['description']
+    trip_privacy = request.form['privacy']
+    other_friends_emails = request.form['friend_emails']
+
+    #extract info of the person who is creating the trip
+    owner_id = session['user_id']
+    owner_name = session['name']
+
+    #Check if data is to able to flow from HTML to Flask correctly (testing - can be removed once checked)
+    print("New trip has been created")
+    print("Trip name: ", trip_title)
+    print("Travelling to: ", trip_destination)
+    print("Theme of the trip: ", trip_theme)
+    print("Starting date: ",trip_start_date)
+    print ("Ending date: ", trip_end_date)
+    print("Descritption: ", trip_description )
+    print("Privacy setting: ", trip_privacy)
+    print("Friends to invite: ", other_friends_emails)
+    print("Created by: ", owner_name)
+    print("Creator ID: ", owner_id)
+
+    #once submitted the form, users will be redirected back to the dashboard
+    return redirect('/dashboard')
     # implement logic to create a new trip in the database
-    data = request.json
-    return jsonify({"message": "Trip created successfully", "trip": data})
+    # data = request.json
+    # return jsonify({"message": "Trip created successfully", "trip": data})
 
 if __name__ == '__main__':
     app.run(debug=True)
