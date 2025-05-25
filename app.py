@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import os
 from auth.auth import auth, login_required
+from DB.DB import DB
 
+db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 app.secret_key = os.urandom(24) #key for sess
@@ -58,17 +60,29 @@ def create_trip_api():
     print("Theme of the trip: ", trip_theme)
     print("Starting date: ",trip_start_date)
     print ("Ending date: ", trip_end_date)
-    print("Descritption: ", trip_description )
+    print("Description: ", trip_description )
     print("Privacy setting: ", trip_privacy)
     print("Friends to invite: ", other_friends_emails)
     print("Created by: ", owner_name)
     print("Creator ID: ", owner_id)
 
+    trip_id = db.add_trip(
+        google_id=owner_id,
+        trip_name=trip_title,
+        dest=trip_destination,
+        theme=trip_theme,
+        start_date=trip_start_date,
+        end_date=trip_end_date,
+        desc=trip_description,
+        privacy=trip_privacy
+    )
+
+    # TO IMPLEMENT:
+        # 1. Send email invites to the friends listed in other_friends_emails
+
     #once submitted the form, users will be redirected back to the dashboard
     return redirect('/dashboard')
-    # implement logic to create a new trip in the database
-    # data = request.json
-    # return jsonify({"message": "Trip created successfully", "trip": data})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

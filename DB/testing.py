@@ -11,21 +11,21 @@ if __name__ == "__main__":
     # Initialize the Supabase client
     supabase = create_client(url, key_change)
 
-    # test for adding new user
-    new_user = {
-        "username": "new_user",
-        "email": "user@example.com",
-        "role": True,  # Boolean value for role column
-        "created_at": "2023-10-01T12:00:00Z"
-        # additional field for user_img
-    }
-    response = supabase.table('USERS').insert(new_user).execute()
-    if hasattr(response, 'data') and response.data:
-        print("User added successfully!")
-        print(response.data)
-    else:
-        print("Error adding user")
-        print(response)
+    # # test for adding new user
+    # new_user = {
+    #     "username": "new_user",
+    #     "email": "user@example.com",
+    #     "role": True,  # Boolean value for role column
+    #     "created_at": "2023-10-01T12:00:00Z"
+    #     # additional field for user_img
+    # }
+    # response = supabase.table('USERS').insert(new_user).execute()
+    # if hasattr(response, 'data') and response.data:
+    #     print("User added successfully!")
+    #     print(response.data)
+    # else:
+    #     print("Error adding user")
+    #     print(response)
 
     response = supabase.table('USERS').select('*').execute() # get data from USERS table
 

@@ -52,6 +52,27 @@ USERS:
     - user_img: text
 ```
 
+`USERTRIP` table schema
+```
+USERTRIP:
+    - id: int8, primary key, auto-increment
+    - google_id: numeric, unique
+    - trip_id: int8
+```
+
+`TRIPS` table schema
+```
+USERTRIP:
+    - trip_id: int8, primary key, auto-increment
+    - trip_name: text
+    - dest: text
+    - theme: text
+    - start_date: datetime
+    - end_date: datetime
+    - desc: text
+    - privacy: varchar
+```
+
 ## Side Note
 
 Ensure you are using Python 3.12 or above to avoid dependency issues.
