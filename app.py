@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import os
 from auth.auth import auth, login_required
 from DB.DB import DB
+from datetime import datetime
 
 db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
@@ -23,13 +24,22 @@ def create_trip():
                           email=session['email'],
                           picture=session['picture'])
 
-@app.route('/dashboard') # when href '/dashboard' is called in html
-@login_required  # ensure user is logged in
+@app.route('/dashboard')
+@login_required
 def dashboard():
+    trips = db.get_all_trips_for_user(session['user_id'])
+
+    for trip in trips:
+        start_date = datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
+        end_date = datetime.fromisoformat(trip['end_date'].replace('Z', '+00:00'))
+        trip['formatted_start'] = start_date.strftime('%b %d, %Y')
+        trip['formatted_end'] = end_date.strftime('%b %d, %Y')
+    
     return render_template('dashboard.html', 
                           name=session['name'], 
                           email=session['email'],
-                          picture=session['picture'])
+                          picture=session['picture'],
+                          trips=trips)
 
 @app.route('/api/trips', methods=['GET'])
 def get_trips(): 
