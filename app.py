@@ -3,6 +3,7 @@ import os
 from auth.auth import auth, login_required
 from DB.DB import DB
 from datetime import datetime
+from func.emailfn import mass_email
 
 db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
@@ -41,10 +42,14 @@ def dashboard():
                           picture=session['picture'],
                           trips=trips)
 
-@app.route('/api/trips', methods=['GET'])
-def get_trips(): 
-    # implement logic to fetch trips from the database
-    return jsonify({"trips": []})
+
+@app.route('/join/<trip_id>', methods=['POST'])
+@login_required
+def accept_invite(trip_id):
+    user_id = session['user_id']
+    db.add_user_to_trip(trip_id, user_id)
+    return redirect('/dashboard')
+
 
 @app.route('/api/trips', methods=['POST'])
 @login_required
@@ -75,7 +80,7 @@ def create_trip_api():
     print("Friends to invite: ", other_friends_emails)
     print("Created by: ", owner_name)
     print("Creator ID: ", owner_id)
-
+    
     trip_id = db.add_trip(
         google_id=owner_id,
         trip_name=trip_title,
@@ -87,8 +92,8 @@ def create_trip_api():
         privacy=trip_privacy
     )
 
-    # TO IMPLEMENT:
-        # 1. Send email invites to the friends listed in other_friends_emails
+    if other_friends_emails:
+        mass_email(other_friends_emails, trip_id)
 
     #once submitted the form, users will be redirected back to the dashboard
     return redirect('/dashboard')
