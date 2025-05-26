@@ -43,7 +43,7 @@ def dashboard():
                           trips=trips)
 
 
-@app.route('/join/<trip_id>', methods=['POST'])
+@app.route('/join/<trip_id>', methods=['GET','POST'])
 @login_required
 def accept_invite(trip_id):
     user_id = session['user_id']
