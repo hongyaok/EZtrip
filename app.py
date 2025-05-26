@@ -46,6 +46,8 @@ def dashboard():
 @app.route('/join/<trip_id>', methods=['GET','POST'])
 @login_required
 def accept_invite(trip_id):
+    if session.get('user_id') is not None:
+        return redirect(f'/join/{trip_id}')
     user_id = session['user_id']
     db.add_user_to_trip(user_id, trip_id)
     return redirect('/dashboard')
