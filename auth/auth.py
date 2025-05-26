@@ -100,11 +100,11 @@ def callback():
     print(f"User ID: {session['user_id']}, Name: {session['name']}, Email: {session['email']}")
     
     # to add new user to USERS table
-    # if db.check_user(session['user_id']):
-    #     print("User already exists in the database.")
-    # else:
-    #     db.add_user(session['user_id'], session['name'], session['email'], session['picture'])
-    #     print("New user detected, proceed with registration.")
+    if db.check_user(session['user_id']):
+        print("User already exists in the database.")
+    else:
+        db.add_user(session['user_id'], session['name'], session['email'], session['picture'])
+        print("New user detected, proceed with registration.")
     
     return redirect(url_for('dashboard'))
 
