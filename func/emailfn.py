@@ -11,7 +11,7 @@ def mass_email(emails, trip_id):
             send_email(email, trip_id)
 
 def send_email(recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port=587):
-    link = f"https://eztrip-vbi5.com/join/{trip_id}"  # test
+    link = f"https://eztrip-vbi5.onrender.com/join/{trip_id}"  # test
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = recipient_email
