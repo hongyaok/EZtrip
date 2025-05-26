@@ -47,7 +47,7 @@ def dashboard():
 @login_required
 def accept_invite(trip_id):
     user_id = session['user_id']
-    db.add_user_to_trip(trip_id, user_id)
+    db.add_user_to_trip(user_id, trip_id)
     return redirect('/dashboard')
 
 
