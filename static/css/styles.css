@@ -595,6 +595,18 @@ header {
     gap: 15px;
 }
 
+.map-preview {
+    background: white;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ddd
+}
+
+#map {
+    height: 250px;
+    width: 100%;
+}
+
 /* Responsive adjustments for create trip form */
 @media (max-width: 768px) {
     .date-group {
