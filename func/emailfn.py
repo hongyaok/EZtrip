@@ -15,7 +15,7 @@ def send_email(recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = recipient_email
-    msg['Subject'] = f"Trip Invitation - Trip ID: {trip_id}"
+    msg['Subject'] = f"Trip Invitation!"
     body = f"You have been invited to join a trip with ID: {trip_id}.\
         \nJoin the trip now!: {link}!"
 

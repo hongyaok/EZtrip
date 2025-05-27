@@ -28,6 +28,12 @@ def create_trip():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # want to check if the user has a trip invitation
+    if 'trip_inv' in session:
+        db.add_user_to_trip(session['user_id'], session['trip_inv'])  # add user to trip
+        print(f"User {session['user_id']} added to trip: ", session['trip_inv'])
+        del session['trip_inv']
+
     trips = db.get_all_trips_for_user(session['user_id'])
 
     for trip in trips:
@@ -44,14 +50,9 @@ def dashboard():
 
 
 @app.route('/join/<trip_id>', methods=['GET','POST'])
-@login_required
 def accept_invite(trip_id):
-    if session.get('user_id') is None:
-        return redirect('/auth/login')
-    user_id = session['user_id']
-    db.add_user_to_trip(user_id, trip_id)
-    return redirect('/dashboard')
-
+    session['trip_inv'] = trip_id
+    return redirect('/auth/login')
 
 @app.route('/api/trips', methods=['POST'])
 @login_required
