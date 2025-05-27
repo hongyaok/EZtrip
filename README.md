@@ -20,12 +20,12 @@ Try it now here: [EZtrip](https://eztrip-vbi5.onrender.com/)
 If you are setting up the project locally, follow these steps:
 
 1. Obtain and set up configurations for both `DB` and `auth`.
-2. For `DB` folder, ensure the following configurations are provided in a config.py file:
+2. For `DB` folder, ensure the following configurations are provided in a config.py file from supabase with the same Database schema implemented within a project:
     - `supabase_url`
     - `supabase_key`
     - `special_key`
     - Database tables as specified below.
-3. For `auth` folder, ensure the following configurations are provided in a config.py file from supabase with the same Database schema implemented within a project:
+3. For `auth` folder, ensure the following configurations are provided in a config.py file and obtained from google services:
     - `ClientID`
     - `ClientSecret`
 4. For `func` folder, ensure the following configurations are provided in a emailconfig.py file:
