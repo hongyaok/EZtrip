@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import os
 from auth.auth import auth, login_required
 from DB.DB import DB
+from datetime import datetime
+from func.emailfn import mass_email
 
 db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
@@ -23,18 +25,34 @@ def create_trip():
                           email=session['email'],
                           picture=session['picture'])
 
-@app.route('/dashboard') # when href '/dashboard' is called in html
-@login_required  # ensure user is logged in
+@app.route('/dashboard')
+@login_required
 def dashboard():
+    # want to check if the user has a trip invitation
+    if 'trip_inv' in session:
+        db.add_user_to_trip(session['user_id'], session['trip_inv'])  # add user to trip
+        print(f"User {session['user_id']} added to trip: ", session['trip_inv'])
+        del session['trip_inv']
+
+    trips = db.get_all_trips_for_user(session['user_id'])
+
+    for trip in trips:
+        start_date = datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
+        end_date = datetime.fromisoformat(trip['end_date'].replace('Z', '+00:00'))
+        trip['formatted_start'] = start_date.strftime('%b %d, %Y')
+        trip['formatted_end'] = end_date.strftime('%b %d, %Y')
+    
     return render_template('dashboard.html', 
                           name=session['name'], 
                           email=session['email'],
-                          picture=session['picture'])
+                          picture=session['picture'],
+                          trips=trips)
 
-@app.route('/api/trips', methods=['GET'])
-def get_trips(): 
-    # implement logic to fetch trips from the database
-    return jsonify({"trips": []})
+
+@app.route('/join/<trip_id>', methods=['GET','POST'])
+def accept_invite(trip_id):
+    session['trip_inv'] = trip_id
+    return redirect('/auth/login')
 
 @app.route('/api/trips', methods=['POST'])
 @login_required
@@ -65,7 +83,7 @@ def create_trip_api():
     print("Friends to invite: ", other_friends_emails)
     print("Created by: ", owner_name)
     print("Creator ID: ", owner_id)
-
+    
     trip_id = db.add_trip(
         google_id=owner_id,
         trip_name=trip_title,
@@ -77,8 +95,8 @@ def create_trip_api():
         privacy=trip_privacy
     )
 
-    # TO IMPLEMENT:
-        # 1. Send email invites to the friends listed in other_friends_emails
+    if other_friends_emails:
+        mass_email(owner_name, trip_destination, trip_description, other_friends_emails, trip_id)
 
     #once submitted the form, users will be redirected back to the dashboard
     return redirect('/dashboard')

@@ -1,1 +1,0 @@
-# To implement email to invite users to the trip.

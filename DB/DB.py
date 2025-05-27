@@ -62,6 +62,32 @@ class DB:
         if id:
             self.add_user_to_trip(google_id, id)
         return id # to email the invite link to the user
+    
+    def get_all_trips_for_user(self, google_id):
+        # First get the trip IDs for the user
+        user_trips = (
+            self.supabase.from_('USERTRIP')
+            .select('trip_id')
+            .eq('google_id', google_id)
+            .execute()
+        )
+        #print(f"User trips: {user_trips.data}") #debug
+        
+        all_trips = []
+        if user_trips.data:
+            trip_ids = [trip['trip_id'] for trip in user_trips.data]
+            for trip_id in trip_ids:
+                all_trips.extend((
+                    self.supabase.from_('TRIPS')
+                    .select('*')
+                    .eq('trip_id', trip_id)
+                    .execute()
+                ).data)
+
+            return all_trips
+        
+        return []
+
 
 # for testing purposes
 if __name__ == "__main__":

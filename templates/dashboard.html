@@ -38,51 +38,32 @@
         </div>
 
         <div class="trips-grid">
-            <div class="trip-card create-trip-card">
-                <a href="/create-trip" class="create-trip-link">
-                    <i class="fas fa-plus-circle create-trip-icon"></i>
-                    <span>Create New Trip</span>
-                </a>
+            {% for trip in trips %}
+            <div class="trip-card {{ trip['theme'] }}">
+                <div class="trip-header">
+                    <h3>{{ trip['trip_name'] }}</h3>
+                </div>
+                
+                <div class="trip-info">
+                    <p class="destination">{{ trip['dest'] }}</p>
+                    <p class="dates">{{ trip['start_date'][:10] }} to {{ trip['end_date'][:10] }}</p>
+                    
+                    <span class="theme-tag">{{ trip['theme'].title() }}</span>
+                </div>
+                
+                <div class="trip-actions">
+                    <a href="/trip/{{ trip['trip_id'] }}" class="btn btn-primary">View Trip</a>
+                </div>
             </div>
+            {% endfor %}
             
-            <!-- hardcoded -->
+            {% if trips|length == 0 %}
             <div class="trip-card">
-                <div class="trip-image">
-                    <i class="fas fa-mountain"></i>
-                </div>
-                <div class="trip-details">
-                    <h3>Japan Adventure</h3>
-                    <div class="trip-meta">
-                        <span><i class="far fa-calendar"></i> May 15-25, 2025</span>
-                        <span><i class="fas fa-map-marker-alt"></i> Tokyo</span>
-                    </div>
-                </div>
-                <div class="trip-footer">
-                    <div class="trip-collaborators">
-                        <i class="fas fa-users"></i> 4 collaborators
-                    </div>
-                    <a href="#" class="btn btn-outline">View</a>
-                </div>
+                <h3>No trips yet!</h3>
+                <p>Start planning your next adventure</p>
+                <a href="/create-trip" class="btn btn-success">Create New Trip</a>
             </div>
-            
-            <div class="trip-card">
-                <div class="trip-image">
-                    <i class="fas fa-umbrella-beach"></i>
-                </div>
-                <div class="trip-details">
-                    <h3>Bali Weekend</h3>
-                    <div class="trip-meta">
-                        <span><i class="far fa-calendar"></i> June 3-5, 2025</span>
-                        <span><i class="fas fa-map-marker-alt"></i> Bali</span>
-                    </div>
-                </div>
-                <div class="trip-footer">
-                    <div class="trip-collaborators">
-                        <i class="fas fa-users"></i> 2 collaborators
-                    </div>
-                    <a href="#" class="btn btn-outline">View</a>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </main>
 
