@@ -96,7 +96,7 @@ def create_trip_api():
     )
 
     if other_friends_emails:
-        mass_email(other_friends_emails, trip_id)
+        mass_email(owner_name, trip_destination, trip_description, other_friends_emails, trip_id)
 
     #once submitted the form, users will be redirected back to the dashboard
     return redirect('/dashboard')

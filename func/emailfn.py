@@ -3,21 +3,23 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from func.emailconfig import email, password
 
-def mass_email(emails, trip_id):
+def mass_email(sender, location, desc, emails, trip_id):
     emails = emails.split(',')
     for email in emails:
         email = email.strip() 
         if email: 
-            send_email(email, trip_id)
+            send_email(sender, location, desc, email, trip_id)
 
-def send_email(recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port=587):
+def send_email(sender, location, desc, recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port=587):
     link = f"https://eztrip-vbi5.onrender.com/join/{trip_id}"  # test
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = recipient_email
-    msg['Subject'] = f"Trip Invitation!"
-    body = f"You have been invited to join a trip with ID: {trip_id}.\
-        \nJoin the trip now!: {link}!"
+    msg['Subject'] = f"Trip Invitation from {sender}!"
+    body = f"\nYou have been invited to join a trip to {location}.\
+        \n\nTrip Description: {desc}\n\
+        \n\nJoin the trip now!: {link}!\
+        \n\nIf you have any questions, please contact {sender} directly.\n\nBest regards,\nEZtrip Team"
 
     msg.attach(MIMEText(body, 'plain'))
 
@@ -28,4 +30,4 @@ def send_email(recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port
         server.quit()
 
 if __name__ == "__main__":
-    send_email('<put ur email>@gmail.com', 1)
+    send_email('<put ur email>@gmail.com', 1) # not working anymore, change accordingly
