@@ -71,16 +71,6 @@ def create_trip_api():
     trip_privacy = request.form['privacy']
     other_friends_emails = request.form['friend_emails']
 
-    image_path = None
-    if 'trip_image' in request.files:
-        file = request.files['trip_image']
-        if file and file.filename != '' and allowed_file(file.filename):
-            try:
-                image_path = db.upload_image_to_storage(file)
-                if image_path: # debug
-                    print(f"Image uploaded successfully: {image_path}")
-            except Exception as e:
-                print(f"Error uploading image: {str(e)}")
 
     #extract info of the person who is creating the trip
     owner_id = session['user_id']
@@ -107,13 +97,9 @@ def create_trip_api():
         start_date=trip_start_date,
         end_date=trip_end_date,
         desc=trip_description,
-        privacy=trip_privacy,
-        image_path=image_path
+        privacy=trip_privacy
     )
 
-    if image_path and trip_id:
-        db.update_trip_image(trip_id, image_path)
-    
     if other_friends_emails:
         mass_email(owner_name, trip_destination, trip_description, other_friends_emails, trip_id)
 
