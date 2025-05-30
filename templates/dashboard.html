@@ -40,6 +40,15 @@
         <div class="trips-grid">
             {% for trip in trips %}
             <div class="trip-card {{ trip['theme'] }}">
+                {% if trip.trip_image %}
+                    <div class="trip-image">
+                        <img src="{{ get_image_url(trip.trip_image) }}" alt="{{ trip.trip_name }}" style="width: 100%; height: 200px; object-fit: cover;">
+                    </div>
+                {% else %}
+                    <div class="trip-image">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                {% endif %}
                 <div class="trip-header">
                     <h3>{{ trip['trip_name'] }}</h3>
                 </div>
@@ -47,8 +56,6 @@
                 <div class="trip-info">
                     <p class="destination">{{ trip['dest'] }}</p>
                     <p class="dates">{{ trip['start_date'][:10] }} to {{ trip['end_date'][:10] }}</p>
-                    
-                    <span class="theme-tag">{{ trip['theme'].title() }}</span>
                 </div>
                 
                 <div class="trip-actions">

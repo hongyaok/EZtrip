@@ -1,14 +1,25 @@
-// Adding simple map functions to the map in Create Trip page
-function initMap() {
+function initMap(location = null) {
+    var defaultLocation = {lat: 1.3521, lng: 103.8198};
+    var mapCenter = location || defaultLocation;
+    
     var map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 1.3521, lng: 103.8198},
+        center: mapCenter,
         zoom: 10,
     });
 
-//adding a red pin to the location we are at now (hardcoded btw)
-    var marker = new google.maps.Marker({
-        position: {lat: 1.3521, lng: 103.8198},
-        map: map,
-        title: 'Singapore'
-      });
+    // the red pin
+    var marker = null;
+
+    // if marker exists, remove and place new marker
+    map.addListener('click', function(event) {
+        if (marker) {
+            marker.setMap(null);
+        }
+        
+        marker = new google.maps.Marker({
+            position: event.latLng,
+            map: map,
+            title: 'Selected Location'
+        });
+    });
 }

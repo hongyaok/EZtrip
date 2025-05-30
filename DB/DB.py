@@ -1,5 +1,8 @@
 from supabase import create_client
 from DB.config import supabase_url, supabase_key, special_key
+from werkzeug.utils import secure_filename
+import uuid
+import os
 
 class DB:
     def __init__(self):
@@ -41,7 +44,7 @@ class DB:
         response=self.supabase.table('USERTRIP').insert(data).execute()
         return response.data if hasattr(response, 'data') else None
     
-    def add_trip(self, google_id, trip_name, dest, theme, start_date, end_date, desc, privacy):
+    def add_trip(self, google_id, trip_name, dest, theme, start_date, end_date, desc, privacy, image_path=None):
         data = {
             "trip_name": trip_name,
             "dest": dest,
@@ -49,19 +52,24 @@ class DB:
             "start_date": start_date,
             "end_date": end_date,
             "desc": desc,
-            "privacy": privacy
+            "privacy": privacy,
+            "trip_image": image_path 
         }
-        response=self.supabase.table('TRIPS').insert(data).execute()
+        
+        response = self.supabase.table('TRIPS').insert(data).execute()
+        
         if hasattr(response, 'data') and response.data:
             print("Trip added successfully!")
             print(response.data)
         else:
             print("Error adding trip")
             print(response)
+        
         id = self.get_latest_id_from_trips()
         if id:
             self.add_user_to_trip(google_id, id)
-        return id # to email the invite link to the user
+        return id
+
     
     def get_all_trips_for_user(self, google_id):
         # First get the trip IDs for the user
@@ -87,6 +95,51 @@ class DB:
             return all_trips
         
         return []
+    
+    def upload_image_to_storage(self, file, bucket_name="trip-images"):
+        try:
+            # Secure the filename and create unique name
+            filename = secure_filename(file.filename)
+            unique_filename = f"{uuid.uuid4()}_{filename}"
+            file_path = f"images/{unique_filename}"
+            
+            # Upload to Supabase Storage
+            response = self.supabase.storage.from_(bucket_name).upload(
+                path=file_path,
+                file=file.read(),
+                file_options={
+                    "cache-control": "3600",
+                    "upsert": "false",
+                    "content-type": file.content_type
+                }
+            )
+            
+            if response:
+                return file_path
+            return None
+            
+        except Exception as e:
+            print(f"Error uploading image: {str(e)}")
+            return None
+
+    def get_image_url(self, file_path, bucket_name="trip-images"):
+        """Get public URL for an image from Supabase Storage"""
+        try:
+            response = self.supabase.storage.from_(bucket_name).get_public_url(file_path)
+            return response['publicUrl'] if response else None
+        except Exception as e:
+            print(f"Error getting image URL: {str(e)}")
+            return None
+
+    def update_trip_image(self, trip_id, image_path):
+        """Update trip record with image path"""
+        try:
+            response = self.supabase.table('TRIPS').update({'trip_image': image_path}).eq('trip_id', trip_id).execute()
+            return response.data if hasattr(response, 'data') else None
+        except Exception as e:
+            print(f"Error updating trip image: {str(e)}")
+            return None
+
 
 
 # for testing purposes

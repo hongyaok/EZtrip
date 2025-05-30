@@ -1,15 +1,19 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from werkzeug.utils import secure_filename
+import uuid
 import os
 from auth.auth import auth, login_required
 from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
+from func.misc import allowed_file
 
 db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 app.secret_key = os.urandom(24) #key for sess
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # development only
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 app.register_blueprint(auth, url_prefix='/auth') # register the auth blueprint
 
@@ -67,6 +71,17 @@ def create_trip_api():
     trip_privacy = request.form['privacy']
     other_friends_emails = request.form['friend_emails']
 
+    image_path = None
+    if 'trip_image' in request.files:
+        file = request.files['trip_image']
+        if file and file.filename != '' and allowed_file(file.filename):
+            try:
+                image_path = db.upload_image_to_storage(file)
+                if image_path: # debug
+                    print(f"Image uploaded successfully: {image_path}")
+            except Exception as e:
+                print(f"Error uploading image: {str(e)}")
+
     #extract info of the person who is creating the trip
     owner_id = session['user_id']
     owner_name = session['name']
@@ -92,9 +107,13 @@ def create_trip_api():
         start_date=trip_start_date,
         end_date=trip_end_date,
         desc=trip_description,
-        privacy=trip_privacy
+        privacy=trip_privacy,
+        image_path=image_path
     )
 
+    if image_path and trip_id:
+        db.update_trip_image(trip_id, image_path)
+    
     if other_friends_emails:
         mass_email(owner_name, trip_destination, trip_description, other_friends_emails, trip_id)
 
