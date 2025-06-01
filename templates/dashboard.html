@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EZtrip - Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
@@ -40,15 +39,6 @@
         <div class="trips-grid">
             {% for trip in trips %}
             <div class="trip-card {{ trip['theme'] }}">
-                {% if trip.trip_image %}
-                    <div class="trip-image">
-                        <img src="{{ get_image_url(trip.trip_image) }}" alt="{{ trip.trip_name }}" style="width: 100%; height: 200px; object-fit: cover;">
-                    </div>
-                {% else %}
-                    <div class="trip-image">
-                        <i class="fas fa-map-marked-alt"></i>
-                    </div>
-                {% endif %}
                 <div class="trip-header">
                     <h3>{{ trip['trip_name'] }}</h3>
                 </div>

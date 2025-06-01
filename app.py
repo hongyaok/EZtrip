@@ -105,5 +105,92 @@ def create_trip_api():
     return redirect('/dashboard')
 
 
+### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
+@app.route('/trip/<int:trip_id>')
+@login_required
+def view_trip(trip_id):
+    trip = db.get_trip_by_id(trip_id)
+    if not trip:
+        return redirect('/dashboard')
+    
+    if not db.user_has_access_to_trip(session['user_id'], trip_id):
+        return redirect('/dashboard')
+    
+    # Format dates
+    start_date = datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
+    end_date = datetime.fromisoformat(trip['end_date'].replace('Z', '+00:00'))
+    trip['formatted_start'] = start_date.strftime('%b %d, %Y')
+    trip['formatted_end'] = end_date.strftime('%b %d, %Y')
+    
+    # Get locations for this trip
+    locations = db.get_trip_locations(trip_id, session['user_id'])
+    
+    # Get itinerary
+    itinerary = db.get_trip_itinerary(trip_id)
+    
+    return render_template('trips.html',
+                         trip=trip,
+                         locations=locations,
+                         itinerary=itinerary,
+                         name=session['name'],
+                         email=session['email'],
+                         picture=session['picture'])
+
+@app.route('/api/locations', methods=['POST'])
+@login_required
+def add_location():
+    data = request.get_json()
+    
+    location_id = db.add_location(
+        trip_id=data['trip_id'],
+        name=data['name'],
+        description=data['description'],
+        category=data['category'],
+        lat=data['lat'],
+        lng=data['lng'],
+        address=data['address'],
+        suggested_by=session['user_id']
+    )
+    
+    if location_id:
+        return jsonify({'success': True, 'location_id': location_id})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to add location'})
+
+@app.route('/api/vote', methods=['POST'])
+@login_required
+def vote_location():
+    data = request.get_json()
+    
+    result = db.vote_on_location(
+        location_id=data['location_id'],
+        user_id=session['user_id'],
+        vote_type=data['vote_type']
+    )
+    
+    if result:
+        return jsonify({
+            'success': True,
+            'upvotes': result['upvotes'],
+            'downvotes': result['downvotes'],
+            'user_vote': result['user_vote']
+        })
+    else:
+        return jsonify({'success': False})
+
+@app.route('/api/itinerary/add', methods=['POST'])
+@login_required
+def add_to_itinerary():
+    data = request.get_json()
+    
+    success = db.add_location_to_itinerary(
+        location_id=data['location_id'],
+        trip_id=data['trip_id']
+    )
+    
+    return jsonify({'success': success})
+### END OF BUGGY CODE ###
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -94,6 +94,67 @@ class DB:
         return []
     
 
+### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
+    def get_trip_by_id(self, trip_id):
+        response = self.supabase.table('TRIPS').select('*').eq('trip_id', trip_id).execute()
+        return response.data[0] if response.data else None
+
+    def user_has_access_to_trip(self, user_id, trip_id):
+        response = self.supabase.table('USERTRIP').select('*').eq('google_id', user_id).eq('trip_id', trip_id).execute()
+        return len(response.data) > 0
+
+    def get_trip_locations(self, trip_id, user_id):
+        response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).execute()
+        locations = response.data
+        
+        for location in locations:
+            votes = self.get_location_votes(location['id'], user_id)
+            location.update(votes)
+        
+        return locations
+
+    def add_location(self, trip_id, name, description, category, lat, lng, address, suggested_by):
+        data = {
+            'trip_id': trip_id,
+            'name': name,
+            'description': description,
+            'category': category,
+            'lat': lat,
+            'lng': lng,
+            'address': address,
+            'suggested_by': suggested_by
+        }
+        
+        response = self.supabase.table('LOCATIONS').insert(data).execute()
+        return response.data[0]['id'] if response.data else None
+
+    def vote_on_location(self, location_id, user_id, vote_type):
+        # to do
+        pass
+
+    def get_trip_itinerary(self, trip_id):
+        # Get organized itinerary by days - chain multiple order() calls
+        response = (self.supabase.table('ITINERARY')
+                    .select('*')
+                    .eq('trip_id', trip_id)
+                    .order('day')
+                    .order('time')
+                    .execute())
+        
+        # Organize by days
+        itinerary = {}
+        for item in response.data:
+            day = item['day']
+            if day not in itinerary:
+                itinerary[day] = {'date': item['date'], 'activities': []}
+            itinerary[day]['activities'].append(item)
+        
+        return list(itinerary.values())
+
+
+### END OF BUGGY CODE ###
+    
+
 
 
 # for testing purposes
