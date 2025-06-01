@@ -1,5 +1,5 @@
 from supabase import create_client
-from DB.config import supabase_url, supabase_key, special_key
+from config import supabase_url, supabase_key, special_key
 
 
 class DB:

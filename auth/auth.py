@@ -4,7 +4,7 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_auth_requests
 from functools import wraps
-from auth.config import ClientID, ClientSecret
+from config import ClientID, ClientSecret
 from DB.DB import DB
 
 auth = Blueprint('auth', __name__, template_folder='templates') # set template folder for auth blueprint/html

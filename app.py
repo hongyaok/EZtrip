@@ -6,14 +6,12 @@ from auth.auth import auth, login_required
 from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
-from func.misc import allowed_file
 
 db = DB()  # initialise connection to supabase
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 app.secret_key = os.urandom(24) #key for sess
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # development only
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 app.register_blueprint(auth, url_prefix='/auth') # register the auth blueprint
 
