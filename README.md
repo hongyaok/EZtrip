@@ -19,16 +19,16 @@ Try it now here: [EZtrip](https://eztrip-vbi5.onrender.com/)
 
 If you are setting up the project locally, follow these steps:
 
-1. Obtain and set up configurations for both `DB` and `auth`.
-2. For `DB` folder, ensure the following configurations are provided in a config.py file from supabase with the same Database schema implemented within a project:
+1. Obtain and set up configurations for both `DB` and `auth`, placing all required keys into the a config.py file as shown in File Structure below.
+2. For `DB` folder, ensure the following configurations from supabase with the same Database schema implemented within a project:
     - `supabase_url`
     - `supabase_key`
     - `special_key`
     - Database tables as specified below.
-3. For `auth` folder, ensure the following configurations are provided in a config.py file and obtained from google services:
+3. For `auth` folder, ensure the following configurations obtained from google services:
     - `ClientID`
     - `ClientSecret`
-4. For `func` folder, ensure the following configurations are provided in a emailconfig.py file:
+4. For `func` folder, ensure the following configurations are provided:
     - `email` (refers to the sender email)
     - `password` (refers to the 16 digit password attainable from a google account)
 
@@ -60,6 +60,7 @@ static     --> Styles and images for HTML
 templates  --> HTML templates
 app.py     --> Main Flask application to handle routing
 func       --> Functions for email invitations
+config.py  --> Stores all secret keys
 ```
 
 # Database 
