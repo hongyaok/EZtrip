@@ -111,6 +111,7 @@ def create_trip_api():
 @login_needed
 def view_trip(trip_id):
     trip = db.get_trip_by_id(trip_id)
+    print(trip)
     if not trip:
         return redirect('/dashboard')
     
@@ -125,6 +126,9 @@ def view_trip(trip_id):
     locations = db.get_trip_locations(trip_id, session['user_id'])
     
     itinerary = db.get_trip_itinerary(trip_id)
+    if not itinerary:
+        itinerary = []
+    print(itinerary)
     
     return render_template('trips.html',
                          trip=trip,

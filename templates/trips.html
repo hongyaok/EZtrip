@@ -22,7 +22,7 @@
             </div>
             <div class="user-profile">
                 <img src="{{ picture }}" alt="Profile" class="profile-pic">
-                <span>{{ name }}</span>
+                <span>{{name}}</span>
                 <a href="/auth/logout" class="btn btn-outline">Logout</a>
             </div>
         </nav>
@@ -31,13 +31,13 @@
     <main class="container">
         <div class="trip-header">
             <div class="trip-info">
-                <h1>{{ trip.trip_name }}</h1>
+                <h1>{{trip.trip_name}}</h1>
                 <div class="trip-meta">
-                    <span><i class="map-marker-alt"></i> {{ trip.dest }}</span>
-                    <span><i class="calendar"></i> {{ trip.formatted_start }} - {{ trip.formatted_end }}</span>
-                    <span><i class="tag"></i> {{ trip.theme }}</span>
+                    <span><i class="map-marker-alt"></i> {{trip.dest}}</span>
+                    <span><i class="calendar"></i> {{trip.formatted_start}} - {{trip.formatted_end}}</span>
+                    <span><i class="tag"></i> {{trip.theme}}</span>
                 </div>
-                <p class="trip-description">{{ trip.desc }}</p>
+                <p class="trip-description">{{trip.desc}}</p>
             </div>
             <div class="trip-actions">
                 <button class="btn btn-primary" id="add-location-btn">
@@ -104,28 +104,28 @@
                 
                 <div id="locations-list" class="locations-list">
                     {% for location in locations %}
-                    <div class="location-card" data-category="{{ location.category }}" data-location-id="{{ location.id }}">
+                    <div class="location-card" data-category="{{location.category}}" data-location-id="{{location.id}}">
                         <div class="location-header">
-                            <h4>{{ location.name }}</h4>
-                            <span class="category-badge category-{{ location.category }}">{{ location.category.title() }}</span>
+                            <h4>{{location.name}}</h4>
+                            <span class="category-badge category-{{location.category}}">{{location.category.title()}}</span>
                         </div>
-                        <p class="location-description">{{ location.description }}</p>
+                        <p class="location-description">{{location.description}}</p>
                         <div class="location-meta">
-                            <span class="suggested-by">Suggested by {{ location.suggested_by }}</span>
+                            <span class="suggested-by">Suggested by {{location.suggested_by}}</span>
                             <div class="voting-section">
-                                <button class="vote-btn upvote" data-location-id="{{ location.id }}" data-vote="up">
-                                    <i class="thumbs-up"></i> {{ location.upvotes }}
+                                <button class="vote-btn upvote" data-location-id="{{location.id}}" data-vote="up">
+                                    <i class="thumbs-up"></i> {{location.upvotes}}
                                 </button>
-                                <button class="vote-btn downvote" data-location-id="{{ location.id }}" data-vote="down">
-                                    <i class="thumbs-down"></i> {{ location.downvotes }}
+                                <button class="vote-btn downvote" data-location-id="{{location.id}}" data-vote="down">
+                                    <i class="thumbs-down"></i> {{location.downvotes}}
                                 </button>
                             </div>
                         </div>
                         <div class="location-actions">
-                            <button class="btn-small btn-primary add-to-itinerary-btn" data-location-id="{{ location.id }}">
+                            <button class="btn-small btn-primary add-to-itinerary-btn" data-location-id="{{location.id}}">
                                 <i class="plus"></i> Add to Itinerary
                             </button>
-                            <button class="btn-small btn-outline show-on-map-btn" data-lat="{{ location.lat }}" data-lng="{{ location.lng }}" data-name="{{ location.name }}">
+                            <button class="btn-small btn-outline show-on-map-btn" data-lat="{{location.lat}}" data-lng="{{location.lng}}" data-name="{{location.name}}">
                                 <i class="map-marker-alt"></i> Show on Map
                             </button>
                         </div>
@@ -143,26 +143,26 @@
                     <div class="itinerary-header">
                         <h3>Current Itinerary</h3>
                         <button class="btn btn-outline btn-small" id="optimize-route-btn">
-                            <i class="route"></i> Optimize Route
+                            <i class="route"></i>Optimize Route
                         </button>
                     </div>
                     <div id="itinerary-list" class="itinerary-list">
                         {% for day in itinerary %}
                         <div class="day-section">
-                            <h4>Day {{ loop.index }} - {{ day.date }}</h4>
+                            <h4>Day {{loop.index}} - {{day.date}}</h4>
                             <div class="day-activities" data-day="{{ loop.index }}">
                                 {% for activity in day.activities %}
                                 <div class="activity-item" data-activity-id="{{ activity.id }}">
-                                    <div class="activity-time">{{ activity.time }}</div>
+                                    <div class="activity-time">{{activity.time}}</div>
                                     <div class="activity-details">
-                                        <h5>{{ activity.name }}</h5>
-                                        <p>{{ activity.description }}</p>
+                                        <h5>{{activity.name}}</h5>
+                                        <p>{{activity.description}}</p>
                                     </div>
                                     <div class="activity-actions">
-                                        <button class="btn-icon edit-activity-btn" data-activity-id="{{ activity.id }}">
+                                        <button class="btn-icon edit-activity-btn" data-activity-id="{{activity.id}}">
                                             <i class="edit"></i>
                                         </button>
-                                        <button class="btn-icon remove-activity-btn" data-activity-id="{{ activity.id }}">
+                                        <button class="btn-icon remove-activity-btn" data-activity-id="{{activity.id}}">
                                             <i class="trash"></i>
                                         </button>
                                     </div>

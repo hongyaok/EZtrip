@@ -40,16 +40,16 @@
             {% for trip in trips %}
             <div class="trip-card {{ trip['theme'] }}">
                 <div class="trip-header">
-                    <h3>{{ trip['trip_name'] }}</h3>
+                    <h3>{{trip['trip_name']}}</h3>
                 </div>
                 
                 <div class="trip-info">
-                    <p class="destination">{{ trip['dest'] }}</p>
-                    <p class="dates">{{ trip['start_date'][:10] }} to {{ trip['end_date'][:10] }}</p>
+                    <p class="destination">{{trip['dest']}}</p>
+                    <p class="dates">{{trip['start_date'][:10]}} to {{trip['end_date'][:10]}}</p>
                 </div>
                 
                 <div class="trip-actions">
-                    <a href="/trip/{{ trip['trip_id'] }}" class="btn btn-primary">View Trip</a>
+                    <a href="/trip/{{trip['trip_id']}}" class="btn btn-primary">View Trip</a>
                 </div>
             </div>
             {% endfor %}
