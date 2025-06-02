@@ -6,14 +6,14 @@
     <title>{{ trip.trip_name }} - EZtrip</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="{{ url_for('static', filename='js/view_trip.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     
 </head>
 <body>
     <header>
         <nav class="navbar container">
             <a href="/dashboard" class="logo">
-                <i class="fas fa-map-marked-alt"></i>
+                <i class="map-marked-alt"></i>
                 EZtrip
             </a>
             <div class="nav-links">
@@ -33,18 +33,18 @@
             <div class="trip-info">
                 <h1>{{ trip.trip_name }}</h1>
                 <div class="trip-meta">
-                    <span><i class="fas fa-map-marker-alt"></i> {{ trip.dest }}</span>
-                    <span><i class="fas fa-calendar"></i> {{ trip.formatted_start }} - {{ trip.formatted_end }}</span>
-                    <span><i class="fas fa-tag"></i> {{ trip.theme }}</span>
+                    <span><i class="map-marker-alt"></i> {{ trip.dest }}</span>
+                    <span><i class="calendar"></i> {{ trip.formatted_start }} - {{ trip.formatted_end }}</span>
+                    <span><i class="tag"></i> {{ trip.theme }}</span>
                 </div>
                 <p class="trip-description">{{ trip.desc }}</p>
             </div>
             <div class="trip-actions">
                 <button class="btn btn-primary" id="add-location-btn">
-                    <i class="fas fa-plus"></i> Add Location
+                    <i class="plus"></i> Add Location
                 </button>
                 <button class="btn btn-outline" id="export-btn">
-                    <i class="fas fa-download"></i> Export
+                    <i class="download"></i> Export
                 </button>
             </div>
         </div>
@@ -82,11 +82,11 @@
                         <button type="submit" class="btn btn-primary">Add Location</button>
                     </div>
                 </form>
-            </div>
+        </div>
         </div>
 
         <div class="trip-content">
-            <div class="locations-panel">
+        <div class="locations-panel">
                 <div class="panel-header">
                     <h2>Suggested Locations</h2>
                     <div class="filter-options">
@@ -114,19 +114,19 @@
                             <span class="suggested-by">Suggested by {{ location.suggested_by }}</span>
                             <div class="voting-section">
                                 <button class="vote-btn upvote" data-location-id="{{ location.id }}" data-vote="up">
-                                    <i class="fas fa-thumbs-up"></i> {{ location.upvotes }}
+                                    <i class="thumbs-up"></i> {{ location.upvotes }}
                                 </button>
                                 <button class="vote-btn downvote" data-location-id="{{ location.id }}" data-vote="down">
-                                    <i class="fas fa-thumbs-down"></i> {{ location.downvotes }}
+                                    <i class="thumbs-down"></i> {{ location.downvotes }}
                                 </button>
                             </div>
                         </div>
                         <div class="location-actions">
                             <button class="btn-small btn-primary add-to-itinerary-btn" data-location-id="{{ location.id }}">
-                                <i class="fas fa-plus"></i> Add to Itinerary
+                                <i class="plus"></i> Add to Itinerary
                             </button>
                             <button class="btn-small btn-outline show-on-map-btn" data-lat="{{ location.lat }}" data-lng="{{ location.lng }}" data-name="{{ location.name }}">
-                                <i class="fas fa-map-marker-alt"></i> Show on Map
+                                <i class="map-marker-alt"></i> Show on Map
                             </button>
                         </div>
                     </div>
@@ -134,20 +134,16 @@
                 </div>
             </div>
 
-            <!-- Right Panel: Map and Itinerary -->
             <div class="map-itinerary-panel">
-                <!-- Map Section -->
                 <div class="map-section">
                     <h3>Trip Map</h3>
                     <div id="map" class="trip-map"></div>
                 </div>
-
-                <!-- Itinerary Section -->
                 <div class="itinerary-section">
                     <div class="itinerary-header">
                         <h3>Current Itinerary</h3>
                         <button class="btn btn-outline btn-small" id="optimize-route-btn">
-                            <i class="fas fa-route"></i> Optimize Route
+                            <i class="route"></i> Optimize Route
                         </button>
                     </div>
                     <div id="itinerary-list" class="itinerary-list">
@@ -164,10 +160,10 @@
                                     </div>
                                     <div class="activity-actions">
                                         <button class="btn-icon edit-activity-btn" data-activity-id="{{ activity.id }}">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="edit"></i>
                                         </button>
                                         <button class="btn-icon remove-activity-btn" data-activity-id="{{ activity.id }}">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="trash"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -183,10 +179,6 @@
 
 
     <script type="text/javascript">
-        window.tripData = {
-            tripId: {% if trip and trip.trip_id %}{{ trip.trip_id | tojson }}{% else %}null{% endif %},
-            locations: {% if locations %}{{ locations | tojson | safe }}{% else %}[]{% endif %}
-        };
         
         function toggleAddLocation() {
             const form = document.getElementById('add-location-form');
@@ -195,28 +187,9 @@
                     form.style.display = 'block';
                 } else {
                     form.style.display = 'none';
-                    const locationForm = document.getElementById('locationForm');
-                    if (locationForm) {
-                        locationForm.reset();
-                    }
-                    const searchResults = document.getElementById('search-results');
-                    if (searchResults) {
-                        searchResults.innerHTML = '';
-                    }
                 }
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const addLocationBtn = document.getElementById('add-location-btn');
-            if (addLocationBtn) {
-                addLocationBtn.addEventListener('click', toggleAddLocation);
-            }
-            const cancelBtn = document.getElementById('cancel-location-btn');
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', toggleAddLocation);
-            }
-        });
     </script>
 
     <script async defer 

@@ -22,8 +22,8 @@ class DB:
             "google_id": id,
             "username": name,
             "email": email,
-            "user_img": picture,
-            "role": isAdmin
+            "user_img": picture, # pic should be a link
+            "role": isAdmin # havent implement admin privilege
         }
         response = self.supabase.table('USERS').insert(data).execute()
         return response.data if hasattr(response, 'data') else None
@@ -34,7 +34,7 @@ class DB:
             return response.data[0]['trip_id']
         return None
     
-    def add_user_to_trip(self, google_id, trip_id): # additional: after user accepts invite, add them to the trip
+    def add_user_to_trip(self, google_id, trip_id): # after user accepts invite, add them to the trip
         data = {
             "google_id": google_id,
             "trip_id": trip_id
@@ -53,19 +53,23 @@ class DB:
             "privacy": privacy
         }
         
-        response = self.supabase.table('TRIPS').insert(data).execute()
-        
-        if hasattr(response, 'data') and response.data:
-            print("Trip added successfully!")
-            print(response.data)
-        else:
-            print("Error adding trip")
-            print(response)
-        
-        id = self.get_latest_id_from_trips()
-        if id:
-            self.add_user_to_trip(google_id, id)
-        return id
+        try:
+            response = self.supabase.table('TRIPS').insert(data).execute()
+            
+            if hasattr(response, 'data') and response.data:
+                print("Trip added successfully!")
+                print(response.data)
+            else:
+                print("Error adding trip")
+                print(response)
+            
+            id = self.get_latest_id_from_trips()
+            if id:
+                self.add_user_to_trip(google_id, id)
+            return id
+        except Exception as e:
+            print(f"Error adding trip: {e}")
+            return None
 
     
     def get_all_trips_for_user(self, google_id):
@@ -133,7 +137,7 @@ class DB:
         pass
 
     def get_trip_itinerary(self, trip_id):
-        # Get organized itinerary by days - chain multiple order() calls
+        # something is wrong here???
         response = (self.supabase.table('ITINERARY')
                     .select('*')
                     .eq('trip_id', trip_id)
@@ -141,7 +145,8 @@ class DB:
                     .order('time')
                     .execute())
         
-        # Organize by days
+        print(f"Response data: {response.data}")  # debug
+        
         itinerary = {}
         for item in response.data:
             day = item['day']
