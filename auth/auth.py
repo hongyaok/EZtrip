@@ -6,6 +6,7 @@ from google.auth.transport import requests as google_auth_requests
 from functools import wraps
 from config import ClientID, ClientSecret
 from DB.DB import DB
+import sys
 
 auth = Blueprint('auth', __name__, template_folder='templates') # set template folder for auth blueprint/html
 db = DB() # initialise connection to supabase
@@ -48,7 +49,7 @@ def google_login():
     # the will call for /auth/callback
     
     
-    authorization_url, state = flow.authorization_url(   # url for request to Google's OAuth 2.0 server
+    authorization_url,state=flow.authorization_url(   # url for request to Google's OAuth 2.0 server
         access_type ='offline',
         prompt='select_account',
         include_granted_scopes='true'
@@ -101,19 +102,18 @@ def callback():
         print(f"User ID: {session['user_id']}, Name: {session['name']}, Email: {session['email']}")
         
         # to add new user to USERS table
-        if db.check_user(session['user_id']):
-            print("User already exists in the database.")
-        else:
+        if not db.check_user(session['user_id']):
+            print("this is a new usr")
             db.add_user(session['user_id'], session['name'], session['email'], session['picture'])
-            print("New user detected, proceed with registration.")
         
         return redirect(url_for('dashboard'))
+    
     except Exception as e:
-        print(f"Error during auth: {e}")
+        print(f"callback: {e}")
         return render_template('index.html')
 
 @auth.route('/logout')
 def logout():
-    # Clear the session
-    session.clear()
+    session.clear() # wipes out sess data
+    # print("logout done")
     return redirect(url_for('home')) # calls home function in app.py

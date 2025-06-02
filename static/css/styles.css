@@ -335,6 +335,12 @@ header {
   background: linear-gradient(135deg, #E8F0FE 0%, #D2E3FC 100%);
 }
 
+.vid {
+  padding: 5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #1c3d77 0%, #D2E3FC 100%);
+}
+
 .vid h2 {
   font-size: 2.25rem;
   margin-bottom: 1.25rem;
@@ -378,6 +384,11 @@ header {
   grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 2.5rem;
   margin-bottom: 1.875rem;
+}
+
+.footer-column h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1.25rem;
 }
 
 .footer-column h3 {

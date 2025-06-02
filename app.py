@@ -7,11 +7,11 @@ from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
 
-db = DB()  # initialise connection to supabase
+db = DB() 
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 app.secret_key = os.urandom(24) #key for sess
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # use for development only
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # use for development
 
 app.register_blueprint(auth, url_prefix='/auth') # register the auth blueprint
 
@@ -52,7 +52,7 @@ def dashboard():
 
 
 @app.route('/join/<trip_id>', methods=['GET','POST'])
-def accept_invite(trip_id):
+def accept_invite(trip_id): # user should be coming from an email link...
     session['trip_inv'] = trip_id
     return redirect('/auth/login') # this should bring user to login -> then dashboard
 
@@ -106,6 +106,7 @@ def create_trip_api():
 
 
 ### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
+# @ weng mun plz help fix
 @app.route('/trip/<int:trip_id>')
 @login_needed
 def view_trip(trip_id):
