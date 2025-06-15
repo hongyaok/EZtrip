@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EZtrip - Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
@@ -13,7 +12,7 @@
         <div class="container">
             <div class="navbar">
                 <a href="/dashboard" class="logo">
-                    <i class="fas fa-map-marked-alt"></i>
+                    <i class="map-marked-alt"></i>
                     EZtrip
                 </a>
                 <div class="nav-links">
@@ -23,7 +22,7 @@
                 <div class="user-profile">
                     <img src="{{ picture }}" alt="{{ name }}" class="profile-pic">
                     <span>{{ name }}</span>
-                    <a href="/" class="btn btn-outline">Logout</a>
+                    <a href="/auth/logout" class="btn btn-outline">Logout</a>
                 </div>
             </div>
         </div>
@@ -33,7 +32,7 @@
         <div class="dashboard-header">
             <h1>My Trips</h1>
             <a href="/create-trip" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Create New Trip
+                <i class="plus"></i> Create New Trip
             </a>
         </div>
 
@@ -41,18 +40,16 @@
             {% for trip in trips %}
             <div class="trip-card {{ trip['theme'] }}">
                 <div class="trip-header">
-                    <h3>{{ trip['trip_name'] }}</h3>
+                    <h3>{{trip['trip_name']}}</h3>
                 </div>
                 
                 <div class="trip-info">
-                    <p class="destination">{{ trip['dest'] }}</p>
-                    <p class="dates">{{ trip['start_date'][:10] }} to {{ trip['end_date'][:10] }}</p>
-                    
-                    <span class="theme-tag">{{ trip['theme'].title() }}</span>
+                    <p class="destination">{{trip['dest']}}</p>
+                    <p class="dates">{{trip['start_date'][:10]}} to {{trip['end_date'][:10]}}</p>
                 </div>
                 
                 <div class="trip-actions">
-                    <a href="/trip/{{ trip['trip_id'] }}" class="btn btn-primary">View Trip</a>
+                    <a href="/trip/{{trip['trip_id']}}" class="btn btn-primary">View Trip</a>
                 </div>
             </div>
             {% endfor %}
@@ -67,12 +64,5 @@
         </div>
     </main>
 
-    <div class ="footer">
-        <div class="container">
-            <div class="copyright">
-                &copy; 2025 EZtrip. All rights reserved.
-            </div>
-        </div>
-    </div>
 </body>
 </html>

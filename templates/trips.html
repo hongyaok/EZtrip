@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ trip.trip_name }} - EZtrip</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    
+</head>
+<body>
+    <header>
+        <nav class="navbar container">
+            <a href="/dashboard" class="logo">
+                <i class="map-marked-alt"></i>
+                EZtrip
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/create-trip">Create Trip</a>
+            </div>
+            <div class="user-profile">
+                <img src="{{ picture }}" alt="Profile" class="profile-pic">
+                <span>{{name}}</span>
+                <a href="/auth/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="trip-header">
+            <div class="trip-info">
+                <h1>{{trip.trip_name}}</h1>
+                <div class="trip-meta">
+                    <span><i class="map-marker-alt"></i> {{trip.dest}}</span>
+                    <span><i class="calendar"></i> {{trip.formatted_start}} - {{trip.formatted_end}}</span>
+                    <span><i class="tag"></i> {{trip.theme}}</span>
+                </div>
+                <p class="trip-description">{{trip.desc}}</p>
+            </div>
+            <div class="trip-actions">
+                <button class="btn btn-primary" id="add-location-btn">
+                    <i class="plus"></i> Add Location
+                </button>
+                <button class="btn btn-outline" id="export-btn">
+                    <i class="download"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div id="add-location-form" class="add-location-container" style="display: none;">
+            <div class="form-container">
+                <h3>Add New Location</h3>
+                <form id="locationForm">
+                    <div class="form-group">
+                        <label for="location-search">Search Location:</label>
+                        <input type="text" id="location-search" class="form-control" placeholder="Search for a place...">
+                        <div id="search-results" class="search-results"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="location-name">Location Name:</label>
+                        <input type="text" id="location-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location-description">Description:</label>
+                        <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="location-category">Category:</label>
+                        <select id="location-category" class="form-control">
+                            <option value="restaurant">Restaurant</option>
+                            <option value="attraction">Attraction</option>
+                            <option value="accommodation">Accommodation</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-location-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Location</button>
+                    </div>
+                </form>
+        </div>
+        </div>
+
+        <div class="trip-content">
+        <div class="locations-panel">
+                <div class="panel-header">
+                    <h2>Suggested Locations</h2>
+                    <div class="filter-options">
+                        <select id="category-filter" class="form-control">
+                            <option value="all">All Categories</option>
+                            <option value="restaurant">Restaurants</option>
+                            <option value="attraction">Attractions</option>
+                            <option value="accommodation">Accommodation</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="locations-list" class="locations-list">
+                    {% for location in locations %}
+                    <div class="location-card" data-category="{{location.category}}" data-location-id="{{location.id}}">
+                        <div class="location-header">
+                            <h4>{{location.name}}</h4>
+                            <span class="category-badge category-{{location.category}}">{{location.category.title()}}</span>
+                        </div>
+                        <p class="location-description">{{location.description}}</p>
+                        <div class="location-meta">
+                            <span class="suggested-by">Suggested by {{location.suggested_by}}</span>
+                            <div class="voting-section">
+                                <button class="vote-btn upvote" data-location-id="{{location.id}}" data-vote="up">
+                                    <i class="thumbs-up"></i> {{location.upvotes}}
+                                </button>
+                                <button class="vote-btn downvote" data-location-id="{{location.id}}" data-vote="down">
+                                    <i class="thumbs-down"></i> {{location.downvotes}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="location-actions">
+                            <button class="btn-small btn-primary add-to-itinerary-btn" data-location-id="{{location.id}}">
+                                <i class="plus"></i> Add to Itinerary
+                            </button>
+                            <button class="btn-small btn-outline show-on-map-btn" data-lat="{{location.lat}}" data-lng="{{location.lng}}" data-name="{{location.name}}">
+                                <i class="map-marker-alt"></i> Show on Map
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="map-itinerary-panel">
+                <div class="map-section">
+                    <h3>Trip Map</h3>
+                    <div id="map" class="trip-map"></div>
+                </div>
+                <div class="itinerary-section">
+                    <div class="itinerary-header">
+                        <h3>Current Itinerary</h3>
+                        <button class="btn btn-outline btn-small" id="optimize-route-btn">
+                            <i class="route"></i>Optimize Route
+                        </button>
+                    </div>
+                    <div id="itinerary-list" class="itinerary-list">
+                        {% for day in itinerary %}
+                        <div class="day-section">
+                            <h4>Day {{loop.index}} - {{day.date}}</h4>
+                            <div class="day-activities" data-day="{{ loop.index }}">
+                                {% for activity in day.activities %}
+                                <div class="activity-item" data-activity-id="{{ activity.id }}">
+                                    <div class="activity-time">{{activity.time}}</div>
+                                    <div class="activity-details">
+                                        <h5>{{activity.name}}</h5>
+                                        <p>{{activity.description}}</p>
+                                    </div>
+                                    <div class="activity-actions">
+                                        <button class="btn-icon edit-activity-btn" data-activity-id="{{activity.id}}">
+                                            <i class="edit"></i>
+                                        </button>
+                                        <button class="btn-icon remove-activity-btn" data-activity-id="{{activity.id}}">
+                                            <i class="trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script type="text/javascript">
+        
+        function toggleAddLocation() {
+            const form = document.getElementById('add-location-form');
+            if (form) {
+                if (form.style.display === 'none' || form.style.display === '') {
+                    form.style.display = 'block';
+                } else {
+                    form.style.display = 'none';
+                }
+            }
+        }
+    </script>
+
+    <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&callback=initMap"></script>
+    
+
+</body>
+</html>

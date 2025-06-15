@@ -329,18 +329,41 @@ header {
   font-size: 0.875rem;
 }
 
-.cta {
+.vid {
   padding: 5rem 0;
   text-align: center;
   background: linear-gradient(135deg, #E8F0FE 0%, #D2E3FC 100%);
 }
 
-.cta h2 {
+.vid {
+  padding: 5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #1c3d77 0%, #D2E3FC 100%);
+}
+
+.vid h2 {
   font-size: 2.25rem;
   margin-bottom: 1.25rem;
 }
 
-.cta p {
+.vid p {
+  max-width: 37.5rem;
+  margin: 0 auto 1.875rem;
+  color: var(--gray);
+}
+
+.end {
+  padding: 5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, #E8F0FE 0%, #ffffff 100%);
+}
+
+.end h2 {
+  font-size: 2.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.end p {
   max-width: 37.5rem;
   margin: 0 auto 1.875rem;
   color: var(--gray);
@@ -361,6 +384,11 @@ header {
   grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
   gap: 2.5rem;
   margin-bottom: 1.875rem;
+}
+
+.footer-column h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1.25rem;
 }
 
 .footer-column h3 {
@@ -698,7 +726,293 @@ header {
     padding: 3rem 0;
   }
   
-  .cta {
+  .vid {
     padding: 3rem 0;
   }
+}
+
+
+.trip-header {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.trip-info h1 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.trip-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    color: var(--gray);
+}
+
+.trip-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trip-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.add-location-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.search-results {
+    position: absolute;
+    background: white;
+    border: 1px solid #E8EAED;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.result-name {
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.result-address {
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+.trip-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.locations-panel, .map-itinerary-panel {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #E8EAED;
+}
+
+.location-card {
+    border: 1px solid #E8EAED;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.location-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+.location-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.category-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.category-restaurant { background: #FFF3E0; color: #F57C00; }
+.category-attraction { background: #E3F2FD; color: #1976D2; }
+.category-accommodation { background: #F3E5F5; color: #7B1FA2; }
+.category-shopping { background: #E8F5E8; color: #388E3C; }
+.category-entertainment { background: #FCE4EC; color: #C2185B; }
+.category-other { background: #F5F5F5; color: #616161; }
+
+.location-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.suggested-by {
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+.voting-section {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.vote-btn {
+    background: none;
+    border: 1px solid #E8EAED;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.vote-btn:hover {
+    background: #f8f9fa;
+}
+
+.vote-btn.voted {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.location-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.trip-map {
+    height: 400px;
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.itinerary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.day-section {
+    margin-bottom: 2rem;
+}
+
+.day-section h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary);
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #E8EAED;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    background: #fafafa;
+}
+
+.activity-time {
+    font-weight: 500;
+    color: var(--primary);
+    min-width: 80px;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-details h5 {
+    margin-bottom: 0.25rem;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    color: var(--gray);
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background: #f0f0f0;
+    color: var(--primary);
+}
+
+.trip-map {
+    height: 400px;
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #E8EAED;
+}
+
+.map-section {
+    margin-bottom: 2rem;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .trip-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .trip-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .trip-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

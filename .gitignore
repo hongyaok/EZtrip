@@ -2,3 +2,5 @@
 __pycache__/
 config.py
 .venv/
+.vscode
+secrets

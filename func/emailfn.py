@@ -1,7 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from func.emailconfig import email, password
+from config import email, password
 
 def mass_email(sender, location, desc, emails, trip_id):
     emails = emails.split(',')
