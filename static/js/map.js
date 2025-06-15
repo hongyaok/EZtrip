@@ -150,7 +150,7 @@ function cancelLocationPreview() {
 
 //add locations when user clicks on the map
 function addLocationByClick(clickedLocation) {
-    // we will be using Google's service to find out what place this is (converting coordinates into places)
+    // we will be using Google's service to find out what place this is (converting coordinates into places )
     const geocoder = new google.maps.Geocoder();
 
     geocoder.geocode({'location': clickedLocation}, function(results, status) {
