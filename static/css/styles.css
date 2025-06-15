@@ -613,7 +613,7 @@ header {
 #map {
     height: 25rem;
     width: 100%;
-    border: 0.0625 rem solid #ccc;
+    border: 0.0625 rem  solid #ccc;
     border-radius: 0.25rem;
 }
 
