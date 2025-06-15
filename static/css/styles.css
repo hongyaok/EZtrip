@@ -574,7 +574,6 @@ header {
   gap: 0.9375rem;
 }
 
-<<<<<<< HEAD
 .map-preview {
     background: white;
     padding: 1.25rem;
@@ -584,15 +583,30 @@ header {
 }
 
 #map {
-    height: 15.625rem;
+    height: 25rem;
     width: 100%;
     border: 0.0625 rem solid #ccc;
     border-radius: 0.25rem;
 }
 
+.map.controls {
+  margin: 1.25rem 0;
+  padding: 1.25rem;
+  border: 0.0625rem solid #eee;
+  border-radius: 0.25rem;
+  background-color: #f9f9f9;
+}
+
+#location-list {
+  margin: 0.95rem 0;
+  padding: 0.625rem;
+  border: 0.0625 rem solid #ddd;
+  border-radius: 0.25rem;
+  min-height: 6.25rem;
+  background-color: white;
+}
+
 /* Responsive adjustments for create trip form */
-=======
->>>>>>> 0e2ed603c9b7734413eeaf13885dc4332b8ae9e9
 @media (max-width: 768px) {
   html {
     font-size: 14px;
