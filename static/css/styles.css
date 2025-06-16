@@ -602,37 +602,27 @@ header {
   gap: 0.9375rem;
 }
 
-.map-preview {
-    background: white;
-    padding: 1.25rem;
-    margin: 1.25rem 0;
-    border: 0.0625rem solid #ddd;
-    border-radius: 0.25rem;
+.added-locations-section {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
-#map {
-    height: 25rem;
-    width: 100%;
-    border: 0.0625 rem  solid #ccc;
-    border-radius: 0.25rem;
+.added-location-item {
+  background: white;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: 1px solid #ddd;
 }
 
-.map.controls {
-  margin: 1.25rem 0;
-  padding: 1.25rem;
-  border: 0.0625rem solid #eee;
-  border-radius: 0.25rem;
-  background-color: #f9f9f9;
+.trip-map {
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
 }
 
-#location-list {
-  margin: 0.95rem 0;
-  padding: 0.625rem;
-  border: 0.0625 rem solid #ddd;
-  border-radius: 0.25rem;
-  min-height: 6.25rem;
-  background-color: white;
-}
 
 /* Responsive adjustments for create trip form */
 @media (max-width: 768px) {
