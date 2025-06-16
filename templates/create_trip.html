@@ -33,31 +33,6 @@
             <h1>Create New Trip</h1>
         </div>
 
-        <!--Map section added -->
-        <div class="map-preview">
-            <h3>Map Preview</h3>
-            <div id="map"></div>
-        </div>
-
-        <!--Search and locations -->
-        <div class= "map-controls">
-            <h3>Add Locations to Your Trip</h3>
-            <div class="form-group">
-                <label for="location-search">Search for places: </label>
-                <input type="text" id="location-search" placeholder="Search for places (e.g. Namba, Osaka)..." class="form-control">
-            </div>
-
-            <div class="locations-section">
-                <h4>Added Locations</h4>
-                <div id="locations-list">
-                    <p>No locations added yet. Search above or click on the map</p>
-                </div>
-                <button type="button" onclick="clearAllLocations()"  class="btn btn-outline">
-                    Clear All Locations
-                </button>
-            </div>
-        </div>
-
         <div class="create-trip-form-container">
             <form class="create-trip-form" action="/api/trips" method="POST">
                 <div class="form-section">
@@ -101,9 +76,6 @@
                         <label for="description">Description:</label>
                         <textarea id="description" name="description" rows="4" class="form-control"></textarea>
                     </div>
-
-                    <!--hidden field to help send location to the server-->
-                    <input type="hidden" name="locations" id="locations-data">
                 </div>
 
 
@@ -145,11 +117,6 @@
             </form>
         </div>
     </main>
-
-    <script src = "/static/js/map.js"> </script>
-
-    <!--Google Maps API-->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places&callback=initMap"></script>
 
 </body>
 </html>
