@@ -6,7 +6,6 @@
     <title>{{ trip.trip_name }} - EZtrip</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     
 </head>
 <body>
@@ -59,10 +58,6 @@
                         <div id="search-results" class="search-results"></div>
                     </div>
                     <div class="form-group">
-                        <label for="location-name">Location Name:</label>
-                        <input type="text" id="location-name" class="form-control" required>
-                    </div>
-                    <div class="form-group">
                         <label for="location-description">Description:</label>
                         <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?"></textarea>
                     </div>
@@ -101,6 +96,17 @@
                         </select>
                     </div>
                 </div>
+
+                <!--Add locations section-->
+                <div class="added-locations-section">
+                    <h3>Added Locations</h3>
+                    <div id="added-locations-list">
+                        <p>No locations added yet. Search above or click on the map.</p>
+                    </div>
+                    <button type="button" onclick="clearAllLocations()" class="btn btn-outline btn-small">
+                        Clear All Locations
+                    </button>
+                </div>
                 
                 <div id="locations-list" class="locations-list">
                     {% for location in locations %}
@@ -122,8 +128,13 @@
                             </div>
                         </div>
                         <div class="location-actions">
-                            <button class="btn-small btn-primary add-to-itinerary-btn" data-location-id="{{location.id}}">
-                                <i class="plus"></i> Add to Itinerary
+                            <button class="btn-small btn-primary add-to-trip-btn" data-location-id="{{location.id}}"
+                                data-name="{{location.name}}"
+                                data-description="{{location.description}}"
+                                data-category="{{location.category}}"
+                                data-lat="{{location.lat}}"
+                                data-lng="{{location.lng}}">
+                                <i class="plus"></i> Add to Trip
                             </button>
                             <button class="btn-small btn-outline show-on-map-btn" data-lat="{{location.lat}}" data-lng="{{location.lng}}" data-name="{{location.name}}">
                                 <i class="map-marker-alt"></i> Show on Map
@@ -177,22 +188,11 @@
         </div>
     </main>
 
+    <!--Include the separate map.js file-->
+    <script src="{{url_for('static', filename='js/map.js')}}"></script>
 
-    <script type="text/javascript">
-        
-        function toggleAddLocation() {
-            const form = document.getElementById('add-location-form');
-            if (form) {
-                if (form.style.display === 'none' || form.style.display === '') {
-                    form.style.display = 'block';
-                } else {
-                    form.style.display = 'none';
-                }
-            }
-        }
-    </script>
-
-    <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&callback=initMap"></script>
+    <!--Google Map API-->
+    <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places&callback=initMap"></script>
     
 
 </body>
