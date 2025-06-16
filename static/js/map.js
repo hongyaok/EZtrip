@@ -3,6 +3,7 @@ let map;
 let markers = [];   //use the array to store all the map markers
 let tripLocations = []  //for storing all the location data
 let previewMarker = null    //to show user's search preview
+let currentPreviewPlace = null;     //allow us to store the current searched place
 
 
 // enhancing our previous map 
@@ -28,6 +29,14 @@ function setupSearchBox() {
     if (searchInput) {
         const searchBox = new google.maps.places.SearchBox(searchInput);    //creating google search box
 
+        //prevent the loocation from immediately being added into the list once u press "enter"
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                return false;
+            }
+        });
+
         //when users start to search for places
         searchBox.addListener('places_changed', function(){
             const places = searchBox.getPlaces();
@@ -39,13 +48,15 @@ function setupSearchBox() {
 
             //first result that pops up will be added to our trip
             const place = places[0];
+
+            //Store the place for our form submission
+            currentPreviewPlace = place;
             
             //show preview marker and ask user to confirm
             showLocationPreview(place);
 
-            //clear the search input after adding location and revert back to original
-            searchInput.value = '';
-            searchInput.placeholder = 'Search for places (e.g. Namba, Osaka)...';
+           //wait until form is submitted or cancelled
+           console.log('📍 Search completed, place stored:', place.name);
         });
     }
 }
@@ -101,6 +112,9 @@ function showLocationPreview(place) {
     previewMarker.placeData = place;
     previewMarker.infoWindow = infoWindow;
 
+    //Pre-fill the form with search result info
+    fillFormWithSearchResult(place);
+
     //debugging purposes
     console.log('📍 Showing preview for:', placeName);
 }
@@ -119,6 +133,54 @@ function confirmAddLocation() {
     }
 }
 
+
+//function to help us pre-fill the form with search result
+function fillFormWithSearchResult(place) {
+    const descriptionField = document.getElementById('location-description');
+    const categoryField = document.getElementById('location-category');
+
+    if (descriptionField) {
+        //set a default description based on what type of place it is
+        const placeType = getPlaceDescription(place);
+        descriptionField.value = `${placeType} - ${place.name || place.formatted_address}`;
+    }
+
+    if (categoryField) {
+        //help us to select the appropriate category
+        const category = getCategoryFromPlace(place);
+        categoryField.value = category;
+    }
+}
+
+//fucntion to help us get the appropriate category
+function getCategoryFromPlace(place) {
+    const types = place.types || [];
+
+    if (types.includes('lodging')) return 'accommodation';
+    if (types.includes('restaurant') || types.includes('food')) return 'restaurant';
+    if (types.includes('tourist_attraction') || types.includes('museum') || types.includes('park')) return 'attraction';
+    if (types.includes('shopping_mall') || types.includes('store')) return 'shopping';
+    if (types.includes('amusement_park') || types.includes('movie_theater')) return 'entertainment';
+
+    return 'other';
+}
+
+//function to clear the location form
+function clearLocationForm() {
+    const descriptionField = document.getElementById('location-description');
+    const categoryField = document.getElementById('location-category');
+    const searchInput = document.getElementById('location-search');
+
+    if (descriptionField) descriptionField.value = '';
+    if (categoryField) categoryField.value = 'restaurant';      //reset to default
+
+    //clear search input
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.placeholder = 'Search for places (e.g. Namba, Osaka)...';
+    }
+}
+
 //Cancel the location preview
 function cancelLocationPreview() {
     if (previewMarker) {
@@ -130,6 +192,12 @@ function cancelLocationPreview() {
         //remove the preview marker
         previewMarker.setMap(null);
         previewMarker = null;
+
+        //clear the current preview place
+        currentPreviewPlace = null;
+
+        //clear the form
+        clearLocationForm();
 
         //zoom out to show all locations
         if (markers.length > 0) {
@@ -176,8 +244,23 @@ function addLocationByClick(clickedLocation) {
 
 //add locations to our trip
 function addLocationToTrip(place) {
+    //get customised description and category from form if they do exist
+    const descriptionField = document.getElementById('location-description');
+    const categoryField = document.getElementById('location-category');
 
-    let description = getPlaceDescription(place);       //get the place description
+    let customDescription =  '';
+    let customCategory = 'other';
+
+    //remove the extra space at the start and back for custom message
+    if (descriptionField && descriptionField.value.trim()) {
+        customDescription = descriptionField.value.trim();
+    } else {
+        customDescription = getPlaceDescription(place);
+    }
+
+    if (categoryField && categoryField.value) {
+        customCategory = categoryField.value;
+    }
 
     //create location object
     const newLocation = {
@@ -185,7 +268,8 @@ function addLocationToTrip(place) {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng(),
         address: place.formatted_address,
-        description: description
+        description: customDescription,
+        category: customCategory
     };
 
     //add new location into our list
@@ -202,7 +286,7 @@ function addLocationToTrip(place) {
 
     //add a pop up window about info related to the place 
     const infoWindow = new google.maps.InfoWindow({
-        content: '<div><h4>' + newLocation.name + '</h4><p>' + newLocation.address + '</p></div>'
+        content: `<div><h4>${newLocation.name}</h4><p>${newLocation.description}</p><p><strong>Category:</strong> ${newLocation.category}</p></div>`
     });
 
     //add event listener to the mark for window to pop up 
@@ -216,10 +300,60 @@ function addLocationToTrip(place) {
     // update the list on the page, for users to see the new location added
     updateLocationsList()
 
+    //clear the form after successful addition
+    clearLocationForm();
+
     //for debugging purposes using the console
     console.log('Added location: ' + newLocation.name);
 }
 
+//add location from existing suggestion card
+function addLocationFromCard(name, description, category, lat, lng) {
+    //create location object using data that is formatted from our database
+    const newLocation = {
+        name: name,
+        lat: lat,
+        lng: lng,
+        address: name,
+        description: description,
+        category: category
+    };
+
+    //add location to the list
+    tripLocations.push(newLocation);
+
+    //create a red marker to mark the location
+    const marker = new google.maps.Marker({
+        position: {lat: lat, lng: lng},
+        map: map,
+        title: name,
+        icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+    });
+
+    //create better window popup
+    const infoWindow = new google.maps.InfoWindow({
+        content: `<div>
+                    <h4>${name}</h4>
+                    <p>${description}</p>
+                    <p><strong>Category:</strong>${category}</p>
+                </div>`
+    });
+
+    //make marker clickabe to show info window
+    marker.addListener('click', function(){
+        infoWindow.open(map, marker);
+    });
+
+    //store the marker
+    markers.push(marker);
+
+    //update 'Added Locations" list 
+    updateLocationsList();
+
+    //for debugging
+    console.log('Added lication from suggestion card:', name);
+
+}
 
 //function that give description of the place user would like to visit
 function getPlaceDescription(place) {
@@ -247,14 +381,14 @@ function getPlaceDescription(place) {
 //function to update the location list
 function updateLocationsList() {
 
-    const listDiv = document.getElementById('locations-list');
+    let listDiv = document.getElementById('added-locations-list');
 
-    //update if list exists on the page
-    if (listDiv) {
-
-        listDiv.innerHTML = '';
-
+    //our fallback if listDiv does not exist
+    if (!listDiv) {
+        listDiv = document.getElementById('locations-list');
+    }
         //if there are no locations, will show a message
+    if(listDiv){
         if (tripLocations.length === 0){
             listDiv.innerHTML = '<p> No locations added yet. Search above or click on the map. </p>';
             return;
@@ -270,17 +404,29 @@ function updateLocationsList() {
             // create HTML for this location
             let locationHTML = '<div style= "border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 5px;">';
             locationHTML += '<strong>' + location.name + '</strong><br>';
+            locationHTML += '<small><strong>Category:</strong>' + location.category + '</small><br>';
             locationHTML += '<small>' + location.description + '</small><br>';
-            locationHTML += '<button onclick= "removeLocation('+ i + ')" style= "background: red; color: white; border: none; padding: 5px; margin-top: 5px;"> Remove </button>';
+            locationHTML += '<button onclick= "removeLocation('+ i + ')" class="btn btn-outline btn-small" style=  "margin-top: 5px;"> Remove </button>';
             locationHTML += '</div>';
 
             allLocationHTML += locationHTML;    //add to the complete string
         }
         listDiv.innerHTML = allLocationHTML;      //allow us to set all the HTML at once
     } else {
-
+        //help me to debug
         console.log('ERROR: Could not find locations-list div!');
+    }
+}
 
+//Toggle add location form (transferred from trips.html)
+function toggleAddLocation() {
+    const form = document.getElementById('add-location-form');
+    if (form) {
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
     }
 }
 
@@ -330,7 +476,8 @@ function getCurrentLocations() {
 
 //connect the map data to our form submission
 document.addEventListener('DOMContentLoaded', function(){
-    const form = document.querySelector('form');
+    //submit form for create trip page if the form exists
+    const form = document.querySelector('form[action="/api/trips"]');
     if (form) {
         form.addEventListener('submit', function(e){
             //help to copy the locations to a hidden filed before submission
@@ -346,4 +493,102 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     }
+
+    //Add event listeners for trip page if the element exists
+    const addLocationBtn = document.getElementById('add-location-btn');
+    if (addLocationBtn) {
+        addLocationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAddLocation();
+        });
+    }
+
+    const cancelLocationBtn = document.getElementById('cancel-location-btn');
+    if (cancelLocationBtn) {
+        cancelLocationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAddLocation();
+            cancelLocationPreview();        //cancel any preview when closing the form
+        });
+    }
+
+    //prevent page refresh 
+    const locationForm = document.getElementById('locationForm');
+    if(locationForm) {
+        locationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            //debug
+            console.log('Form submitted.,checking for preview place now');
+            console.log('currentPreviewPlace: ', currentPreviewPlace);
+
+            //if got preview place ffrom the search, add it with the form info
+            setTimeout(() => {
+                if (currentPreviewPlace) {
+                    console.log('Adding location to trip')      //debugging
+                    addLocationToTrip(currentPreviewPlace);
+                    cancelLocationPreview();
+                    console.log('Location is added successfully');
+                } else {
+                    alert('Please search for a location first.');
+                }
+            },100);
+         });
+    }   
+
+    //add to trip button functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-to-trip-btn')) {
+            const lat = parseFloat(e.target.dataset.lat);
+            const lng = parseFloat(e.target.dataset.lng);
+            const name = e.target.dataset.name;
+            const description= e.target.dataset.description;
+            const category = e.target.dataset.category;
+
+            addLocationFromCard(name, description,category, lat, lng);
+
+            //show confirmation
+            e.target.innerHTML = '<i class="plus"></i> Added!';
+            e.target.style.background = '#28a745';
+
+            //reset button after 2 secs
+            setTimeout(()=> {
+                e.target.innerHTML = '<i class="plus"></i> Add to Trip';
+                e.target.style.background = '';
+            }, 2000);
+        }
+    });
+
+
+
+    //show on map button
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('show-on-map-btn')) {
+            const lat = parseFloat(e.target.dataset.lat);
+            const lng = parseFloat(e.target.dataset.lng);
+            const name = e.target.dataset.name;
+
+            if (map) {
+                map.setCenter({lat: lat, lng: lng});
+                map.setZoom(15);
+
+                //create temporary marker to highlight location
+                const tempMarker = new google.maps.Marker({
+                    position: {lat: lat, lng: lng},
+                    map: map,
+                    title: name,
+                    animation: google.maps.Animation.BOUNCE
+                });
+
+                //remove the animation after 2 seconds
+                setTimeout(() => {
+                    tempMarker.setAnimation(null);
+                    setTimeout(() => {
+                        tempMarker.setMap(null);
+                    }, 1000);
+                }, 2000);
+            }
+        }
+    });
 });
+
