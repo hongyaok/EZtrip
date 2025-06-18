@@ -623,6 +623,15 @@ header {
   border-radius: 8px;
 }
 
+/*for the start time and end time appearance*/
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    width: 50%;
+}
 
 /* Responsive adjustments for create trip form */
 @media (max-width: 768px) {
