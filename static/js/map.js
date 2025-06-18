@@ -170,9 +170,15 @@ function clearLocationForm() {
     const descriptionField = document.getElementById('location-description');
     const categoryField = document.getElementById('location-category');
     const searchInput = document.getElementById('location-search');
+    const dateField = document.getElementById('location-date');
+    const startTimeField = document.getElementById('location-start-time');
+    const endTimeField = document.getElementById('location-end-time');
 
     if (descriptionField) descriptionField.value = '';
     if (categoryField) categoryField.value = 'restaurant';      //reset to default
+    if (dateField) dateField.value = '';
+    if (startTimeField) startTimeField.value = '';
+    if (endTimeField) endTimeField.value = '';
 
     //clear search input
     if (searchInput) {
@@ -233,7 +239,7 @@ function addLocationByClick(clickedLocation) {
                     formatted_address: results[0].formatted_address
                 };
                 
-                addLocationToTrip(place);
+                showLocationPreview(place);
             }
         } else {
             console.log("Unable to find the location name");    //when Google cannot find the place
@@ -262,6 +268,15 @@ function addLocationToTrip(place) {
         customCategory = categoryField.value;
     }
 
+    //get the date and time values
+    const dateField = document.getElementById('location-date');
+    const startTimeField = document.getElementById('location-start-time');
+    const endTimeField = document.getElementById('location-end-time');
+
+    let visitDate = dateField ? dateField.value : '';
+    let startTime = startTimeField ? startTimeField.value : '';
+    let endTime = endTimeField ? endTimeField.value : '';
+
     //create location object
     const newLocation = {
         name: place.name || place.formatted_address,
@@ -269,7 +284,10 @@ function addLocationToTrip(place) {
         lng: place.geometry.location.lng(),
         address: place.formatted_address,
         description: customDescription,
-        category: customCategory
+        category: customCategory,
+        date: visitDate,
+        startTime: startTime,
+        endTime: endTime
     };
 
     //add new location into our list
@@ -283,10 +301,23 @@ function addLocationToTrip(place) {
         icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
     });
 
+    //Info window with formatting 
+    let infoContent = `<div><h4>${newLocation.name}</h4><p>${newLocation.description}</p><p><strong>Category:</strong> ${newLocation.category}</p>`;
+
+    //show formatted date
+    if (newLocation.date) {
+        infoContent += `<p><strong>Date:</strong> ${formatDate(newLocation.date)}</p>`;
+    }
+
+    //show formatted time
+    if (newLocation.startTime && newLocation.endTime) {
+        infoContent += `<p><strong>Time:</strong> ${formatTime(newLocation.startTime)} - ${formatTime(newLocation.endTime)}</p>`;
+    }
+    infoContent += `</div>`;
 
     //add a pop up window about info related to the place 
     const infoWindow = new google.maps.InfoWindow({
-        content: `<div><h4>${newLocation.name}</h4><p>${newLocation.description}</p><p><strong>Category:</strong> ${newLocation.category}</p></div>`
+        content: infoContent
     });
 
     //add event listener to the mark for window to pop up 
@@ -316,7 +347,10 @@ function addLocationFromCard(name, description, category, lat, lng) {
         lng: lng,
         address: name,
         description: description,
-        category: category
+        category: category,
+        date: '',
+        startTime: '',
+        endTime: ''
     };
 
     //add location to the list
@@ -405,6 +439,17 @@ function updateLocationsList() {
             let locationHTML = '<div style= "border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 5px;">';
             locationHTML += '<strong>' + location.name + '</strong><br>';
             locationHTML += '<small><strong>Category:</strong>' + location.category + '</small><br>';
+
+            //show formatted date
+            if (location.date) {
+                locationHTML += '<small><strong>Date:</strong> ' + formatDate(location.date) + '</small><br>';
+            }
+
+            //show formatted time
+            if (location.startTime && location.endTime) {
+                locationHTML += '<small><strong>Time:</strong> ' + formatTime(location.startTime) + ' - ' + formatTime(location.endTime) + '</small><br>';
+            }
+
             locationHTML += '<small>' + location.description + '</small><br>';
             locationHTML += '<button onclick= "removeLocation('+ i + ')" class="btn btn-outline btn-small" style=  "margin-top: 5px;"> Remove </button>';
             locationHTML += '</div>';
@@ -592,3 +637,35 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 });
 
+//function to format the date
+function formatDate(dateString) {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    //convert e.g. "2025-06-17" to "Mon, Jun 17, 2025"
+    return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+//function to formate the time
+function formatTime(timeString) {
+    if (!timeString) return '';
+
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+
+    //help to convert 24hour to 12hour formatting
+    if (hour == 0) {
+        return `12:${minutes} AM`;
+    } else if (hour < 12) {
+        return `${hour}:${minutes} AM`;
+    } else if (hour == 12) {
+        return `12:${minutes} PM`;
+    } else {
+        return `${hour-12}:${minutes} PM`;
+    }
+}
