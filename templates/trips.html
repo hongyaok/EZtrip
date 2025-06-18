@@ -54,16 +54,16 @@
                 <form id="locationForm" action="/api/locations" method="POST">
                     <div class="form-group">
                         <label for="location-search">Search Location:</label>
-                        <input type="text" id="location-search" class="form-control" placeholder="Search for a place..." name="location">
+                        <input type="text" id="location-search" class="form-control" placeholder="Search for a place..." name="location" required>
                         <div id="search-results" class="search-results"></div>
                     </div>
                     <div class="form-group">
                         <label for="location-description">Description:</label>
-                        <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?" name="description"></textarea>
+                        <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?" name="description" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="location-category">Category:</label>
-                        <select id="location-category" class="form-control" name="category">
+                        <select id="location-category" class="form-control" name="category" required>
                             <option value="restaurant">Restaurant</option>
                             <option value="attraction">Attraction</option>
                             <option value="accommodation">Accommodation</option>
@@ -76,18 +76,18 @@
                     <!--date field-->
                     <div class="form-group">
                         <label for="location-date">Date:</label>
-                        <input type="date" id="locationDate" class="form-control" name="date">
+                        <input type="date" id="locationDate" class="form-control" name="date" required>
                     </div>
 
                     <!--time field-->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="location-start-time">Start Time:</label>
-                            <input type="time" id="locationStartTime" class="form-control" name="start_time">
+                            <input type="time" id="locationStartTime" class="form-control" name="start_time" required>
                         </div>
                         <div class="form-group">
                             <label for="location-end-time">End Time:</label>
-                            <input type="time" id="locationEndTime" class="form-control" name="end_time">
+                            <input type="time" id="locationEndTime" class="form-control" name="end_time" required>
                         </div>
                     </div>
 
@@ -232,7 +232,7 @@
     <script>
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default form submission
-        
+
         const formData = {
             name: document.getElementById('location-search').value,
             category: document.getElementById('location-category').value,
@@ -253,11 +253,12 @@
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            // Handle success response
+            window.location.reload();
         })
         .catch(error => {
             console.error('Error:', error);
         });
+        window.location.reload();
     });
 
     // Time filtering
