@@ -102,8 +102,6 @@ class DB:
         
         return []
     
-
-### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
     def get_trip_by_id(self, trip_id):
         response= self.supabase.table('TRIPS').select('*').eq('trip_id', trip_id).execute()
         print(response.data)
@@ -114,30 +112,44 @@ class DB:
         print(response.data)
         return len(response.data) > 0
 
+### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
     def get_trip_locations(self, trip_id, user_id):
         response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).execute()
         locations = response.data
         print(locations) 
         
-        for location in locations:
-            votes = self.get_location_votes(location['id'], user_id)
-            location.update(votes)
+        # for location in locations:
+        #     votes = self.get_location_votes(location['id'], user_id)
+        #     location.update(votes)
         
         return locations
+    
+    def get_latest_location_id(self):
+        response = self.supabase.table('LOCATIONS').select('id').order('id', desc=True).limit(1).execute()
+        return response.data[0]['id'] if response.data else 0
+    
+    def get_latest_location(self):
+        latest_id = self.get_latest_location_id()
+        response = self.supabase.table('LOCATIONS').select('*').eq('id', latest_id).execute()
+        return response.data[0] if response.data else None
+    
+    def get_trip_page_activities(self, trip_id):
+        response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).order('created_at', desc=True).execute()
+        return response.data if response.data else []
 
-    def add_location(self, trip_id, name, description, category, lat, lng, address, suggested_by):
+    def add_location(self, trip_id, name, category, description, date, start_time, end_time, user):
         data = {
             'trip_id': trip_id,
             'name': name,
             'description': description,
             'category': category,
-            'lat': lat,
-            'lng': lng,
-            'address': address,
-            'suggested_by': suggested_by
+            'date': date,
+            'start_time': start_time,
+            'end_time': end_time,
+            'suggested_by': user  
         }
-        
-        response =self.supabase.table('LOCATIONS').insert(data).execute()
+
+        response = self.supabase.table('LOCATIONS').insert(data).execute()
         return response.data[0]['id'] if response.data else None
 
     def vote_on_location(self, location_id, user_id, vote_type):
@@ -145,24 +157,27 @@ class DB:
         pass
 
     def get_trip_itinerary(self, trip_id):
-        # something is wrong here???
-        response = (self.supabase.table('ITINERARY')
-                    .select('*')
-                    .eq('trip_id', trip_id)
-                    .order('day')
-                    .order('time')
-                    .execute())
-        
+        response = (
+            self.supabase.table('LOCATIONS')
+            .select('*')
+            .eq('trip_id', trip_id)
+            .order('date')
+            .order('start_time')
+            .execute()
+        )
+
         print(response.data)
-        
+
         itinerary = {}
         for item in response.data:
-            day = item['day']
+            # print(item)
+            # print("\n")
+            day = item['date']
             if day not in itinerary:
-                itinerary[day] = {'date': item['date'], 'activities': []}
+                itinerary[day] = {'date': day, 'activities': []}
             itinerary[day]['activities'].append(item)
-        
-        print(itinerary)
+
+        return(itinerary)
         # return list(itinerary.values())
 
 

@@ -111,7 +111,6 @@ def create_trip_api():
 @login_needed
 def view_trip(trip_id):
     trip = db.get_trip_by_id(trip_id)
-    print(trip)
     if not trip:
         return redirect('/dashboard')
     
@@ -126,14 +125,16 @@ def view_trip(trip_id):
     locations = db.get_trip_locations(trip_id, session['user_id'])
     
     itinerary = db.get_trip_itinerary(trip_id)
-    if not itinerary:
-        itinerary = []
-    print(itinerary)
+
+    logs = db.get_trip_page_activities(trip_id)
+
+    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}")
     
     return render_template('trips.html',
                          trip=trip,
                          locations=locations,
                          itinerary=itinerary,
+                         logs=logs,
                          name=session['name'],
                          email=session['email'],
                          picture=session['picture'])
@@ -142,16 +143,17 @@ def view_trip(trip_id):
 @login_needed
 def add_location():
     data = request.get_json()
-    
+    print(data)
+
     location_id = db.add_location(
         trip_id=data['trip_id'],
         name=data['name'],
-        description=data['description'],
         category=data['category'],
-        lat=data['lat'],
-        lng=data['lng'],
-        address=data['address'],
-        suggested_by=session['user_id']
+        description=data['description'],
+        date=data['date'],
+        start_time=data['start_time'],
+        end_time=data['end_time'],
+        user=session['name']
     )
     
     if location_id:
@@ -182,17 +184,6 @@ def vote_location():
     else:
         return jsonify({'success': False})
 
-@app.route('/api/itinerary/add', methods=['POST'])
-@login_needed
-def add_to_itinerary():
-    data =request.get_json()
-    
-    success =db.add_location_to_itinerary(
-        location_id=data['location_id'],
-        trip_id=data['trip_id']
-    )
-
-    print(success)
 
     
 ### END OF BUGGY CODE ###

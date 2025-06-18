@@ -48,22 +48,22 @@
             </div>
         </div>
 
-        <div id="add-location-form" class="add-location-container" style="display: none;">
-            <div class="form-container">
+        <div id="add-location-form" class="add-location-container" style="display: none;" action="/api/locations" method="POST">
+            <div class="form-container" action="/api/locations" method="POST">
                 <h3>Add New Location</h3>
-                <form id="locationForm">
+                <form id="locationForm" action="/api/locations" method="POST">
                     <div class="form-group">
                         <label for="location-search">Search Location:</label>
-                        <input type="text" id="location-search" class="form-control" placeholder="Search for a place...">
+                        <input type="text" id="location-search" class="form-control" placeholder="Search for a place..." name="location">
                         <div id="search-results" class="search-results"></div>
                     </div>
                     <div class="form-group">
                         <label for="location-description">Description:</label>
-                        <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?"></textarea>
+                        <textarea id="location-description" class="form-control" rows="3" placeholder="Why should we visit this place?" name="description"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="location-category">Category:</label>
-                        <select id="location-category" class="form-control">
+                        <select id="location-category" class="form-control" name="category">
                             <option value="restaurant">Restaurant</option>
                             <option value="attraction">Attraction</option>
                             <option value="accommodation">Accommodation</option>
@@ -76,18 +76,18 @@
                     <!--date field-->
                     <div class="form-group">
                         <label for="location-date">Date:</label>
-                        <input type="date" id="location-date" class="form-control">
+                        <input type="date" id="locationDate" class="form-control" name="date">
                     </div>
 
                     <!--time field-->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="location-start-time">Start Time:</label>
-                            <input type="time" id="location-start-time" class="form-control">
+                            <input type="time" id="locationStartTime" class="form-control" name="start_time">
                         </div>
                         <div class="form-group">
                             <label for="location-end-time">End Time:</label>
-                            <input type="time" id="location-end-time" class="form-control">
+                            <input type="time" id="locationEndTime" class="form-control" name="end_time">
                         </div>
                     </div>
 
@@ -96,112 +96,128 @@
                         <button type="submit" class="btn btn-primary">Add Location</button>
                     </div>
                 </form>
-        </div>
+            </div>
         </div>
 
         <div class="trip-content">
-        <div class="locations-panel">
-                <div class="panel-header">
-                    <h2>Suggested Locations</h2>
-                    <div class="filter-options">
-                        <select id="category-filter" class="form-control">
-                            <option value="all">All Categories</option>
-                            <option value="restaurant">Restaurants</option>
-                            <option value="attraction">Attractions</option>
-                            <option value="accommodation">Accommodation</option>
-                            <option value="shopping">Shopping</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!--Add locations section-->
-                <div class="added-locations-section">
-                    <h3>Added Locations</h3>
-                    <div id="added-locations-list">
-                        <p>No locations added yet. Search above or click on the map.</p>
-                    </div>
-                    <button type="button" onclick="clearAllLocations()" class="btn btn-outline btn-small">
-                        Clear All Locations
-                    </button>
-                </div>
-                
-                <div id="locations-list" class="locations-list">
-                    {% for location in locations %}
-                    <div class="location-card" data-category="{{location.category}}" data-location-id="{{location.id}}">
-                        <div class="location-header">
-                            <h4>{{location.name}}</h4>
-                            <span class="category-badge category-{{location.category}}">{{location.category.title()}}</span>
-                        </div>
-                        <p class="location-description">{{location.description}}</p>
-                        <div class="location-meta">
-                            <span class="suggested-by">Suggested by {{location.suggested_by}}</span>
-                            <div class="voting-section">
-                                <button class="vote-btn upvote" data-location-id="{{location.id}}" data-vote="up">
-                                    <i class="thumbs-up"></i> {{location.upvotes}}
-                                </button>
-                                <button class="vote-btn downvote" data-location-id="{{location.id}}" data-vote="down">
-                                    <i class="thumbs-down"></i> {{location.downvotes}}
-                                </button>
-                            </div>
-                        </div>
-                        <div class="location-actions">
-                            <button class="btn-small btn-primary add-to-trip-btn" data-location-id="{{location.id}}"
-                                data-name="{{location.name}}"
-                                data-description="{{location.description}}"
-                                data-category="{{location.category}}"
-                                data-lat="{{location.lat}}"
-                                data-lng="{{location.lng}}">
-                                <i class="plus"></i> Add to Trip
-                            </button>
-                            <button class="btn-small btn-outline show-on-map-btn" data-lat="{{location.lat}}" data-lng="{{location.lng}}" data-name="{{location.name}}">
-                                <i class="map-marker-alt"></i> Show on Map
-                            </button>
+            <div class="top-panels">
+                <div class="locations-panel">
+                    <div class="panel-header">
+                        <h2>Recent Activities</h2>
+                        <div class="filter-options">
+                            <select id="time-filter" class="form-control">
+                                <option value="all">All Time</option>
+                                <option value="1">Past Day</option>
+                                <option value="3">Past 3 Days</option>
+                                <option value="7">Past Week</option>
+                                <option value="30">Past Month</option>
+                            </select>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="map-itinerary-panel">
-                <div class="map-section">
-                    <h3>Trip Map</h3>
-                    <div id="map" class="trip-map"></div>
-                </div>
-                <div class="itinerary-section">
-                    <div class="itinerary-header">
-                        <h3>Current Itinerary</h3>
-                        <button class="btn btn-outline btn-small" id="optimize-route-btn">
-                            <i class="route"></i>Optimize Route
-                        </button>
-                    </div>
-                    <div id="itinerary-list" class="itinerary-list">
-                        {% for day in itinerary %}
-                        <div class="day-section">
-                            <h4>Day {{loop.index}} - {{day.date}}</h4>
-                            <div class="day-activities" data-day="{{ loop.index }}">
-                                {% for activity in day.activities %}
-                                <div class="activity-item" data-activity-id="{{ activity.id }}">
-                                    <div class="activity-time">{{activity.time}}</div>
-                                    <div class="activity-details">
-                                        <h5>{{activity.name}}</h5>
-                                        <p>{{activity.description}}</p>
-                                    </div>
-                                    <div class="activity-actions">
-                                        <button class="btn-icon edit-activity-btn" data-activity-id="{{activity.id}}">
-                                            <i class="edit"></i>
-                                        </button>
-                                        <button class="btn-icon remove-activity-btn" data-activity-id="{{activity.id}}">
-                                            <i class="trash"></i>
-                                        </button>
-                                    </div>
+                    
+                    <div id="activities-list" class="activities-list scrollable">
+                        {% for log in logs %}
+                        <div class="activity-card" data-created-at="{{log.created_at}}">
+                            <div class="activity-header">
+                                <div class="activity-info">
+                                    <h4>{{log.name}}</h4>
+                                    <span class="category-badge category-{{log.category}}">{{log.category.title()}}</span>
                                 </div>
-                                {% endfor %}
+                                <div class="activity-time">
+                                    <small class="time-ago" data-created-at="{{log.created_at}}"></small>
+                                </div>
+                            </div>
+                            <div class="activity-content">
+                                <p class="activity-description">
+                                    <strong>{{log.suggested_by}}</strong> suggested this location
+                                </p>
+                                <p class="location-description">{{log.description}}</p>
+                                {% if log.date %}
+                                <div class="scheduled-info">
+                                    <i class="fas fa-calendar"></i> Scheduled for {{log.date}}
+                                    {% if log.start_time %}
+                                        at {{log.start_time}}
+                                        {% if log.end_time %} - {{log.end_time}}{% endif %}
+                                    {% endif %}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
+                        
+                        {% if not logs %}
+                        <div class="no-activities">
+                            <p>No recent activities to show.</p>
+                        </div>
+                        {% endif %}
                     </div>
+                </div>
+
+                <div class="map-panel">
+                    <div class="map-section">
+                        <h3>Trip Map</h3>
+                        <div id="map" class="trip-map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="itinerary-panel">
+                <div class="itinerary-header">
+                    <h3>Trip Itinerary</h3>
+                    <div class="itinerary-filters">
+                        <select id="day-filter" class="form-control">
+                            <option value="all">All Days</option>
+                            {% for date, day_data in itinerary.items() %}
+                            <option value="{{date}}">{{date}}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-outline btn-small" id="optimize-route-btn">
+                            <i class="fas fa-route"></i> Optimize Route
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="itinerary-content" class="itinerary-timetable">
+                    {% for date, day_data in itinerary.items() %}
+                    <div class="day-section" data-date="{{date}}">
+                        <div class="day-header">
+                            <h4>{{date}}</h4>
+                            <span class="activity-count">{{day_data.activities|length}} activities</span>
+                        </div>
+                        <div class="day-timeline">
+                            {% for activity in day_data.activities %}
+                            <div class="timeline-item" data-activity-id="{{activity.id}}">
+                                <div class="timeline-time">
+                                    {% if activity.start_time %}
+                                        <span class="start-time">{{activity.start_time}}</span>
+                                        {% if activity.end_time %}
+                                        <span class="end-time">{{activity.end_time}}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="no-time">No time set</span>
+                                    {% endif %}
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="activity-info">
+                                        <h5>{{activity.name}}</h5>
+                                        <span class="category-badge category-{{activity.category}}">{{activity.category.title()}}</span>
+                                    </div>
+                                    <p class="activity-description">{{activity.description}}</p>
+                                    <div class="activity-meta">
+                                        <small>Suggested by <strong>{{activity.suggested_by}}</strong></small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not itinerary %}
+                    <div class="no-itinerary">
+                        <p>No activities scheduled yet. Add some locations to get started!</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -213,6 +229,120 @@
     <!--Google Map API-->
     <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places&callback=initMap"></script>
     
+    <script>
+    document.getElementById('locationForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
+        const formData = {
+            name: document.getElementById('location-search').value,
+            category: document.getElementById('location-category').value,
+            description: document.getElementById('location-description').value,
+            date: document.getElementById('locationDate').value,
+            start_time: document.getElementById('locationStartTime').value,
+            end_time: document.getElementById('locationEndTime').value,
+            trip_id: "{{ trip.trip_id }}",
+        };
+        
+        fetch('/api/locations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            // Handle success response
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Time filtering
+    document.addEventListener('DOMContentLoaded', function() {
+        const timeFilter = document.getElementById('time-filter');
+        
+        function updateTimeAgo() {
+            const timeElements = document.querySelectorAll('.time-ago');
+            timeElements.forEach(element => {
+                const createdAt = element.getAttribute('data-created-at');
+                const timeAgo = getTimeAgo(createdAt);
+                element.textContent = timeAgo;
+            });
+        }
+        
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const created = new Date(dateString);
+            const diffInSeconds = Math.floor((now - created) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'Just now';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                return `${days} day${days > 1 ? 's' : ''} ago`;
+            }
+        }
+        
+        function filterActivitiesByTime(days) {
+            const activityCards = document.querySelectorAll('.activity-card');
+            const now = new Date();
+            
+            activityCards.forEach(card => {
+                const createdAt = new Date(card.getAttribute('data-created-at'));
+                const daysDiff = (now - createdAt) / (1000 * 60 * 60 * 24);
+                
+                if (days === 'all' || daysDiff <= parseInt(days)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        //day filters
+        const dayFilter = document.getElementById('day-filter');
+        
+        function filterItineraryByDay(selectedDate) {
+            const daySections = document.querySelectorAll('.day-section');
+            
+            daySections.forEach(section => {
+                const sectionDate = section.getAttribute('data-date');
+                
+                if (selectedDate === 'all' || sectionDate === selectedDate) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+        
+        if (dayFilter) {
+            dayFilter.addEventListener('change', function() {
+                filterItineraryByDay(this.value);
+            });
+        }
+        
+        if (timeFilter) {
+            timeFilter.addEventListener('change', function() {
+                filterActivitiesByTime(this.value);
+            });
+        }
+        
+        updateTimeAgo();
+        
+        setInterval(updateTimeAgo, 10);
+    });
+
+    </script>
 
 </body>
 </html>

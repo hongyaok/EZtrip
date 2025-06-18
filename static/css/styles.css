@@ -804,6 +804,57 @@ header {
     color: var(--gray);
 }
 
+.activity-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.activity-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.activity-time {
+    text-align: right;
+}
+
+.time-ago {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.activity-content {
+    margin-bottom: 0;
+}
+
+.activity-description {
+    margin: 0 0 8px 0;
+    color: #555;
+    font-size: 0.9em;
+}
+.no-activities {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-activities p {
+    margin: 0;
+    font-style: italic;
+}
+
 .trip-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -991,6 +1042,221 @@ header {
 
 .map-section {
     margin-bottom: 2rem;
+}
+
+/* Updated layout structure */
+.trip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.top-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    height: 600px;
+}
+
+.locations-panel, .map-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollable activities list */
+.activities-list.scrollable {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.activities-list.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activities-list.scrollable::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.activities-list.scrollable::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.activities-list.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Map panel */
+.map-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.map-section h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.trip-map {
+    flex: 1;
+    min-height: 400px;
+    border-radius: 8px;
+}
+
+/* Itinerary timetable styles */
+.itinerary-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.itinerary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.itinerary-filters {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.itinerary-timetable {
+    display: grid;
+    gap: 25px;
+}
+
+.day-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.day-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.day-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.activity-count {
+    background: #007bff;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+.day-timeline {
+    padding: 20px;
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.timeline-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.start-time {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+.end-time {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.no-time {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.activity-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.activity-info h5 {
+    margin: 0;
+    color: #333;
+    font-size: 1em;
+}
+
+.activity-meta {
+    margin-top: 8px;
+}
+
+.activity-meta small {
+    color: #666;
+}
+
+.no-itinerary {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .top-panels {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .locations-panel, .map-panel {
+        height: 400px;
+    }
+    
+    .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .timeline-time {
+        align-items: flex-start;
+        text-align: left;
+    }
 }
 
 

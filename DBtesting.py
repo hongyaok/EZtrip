@@ -1,15 +1,10 @@
 from supabase import create_client
-from config import supabase_url, supabase_key, special_key
+from DB.DB import DB
 
 #file to test the supabase connection, just change if needed
 if __name__ == "__main__":
     # get keys from config.py
-    url = supabase_url
-    key = supabase_key
-    key_change = special_key
-
-    # Initialize the Supabase client
-    supabase = create_client(url, key_change)
+    DB = DB()  # create an instance of the DB class
 
     # # test for adding new user
     # new_user = {
@@ -27,12 +22,13 @@ if __name__ == "__main__":
     #     print("Error adding user")
     #     print(response)
 
-    response = supabase.table('USERS').select('*').execute() # get data from USERS table
 
-    data = response.data # view table
-    print(data)
+    # data = response.data # view table
+    # print(data)
 
-    print(f"Response status: {response.status_code if hasattr(response, 'status_code') else 'No status code'}")
-    print(f"Response error: {response.error if hasattr(response, 'error') else 'No error'}")
+    # Test get_latest_location
+    # latest_location = DB.get_latest_location()
+    # print("Latest location:", latest_location)
 
-
+    itinerary = DB.get_trip_itinerary(2) 
+    print(itinerary)
