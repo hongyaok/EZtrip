@@ -123,10 +123,9 @@ def view_trip(trip_id):
     trip['formatted_end'] = end_date.strftime('%b %d, %Y')
     
     locations = db.get_trip_locations(trip_id, session['user_id'])
-    
     itinerary = db.get_trip_itinerary(trip_id)
-
     logs = db.get_trip_page_activities(trip_id)
+    conflicts = db.get_trip_conflicts(trip_id)
 
     print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}")
     
@@ -135,6 +134,7 @@ def view_trip(trip_id):
                          locations=locations,
                          itinerary=itinerary,
                          logs=logs,
+                         conflicts=conflicts,
                          name=session['name'],
                          email=session['email'],
                          picture=session['picture'])

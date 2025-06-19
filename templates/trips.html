@@ -219,6 +219,64 @@
                     </div>
                     {% endif %}
                 </div>
+
+                <div class="itinerary-header">
+                    <h3>Conflicts</h3>
+                    <div class="itinerary-filters">
+                        <select id="day-filter" class="form-control">
+                            <option value="all">All Days</option>
+                            {% for date in conflicts|map(attribute='date')|unique %}
+                            <option value="{{date}}">{{date}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div id="itinerary-content" class="itinerary-timetable">
+                    {% for date in conflicts|map(attribute='date')|unique %}
+                    {% set day_conflicts = conflicts|selectattr('date', 'equalto', date)|list %}
+                    <div class="day-section" data-date="{{date}}">
+                        <div class="day-header">
+                            <h4>{{date}}</h4>
+                            <span class="activity-count">{{day_conflicts|length}} conflicts</span>
+                        </div>
+                        <div class="day-timeline">
+                            {% for conflict in day_conflicts %}
+                            <div class="timeline-item conflict-item" data-activity-id="{{conflict.id}}">
+                                <div class="timeline-time">
+                                    {% if conflict.start_time %}
+                                        <span class="start-time">{{conflict.start_time}}</span>
+                                        {% if conflict.end_time %}
+                                        <span class="end-time">{{conflict.end_time}}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="no-time">No time set</span>
+                                    {% endif %}
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="activity-info">
+                                        <h5>{{conflict.name}}</h5>
+                                        <span class="category-badge category-{{conflict.category}}">{{conflict.category.title()}}</span>
+                                        <span class="conflict-badge">CONFLICT</span>
+                                    </div>
+                                    <p class="activity-description">{{conflict.description}}</p>
+                                    <div class="activity-meta">
+                                        <small>Suggested by <strong>{{conflict.suggested_by}}</strong></small>
+                                        <button class="vote-button">Upvote</button>
+                                        <button class="remove-button">Remove location</button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not conflicts %}
+                    <div class="no-itinerary">
+                        <p>No conflicts detected. Your itinerary looks good!</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </main>

@@ -1281,3 +1281,54 @@ header {
         align-items: flex-start;
     }
 }
+
+.conflict-item {
+    border-left: 4px solid #dc3545;
+    background-color: #fff5f5;
+}
+
+.conflict-badge {
+    background-color: #dc3545;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75em;
+    margin-left: 8px;
+}
+
+.conflict-info {
+    color: #6c757d;
+    margin-left: 10px;
+}
+
+.vote-button {
+  background-color: #34A853; 
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  margin-left: 5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.vote-button:hover {
+  background-color: #2c8c47;
+  box-shadow: 0 2px 8px rgba(52,168,83,0.15);
+}
+
+.remove-button {
+  background-color: #EA4335; /* red */
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  margin-left: 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.remove-button:hover {
+  background-color: #c62828;
+  box-shadow: 0 2px 8px rgba(234,67,53,0.15);
+}

@@ -104,24 +104,15 @@ class DB:
     
     def get_trip_by_id(self, trip_id):
         response= self.supabase.table('TRIPS').select('*').eq('trip_id', trip_id).execute()
-        print(response.data)
         return response.data[0]
 
     def user_has_access_to_trip(self, user_id, trip_id):
         response =self.supabase.table('USERTRIP').select('*').eq('google_id', user_id).eq('trip_id', trip_id).execute()
-        print(response.data)
         return len(response.data) > 0
 
-### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
     def get_trip_locations(self, trip_id, user_id):
         response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).execute()
         locations = response.data
-        print(locations) 
-        
-        # for location in locations:
-        #     votes = self.get_location_votes(location['id'], user_id)
-        #     location.update(votes)
-        
         return locations
     
     def get_latest_location_id(self):
@@ -178,10 +169,43 @@ class DB:
             itinerary[day]['activities'].append(item)
 
         return(itinerary)
-        # return list(itinerary.values())
 
+    def get_trip_conflicts(self, trip_id):
+        response = (
+            self.supabase.table('LOCATIONS')
+            .select('*')
+            .eq('trip_id', trip_id)
+            .order('date')
+            .order('start_time')
+            .execute()
+        )
 
-### END OF BUGGY CODE ###
+        locations = response.data
+        conflicts = []
+        temp = []
+        startT, endT = 0, 0
+        date = 0
+
+        #using line sweep algo for search
+        for location in locations:
+            if not temp:
+                temp.append(location)
+                startT = location['start_time']
+                endT = location['end_time']
+                date = location['date']
+                continue
+            elif date != location['date']:
+                if len(temp) > 1:
+                    conflicts.extend(temp)
+                temp.clear()
+                continue
+            else:
+                if(startT <= location['start_time'] <= endT or startT <= location['end_time'] <= endT):
+                    startT = min(startT, location['start_time'])
+                    endT = max(endT, location['end_time'])
+                    temp.append(location)
+
+        return conflicts
     
 
 
