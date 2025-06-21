@@ -115,8 +115,57 @@ function showLocationPreview(place) {
     //Pre-fill the form with search result info
     fillFormWithSearchResult(place);
 
+    //auto-show the add location form when the user click on the map
+    showAddLocationForm();
+
+    //show reminder message to fill up the add location form
+    showFormReminder();
+
     //debugging purposes
     console.log('📍 Showing preview for:', placeName);
+}
+
+//function which show the add location form
+function showAddLocationForm() {
+    const form = document.getElementById('add-location-form');
+    if (form) {
+        form.style.display = 'block';
+    }
+}
+
+//function to show reminder message to fill up the form 
+function showFormReminder() {
+    //create a temporary message div
+    const reminderDiv = document.createElement('div');
+    reminderDiv.id = 'form-reminder';
+    reminderDiv.className = 'form-reminder-notification';
+    reminderDiv.innerHTML = `
+        <div class="reminder-content">
+            <i class="fas fa-info-circle"></i>
+            <span> Please fill out the form above to add this location to your trip!</span>
+            <button onclick="hideFormReminder()" class="reminder-close-btn">×</button>
+        </div>
+        `;
+    
+    //add to the page
+    document.body.appendChild(reminderDiv);
+
+    //automatically hide the message after 5 sec
+    setTimeout(() => {
+        hideFormReminder();
+    }, 5000);
+}
+
+
+//function to hide reminder message
+function hideFormReminder() {
+    const reminderDiv = document.getElementById('form-reminder');
+    if (reminderDiv) {
+        reminderDiv.classList.add('slide-out');
+        setTimeout(() => {
+            reminderDiv.remove();
+        }, 300);
+    }
 }
 
 //function to allow users to confirm adding of the location
@@ -170,9 +219,9 @@ function clearLocationForm() {
     const descriptionField = document.getElementById('location-description');
     const categoryField = document.getElementById('location-category');
     const searchInput = document.getElementById('location-search');
-    const dateField = document.getElementById('location-date');
-    const startTimeField = document.getElementById('location-start-time');
-    const endTimeField = document.getElementById('location-end-time');
+    const dateField = document.getElementById('locationDate');
+    const startTimeField = document.getElementById('locationStartTime');
+    const endTimeField = document.getElementById('locationEndTime');
 
     if (descriptionField) descriptionField.value = '';
     if (categoryField) categoryField.value = 'restaurant';      //reset to default
@@ -205,6 +254,9 @@ function cancelLocationPreview() {
         //clear the form
         clearLocationForm();
 
+        //hide the form when users cancel the preview
+        hideAddLocationForm()
+
         //zoom out to show all locations
         if (markers.length > 0) {
             //if there are existing location, fit them into suitable view
@@ -219,6 +271,14 @@ function cancelLocationPreview() {
         
         //debugging purposes
         console.log('Location preview cancelled');
+    }
+}
+
+//function to hide the add location form
+function hideAddLocationForm() {
+    const form = document.getElementById('add-location-form');
+    if (form) {
+        form.style.display = 'none';
     }
 }
 
@@ -269,9 +329,9 @@ function addLocationToTrip(place) {
     }
 
     //get the date and time values
-    const dateField = document.getElementById('location-date');
-    const startTimeField = document.getElementById('location-start-time');
-    const endTimeField = document.getElementById('location-end-time');
+    const dateField = document.getElementById('locationDate');
+    const startTimeField = document.getElementById('locationStartTime');
+    const endTimeField = document.getElementById('locationEndTime');
 
     let visitDate = dateField ? dateField.value : '';
     let startTime = startTimeField ? startTimeField.value : '';
@@ -287,7 +347,8 @@ function addLocationToTrip(place) {
         category: customCategory,
         date: visitDate,
         startTime: startTime,
-        endTime: endTime
+        endTime: endTime,
+        id: Date.now()      //add unique ID to track the markers
     };
 
     //add new location into our list
@@ -300,6 +361,9 @@ function addLocationToTrip(place) {
         title: newLocation.name,
         icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
     });
+
+    //store the ID of the markers for easy removal 
+    marker.locationId = newLocation.id;
 
     //Info window with formatting 
     let infoContent = `<div><h4>${newLocation.name}</h4><p>${newLocation.description}</p><p><strong>Category:</strong> ${newLocation.category}</p>`;
@@ -333,6 +397,9 @@ function addLocationToTrip(place) {
 
     //clear the form after successful addition
     clearLocationForm();
+
+    //hide the form after adding location
+    hideAddLocationForm();
 
     //for debugging purposes using the console
     console.log('Added location: ' + newLocation.name);
@@ -494,6 +561,121 @@ function removeLocation(index) {
 }
 
 
+
+
+//function to locate the locations we added to our trip on the map
+function locateActivityOnMap(lat, lng, name) {
+    // Add error checking
+    if (!map) {
+        console.error('Map not initialized yet');
+        alert('Map is still loading. Please try again in a moment.');
+        return;
+    }
+    //if we have coordinates, use them
+    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        console.log('Using provided coordinates:', lat, lng);
+        showLocationOnMap(lat, lng, name);
+        return;
+    }
+
+    console.log('No coordinates provided, geocoding:', name); 
+    
+    //if there is no coordinate, Google geocode will try to find it based on the name
+
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({'address':name}, function(results, status) {
+        if (status === 'OK' && results[0]) {
+            const location = results[0].geometry.location;
+            const foundLat = location.lat();
+            const foundLng = location.lng();
+
+            console.log('Geocoded coordinates:', foundLat, foundLng);
+            showLocationOnMap(foundLat, foundLng, name);
+        } else {
+            console.error('Geocoding failed:', status);
+            alert(`Could not find location "${name}" on the map. Please try a more specific address.`)
+        }
+    });
+}
+
+//help to show the locations when locate button is pressed
+function showLocationOnMap(lat, lng, name) {
+        //search for existing marker by name
+        const existingMarker = markers.find(marker =>
+            marker.getTitle() === name ||
+            marker.getTitle().includes(name) ||
+            name.includes(marker.getTitle())
+        );
+
+        //if existing markers found, reuse it if not create one
+        if (existingMarker) {
+            const markerPos = existingMarker.getPosition();
+
+            //center map on the existing marker
+            map.setCenter(markerPos);
+            map.setZoom(16);
+
+            //make the existing bounce to highlight it
+            existingMarker.setAnimation(google.maps.Animation.BOUNCE);
+
+             const infoWindow = new google.maps.InfoWindow({
+            content: `<div><h4>${name}</h4><p>📍 Location in your trip!</p></div>`
+             });
+
+             //show the info window
+            infoWindow.open(map, existingMarker);
+
+            //stop bouncing after 3sec and close info window
+            setTimeout(() => {
+            existingMarker.setAnimation(null);
+            infoWindow.close();
+            }, 3000);
+
+            //console msg for reused markers
+            console.log('Reused existing marker for:', name);
+            return;
+        }
+
+        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+            console.log('No existing marker and valid coordinates for:', name);
+            alert(`Cannot locate "${name}" - no coordinates available and no existing marker found.`);
+            return;
+        }
+
+        //center the map on the location 
+        map.setCenter({lat: lat, lng: lng});
+        map.setZoom(16);
+
+        //red marker
+        const newMarker = new google.maps.Marker({
+            position: {lat: lat, lng: lng},
+            map: map,
+            title: name,
+            icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+            animation: google.maps.Animation.BOUNCE
+        });
+
+        //create info window for the marker
+        const infoWindow = new google.maps.InfoWindow({
+            content: `<div><h4>${name}</h4><p>📍 Location in your trip!</p></div>`
+        });
+
+        //show the info window
+        infoWindow.open(map, newMarker);
+
+        //stop bouncing after 3sec
+        setTimeout(() => {
+           newMarker.setAnimation(null);
+           infoWindow.close()
+        }, 3000);
+        
+        //add to your markers array
+        markers.push(newMarker);
+
+        console.log('Add marker for:', name);
+}
+
+
 //function to clear all locations
 function clearAllLocations() {
     //confirm with user if they wanna remove all locations
@@ -601,6 +783,19 @@ document.addEventListener('DOMContentLoaded', function(){
                 e.target.innerHTML = '<i class="plus"></i> Add to Trip';
                 e.target.style.background = '';
             }, 2000);
+        }
+    });
+
+    //locate button functionality
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.locate-btn')) {
+            const button = e.target.closest('.locate-btn');
+            const lat = parseFloat(button.dataset.lat);
+            const lng = parseFloat(button.dataset.lng);
+            const name = button.dataset.name;
+
+            console.log('Locate button clicked:', {lat, lng, name}); //debug log
+            locateActivityOnMap(lat, lng, name);
         }
     });
 
