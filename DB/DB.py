@@ -125,7 +125,7 @@ class DB:
         return response.data[0] if response.data else None
     
     def get_trip_page_activities(self, trip_id):
-        response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).order('created_at', desc=True).execute()
+        response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).order('created_at', desc=True).order('date_removed',desc=True).execute()
         return response.data if response.data else []
 
     def add_location(self, trip_id, name, category, description, date, start_time, end_time, user):
@@ -142,6 +142,10 @@ class DB:
 
         response = self.supabase.table('LOCATIONS').insert(data).execute()
         return response.data[0]['id'] if response.data else None
+    
+    def remove_location(self, location_id):
+        response = self.supabase.table('LOCATIONS').eq('id', location_id).update({'removed': True, 'date_removed': self.supabase.rpc('now')}).execute()
+        return response.data[0]['id'] if response.data else None
 
     def vote_on_location(self, location_id, user_id, vote_type):
         # to do
@@ -152,6 +156,7 @@ class DB:
             self.supabase.table('LOCATIONS')
             .select('*')
             .eq('trip_id', trip_id)
+            .eq('removed', False)
             .order('date')
             .order('start_time')
             .execute()
@@ -175,6 +180,7 @@ class DB:
             self.supabase.table('LOCATIONS')
             .select('*')
             .eq('trip_id', trip_id)
+            .eq('removed', False) 
             .order('date')
             .order('start_time')
             .execute()
