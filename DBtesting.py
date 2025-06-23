@@ -31,4 +31,6 @@ if __name__ == "__main__":
     # print("Latest location:", latest_location)
 
     itinerary = DB.get_trip_conflicts(2) 
-    print(itinerary)
+    # print(itinerary)
+
+    # DB.get_trip_page_activities(2)

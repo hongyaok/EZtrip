@@ -105,8 +105,7 @@ def create_trip_api():
     return redirect('/dashboard')
 
 
-### BUGGY CODE BELOW - NEEDS TO BE FIXED ###
-# @ weng mun plz help fix
+
 @app.route('/trip/<int:trip_id>')
 @login_needed
 def view_trip(trip_id):
@@ -127,7 +126,7 @@ def view_trip(trip_id):
     logs = db.get_trip_page_activities(trip_id)
     conflicts = db.get_trip_conflicts(trip_id)
 
-    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}")
+    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}")
     
     return render_template('trips.html',
                          trip=trip,
@@ -160,7 +159,21 @@ def add_location():
         return jsonify({'success': True, 'location_id': location_id})
     else:
         return jsonify({'success': False, 'message': 'Failed to add location'})
+    
+@app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST'])
+@login_needed
+def remove_location(trip_id, location_id):
+    print(f"Removing location with ID: {location_id} from trip {trip_id}")
+    result = db.remove_location(
+        location_id=location_id,
+        username=session['name']
+    )
+    if result:
+        return redirect(f'/trip/{trip_id}') 
+    else:
+        return jsonify({'success': False, 'message': 'Failed to remove location'})
 
+### not yet functional
 @app.route('/api/vote', methods=['POST'])
 @login_needed
 def vote_location():
@@ -184,9 +197,6 @@ def vote_location():
     else:
         return jsonify({'success': False})
 
-
-    
-### END OF BUGGY CODE ###
 
 
 if __name__ == '__main__':

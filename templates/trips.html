@@ -129,7 +129,13 @@
                             </div>
                             <div class="activity-content">
                                 <p class="activity-description">
-                                    <strong>{{log.suggested_by}}</strong> suggested this location
+                                    <strong>{{log.suggested_by}}</strong>
+                                    {% if log.action == 'removed' %}
+                                        <strong style="color: red;">{{log.action}}</strong>
+                                    {% else %}
+                                        {{log.action}}
+                                    {% endif %}
+                                    this location
                                 </p>
                                 <p class="location-description">{{log.description}}</p>
                                 {% if log.date %}
@@ -215,11 +221,13 @@
                                                     data-name="{{activity.name}}">
                                                 <i class="fas fa-map-marker-alt"></i> Locate
                                             </button>
-                                            <button onclick="removeLocationFromItinerary('{{activity.id}}')"
-                                                    class="btn btn-outline btn-small remove-btn"
-                                                    style="background: #dc3545; color: white";>
-                                                <i class="fas fa-trash"></i> Remove   
-                                            </button>
+                                            <form class="activity-meta" action="/{{activity.trip_id}}/remove/{{activity.id}}" method="POST">
+                                                <button
+                                                        class="btn btn-outline btn-small remove-btn"
+                                                        style="background: #dc3545; color: white";>
+                                                    <i class="fas fa-trash"></i> Remove   
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -275,11 +283,19 @@
                                         <span class="conflict-badge">CONFLICT</span>
                                     </div>
                                     <p class="activity-description">{{conflict.description}}</p>
-                                    <div class="activity-meta">
-                                        <small>Suggested by <strong>{{conflict.suggested_by}}</strong></small>
-                                        <button class="vote-button">Upvote</button>
-                                        <button class="remove-button">Remove location</button>
-                                    </div>
+                                    <small>Suggested by <strong>{{conflict.suggested_by}}</strong></small>
+                                    <form>
+                                        <button class="vote-button">
+                                            <i class="fas fa-thumbs-up"></i> Upvote
+                                        </button>
+                                    </form>
+                                    <form action="/{{conflict.trip_id}}/remove/{{conflict.id}}" method="POST">
+                                            <button
+                                                    class="btn btn-outline btn-small remove-btn"
+                                                    style="background: #dc3545; color: white";>
+                                                <i class="fas fa-trash"></i> Remove   
+                                            </button>
+                                    </form>
                                 </div>
                             </div>
                             {% endfor %}

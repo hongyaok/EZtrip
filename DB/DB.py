@@ -1,5 +1,6 @@
 from supabase import create_client
 from config import supabase_url, supabase_key, special_key
+from datetime import datetime
 
 
 class DB:
@@ -126,7 +127,22 @@ class DB:
     
     def get_trip_page_activities(self, trip_id):
         response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).order('created_at', desc=True).order('date_removed',desc=True).execute()
-        return response.data if response.data else []
+        print(response.data)
+        new = []
+        for item in response.data:
+            if not item['removed']:
+                item['action'] = 'suggested'
+                new.append(item)
+            else:
+                item['action'] = 'suggested'
+                decoy = item.copy()
+                new.append(decoy)
+                item['suggested_by'] = item['removed_by']
+                item['created_at'] = item['date_removed']
+                item['action'] = 'removed'
+                new.append(item)
+        new.sort(key=lambda x: x['created_at'], reverse=True)
+        return new
 
     def add_location(self, trip_id, name, category, description, date, start_time, end_time, user):
         data = {
@@ -143,8 +159,9 @@ class DB:
         response = self.supabase.table('LOCATIONS').insert(data).execute()
         return response.data[0]['id'] if response.data else None
     
-    def remove_location(self, location_id):
-        response = self.supabase.table('LOCATIONS').eq('id', location_id).update({'removed': True, 'date_removed': self.supabase.rpc('now')}).execute()
+    def remove_location(self, location_id, username):
+        now_str = datetime.now().isoformat()
+        response = self.supabase.table('LOCATIONS').update({'removed': True, 'date_removed': now_str, 'removed_by': username}).eq('id', location_id).execute()
         return response.data[0]['id'] if response.data else None
 
     def vote_on_location(self, location_id, user_id, vote_type):
@@ -175,6 +192,7 @@ class DB:
 
         return(itinerary)
 
+### Buggy to be fixed
     def get_trip_conflicts(self, trip_id):
         response = (
             self.supabase.table('LOCATIONS')
@@ -186,32 +204,62 @@ class DB:
             .execute()
         )
 
-        locations = response.data
         conflicts = []
-        temp = []
-        startT, endT = 0, 0
-        date = 0
+        locations = response.data
 
-        #using line sweep algo for search
-        for location in locations:
-            if not temp:
-                temp.append(location)
-                startT = location['start_time']
-                endT = location['end_time']
-                date = location['date']
-                continue
-            elif date != location['date']:
-                if len(temp) > 1:
-                    conflicts.extend(temp)
-                temp.clear()
-                continue
-            else:
-                if(startT <= location['start_time'] <= endT or startT <= location['end_time'] <= endT):
-                    startT = min(startT, location['start_time'])
-                    endT = max(endT, location['end_time'])
-                    temp.append(location)
+        locations_by_date = {}
+        for loc in locations:
+            date = loc['date']
+            if date not in locations_by_date:
+                locations_by_date[date] = []
+            locations_by_date[date].append(loc)
 
+        for date, day_locations in locations_by_date.items():
+            day_locations.sort(key=lambda x: x['start_time'])
+            n = len(day_locations)
+            print(day_locations)
+            for i in range(n):
+                for j in range(n):
+                    if i == j:
+                        continue
+                    a = day_locations[i]
+                    b = day_locations[j]
+                    if ((a['start_time'] >= b['start_time']) and (a['end_time'] <= b['end_time'])) or \
+                        ((a['start_time'] >= b['start_time']) and (a['start_time'] <= b['end_time'])) or \
+                        ((a['end_time'] >= b['start_time']) and (a['end_time'] <= b['end_time'])) or \
+                        ((a['start_time'] <= b['start_time']) and (a['end_time'] >= b['end_time'])):
+                        if a not in conflicts:
+                            conflicts.append(a)
+                        if b not in conflicts:
+                            conflicts.append(b)
         return conflicts
+
+        # locations = response.data
+        # conflicts = []
+        # temp = []
+        # startT, endT = 0, 0
+        # date = 0
+
+        # #using line sweep algo for search
+        # for location in locations:
+        #     if not temp:
+        #         temp.append(location)
+        #         startT = location['start_time']
+        #         endT = location['end_time']
+        #         date = location['date']
+        #         continue
+        #     elif date != location['date']:
+        #         if len(temp) > 1:
+        #             conflicts.extend(temp)
+        #         temp.clear()
+        #         continue
+        #     else:
+        #         if(startT <= location['start_time'] <= endT or startT <= location['end_time'] <= endT):
+        #             startT = min(startT, location['start_time'])
+        #             endT = max(endT, location['end_time'])
+        #             temp.append(location)
+
+        # return conflicts
     
 
 
