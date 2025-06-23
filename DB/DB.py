@@ -216,22 +216,25 @@ class DB:
 
         for date, day_locations in locations_by_date.items():
             day_locations.sort(key=lambda x: x['start_time'])
-            n = len(day_locations)
-            print(day_locations)
-            for i in range(n):
-                for j in range(n):
-                    if i == j:
-                        continue
-                    a = day_locations[i]
-                    b = day_locations[j]
-                    if ((a['start_time'] >= b['start_time']) and (a['end_time'] <= b['end_time'])) or \
-                        ((a['start_time'] >= b['start_time']) and (a['start_time'] <= b['end_time'])) or \
-                        ((a['end_time'] >= b['start_time']) and (a['end_time'] <= b['end_time'])) or \
-                        ((a['start_time'] <= b['start_time']) and (a['end_time'] >= b['end_time'])):
-                        if a not in conflicts:
-                            conflicts.append(a)
-                        if b not in conflicts:
-                            conflicts.append(b)
+
+            active_events = []
+
+            for current_event in day_locations:
+                #help filter out events that have ended
+                active_events = [event for event in active_events if event['end_time'] > current_event['start_time']]
+
+                #if the previous events are still running
+                if active_events:
+                    if current_event not in conflicts:
+                        #add current event(new event we are processing) into conflict
+                        conflicts.append(current_event)         
+                    
+                    #add all active events to conflicts
+                    for active_event in active_events:
+                        if active_event not in conflicts:
+                            conflicts.append(active_event)
+                
+                active_events.append(current_event)
         return conflicts
 
         # locations = response.data
