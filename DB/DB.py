@@ -144,7 +144,7 @@ class DB:
         new.sort(key=lambda x: x['created_at'], reverse=True)
         return new
 
-    def add_location(self, trip_id, name, category, description, date, start_time, end_time, user):
+    def add_location(self, trip_id, name, category, description, date, start_time, end_time, user, lat, lng):
         data = {
             'trip_id': trip_id,
             'name': name,
@@ -153,7 +153,9 @@ class DB:
             'date': date,
             'start_time': start_time,
             'end_time': end_time,
-            'suggested_by': user  
+            'suggested_by': user,
+            'lat': lat,
+            'lng': lng
         }
 
         response = self.supabase.table('LOCATIONS').insert(data).execute()
