@@ -176,15 +176,14 @@ def remove_location(trip_id, location_id):
         return jsonify({'success': False, 'message': 'Failed to remove location'})
 
 ### not yet functional
-@app.route('/api/vote', methods=['POST'])
+@app.route('/<int:trip_id>/vote/<int:location_id>', methods=['POST'])
 @login_needed
-def vote_location():
+def vote_location(trip_id, location_id):
     data = request.get_json()
     
-    result = db.vote_on_location(
+    result = db.upvote_on_location(
         location_id=data['location_id'],
-        user_id=session['user_id'],
-        vote_type=data['vote_type']
+        user_id=session['user_id']
     )
 
     print(result)

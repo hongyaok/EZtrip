@@ -166,7 +166,7 @@ class DB:
         response = self.supabase.table('LOCATIONS').update({'removed': True, 'date_removed': now_str, 'removed_by': username}).eq('id', location_id).execute()
         return response.data[0]['id'] if response.data else None
 
-    def vote_on_location(self, location_id, user_id, vote_type):
+    def upvote_on_location(self, location_id, user_id):
         # to do
         pass
 
