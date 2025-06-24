@@ -152,7 +152,9 @@ def add_location():
         date=data['date'],
         start_time=data['start_time'],
         end_time=data['end_time'],
-        user=session['name']
+        user=session['name'],
+        lat=data.get('lat'),
+        lng=data.get('lng')
     )
     
     if location_id:
