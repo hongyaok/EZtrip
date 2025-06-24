@@ -284,10 +284,13 @@
                                     </div>
                                     <p class="activity-description">{{conflict.description}}</p>
                                     <small>Suggested by <strong>{{conflict.suggested_by}}</strong></small>
-                                    <form>
+                                    <form action="/{{conflict.trip_id}}/vote/{{conflict.id}}" method="POST">
                                         <button class="vote-button">
                                             <i class="fas fa-thumbs-up"></i> Upvote
                                         </button>
+                                        <small class="vote-count">
+                                            Currently <strong style="color: red;">0</strong> votes
+                                        </small>
                                     </form>
                                     <form action="/{{conflict.trip_id}}/remove/{{conflict.id}}" method="POST">
                                             <button
