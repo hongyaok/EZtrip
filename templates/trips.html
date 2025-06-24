@@ -323,6 +323,16 @@
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default form submission
 
+        //get coordinates of the current preview location
+        let lat = null;
+        let lng = null;
+
+         if (currentPreviewPlace && currentPreviewPlace.geometry) {
+                lat = currentPreviewPlace.geometry.location.lat();
+                lng = currentPreviewPlace.geometry.location.lng();
+                console.log('Found coordinates from search:', lat, lng)
+            }
+
         const formData = {
             name: document.getElementById('location-search').value,
             category: document.getElementById('location-category').value,
@@ -331,8 +341,12 @@
             start_time: document.getElementById('locationStartTime').value,
             end_time: document.getElementById('locationEndTime').value,
             trip_id: "{{ trip.trip_id }}",
+            lat: lat,
+            lng: lng
         };
-        
+
+        console.log('Submitting location with coordiante:', formData)
+
         fetch('/api/locations', {
             method: 'POST',
             headers: {
@@ -347,8 +361,8 @@
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('Error adding location.Please try again');
         });
-        window.location.reload();
     });
 
     // Time filtering
