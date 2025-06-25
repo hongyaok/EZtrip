@@ -132,6 +132,8 @@
                                     <strong>{{log.suggested_by}}</strong>
                                     {% if log.action == 'removed' %}
                                         <strong style="color: red;">{{log.action}}</strong>
+                                    {% elif log.action == 'voted for' %}
+                                        <strong style="color: green;">{{log.action}}</strong>
                                     {% else %}
                                         {{log.action}}
                                     {% endif %}
@@ -289,7 +291,7 @@
                                             <i class="fas fa-thumbs-up"></i> Upvote
                                         </button>
                                         <small class="vote-count">
-                                            Currently <strong style="color: red;">0</strong> votes
+                                            Currently <strong style="color: red;">{{conflict.votes}}</strong> votes
                                         </small>
                                     </form>
                                     <form action="/{{conflict.trip_id}}/remove/{{conflict.id}}" method="POST">

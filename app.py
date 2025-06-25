@@ -179,22 +179,17 @@ def remove_location(trip_id, location_id):
 @app.route('/<int:trip_id>/vote/<int:location_id>', methods=['POST'])
 @login_needed
 def vote_location(trip_id, location_id):
-    data = request.get_json()
+    # data = request.get_json()
     
     result = db.upvote_on_location(
-        location_id=data['location_id'],
+        location_id=location_id,
         user_id=session['user_id']
     )
 
     print(result)
     
     if result:
-        return jsonify({
-            'success': True,
-            'upvotes': result['upvotes'],
-            'downvotes': result['downvotes'],
-            'user_vote': result['user_vote']
-        })
+        return redirect(f'/trip/{trip_id}')
     else:
         return jsonify({'success': False})
 

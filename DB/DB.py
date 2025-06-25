@@ -18,6 +18,12 @@ class DB:
         else:
             return False
     
+    def get_name_from_id(self, id):
+        response = self.supabase.table('USERS').select('username').eq('google_id', id).execute()
+        if response.data:
+            return response.data[0]['username']
+        return None
+    
     def add_user(self, id, name, email, picture, isAdmin=False): # add new user to supabase
         try:
             data = {
@@ -127,7 +133,7 @@ class DB:
     
     def get_trip_page_activities(self, trip_id):
         response = self.supabase.table('LOCATIONS').select('*').eq('trip_id', trip_id).order('created_at', desc=True).order('date_removed',desc=True).execute()
-        print(response.data)
+        # print(response.data)
         new = []
         for item in response.data:
             if not item['removed']:
@@ -141,6 +147,7 @@ class DB:
                 item['created_at'] = item['date_removed']
                 item['action'] = 'removed'
                 new.append(item)
+        new.extend(self.vote_table_for_logs(trip_id))  # add votes to the logs
         new.sort(key=lambda x: x['created_at'], reverse=True)
         return new
 
@@ -165,10 +172,68 @@ class DB:
         now_str = datetime.now().isoformat()
         response = self.supabase.table('LOCATIONS').update({'removed': True, 'date_removed': now_str, 'removed_by': username}).eq('id', location_id).execute()
         return response.data[0]['id'] if response.data else None
+    
+    def get_location_by_id(self, location_id):
+        response = self.supabase.table('LOCATIONS').select('*').eq('id', location_id).execute()
+        if response.data:
+            return response.data[0]
+        return None
+
+### voting system not yet complete
+    def get_location_votes(self, location_id):
+        response = self.supabase.table('VOTES').select('*').eq('location_id', location_id).execute()
+        return(len(response.data))
+
+    def check_if_user_voted(self, location_id, user_id):
+        response = self.supabase.table('VOTES').select('*').eq('location_id', location_id).eq('user_id', user_id).execute()
+        return len(response.data) > 0
+    
+    def remove_vote_in_location(self, location_id, user_id): #for testing/admin purposes
+        if not self.check_if_user_voted(location_id, user_id): return False
+        else:
+            response = self.supabase.table('VOTES').delete().eq('location_id', location_id).eq('user_id', user_id).execute()
+        return True
+    
+    def vote_table_for_logs(self, trip_id):
+        all_locations = self.get_trip_locations(trip_id, None)  # Ensure the trip exists
+        location_id_only = [location['id'] for location in all_locations]
+        response = self.supabase.table('VOTES').select('*').in_('location_id', location_id_only).execute()
+        garage = response.data
+        for item in garage:
+            item['suggested_by'] = self.get_name_from_id(item['user_id'])
+            item['trip_id'] = trip_id
+            item['name'] = self.get_location_by_id(item['location_id'])['name']
+            item['action'] = 'voted for'
+            item['id'] = item['location_id']
+            item['description'] = ''
+            item['category'] = ''
+            item['date'] = ''
+            item['start_time'] = ''
+            item['end_time'] = ''
+            item['removed'] = False
+            item['date_removed'] = item['created_at'] 
+            item['removed_by'] = ''
+            item['lat'] = 0.0
+            item['lng'] = 0.0
+        return garage
 
     def upvote_on_location(self, location_id, user_id):
-        # to do
-        pass
+        if self.check_if_user_voted(location_id, user_id): return False
+        else:
+            data = {'location_id': location_id, 'user_id': user_id}
+            response = self.supabase.table('VOTES').insert(data).execute()
+            # print(response.data) 
+            if response.data:
+                print("Vote added successfully!")
+                print(response.data)
+            else:
+                print("Error adding vote")
+                print(response)
+        return True
+        # # to do
+        # pass
+
+###############################
 
     def get_trip_itinerary(self, trip_id):
         response = (
@@ -237,6 +302,10 @@ class DB:
                             conflicts.append(active_event)
                 
                 active_events.append(current_event)
+        for conflict in conflicts:
+            loc= conflict['id']
+            conflict['votes'] = self.get_location_votes(loc)
+
         return conflicts
 
         # locations = response.data
@@ -274,5 +343,6 @@ if __name__ == "__main__":
     db = DB()
     print(db.get_user(1))
     print(db.check_user(1))
+    # use DBtesting.py to test the DB class methods
     # print(db.add_location(1, "test", "test", "Category", 1, 1, "test1", 1))
     

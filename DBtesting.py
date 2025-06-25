@@ -30,7 +30,22 @@ if __name__ == "__main__":
     # latest_location = DB.get_latest_location()
     # print("Latest location:", latest_location)
 
-    itinerary = DB.get_trip_conflicts(2) 
+    # itinerary = DB.get_trip_conflicts(2) 
     # print(itinerary)
 
-    # DB.get_trip_page_activities(2)
+
+    # # test for voting
+    # print("\n----Running voting tests----")
+    # DB.remove_vote_in_location(0,0)
+    # print(DB.get_location_votes(0)) #test location
+    # print(DB.check_if_user_voted(0,1)) #true
+    # print(DB.check_if_user_voted(0,0)) #false
+    # print(DB.upvote_on_location(0,0)) #true
+    # print(DB.check_if_user_voted(0,0)) #true
+    # print("----voting tests done----\n")
+
+    # print(DB.get_trip_page_activities(2))
+    # print("\n")
+    # print(DB.vote_table_for_logs(2) )
+
+    print(DB.get_trip_conflicts(3))
