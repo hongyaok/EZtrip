@@ -1358,3 +1358,86 @@ header {
   background-color: #c62828;
   box-shadow: 0 2px 8px rgba(234,67,53,0.15);
 }
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.cancelbtn, .deletebtn {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancelbtn {
+    background-color: #ccc;
+    color: black;
+}
+
+.deletebtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.clearfix {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#inviteModal .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#inviteModal label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#inviteModal textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+#inviteModal .form-text {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+#inviteModal .btn.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#inviteModal .btn.btn-primary:hover {
+    background-color: #0056b3;
+}

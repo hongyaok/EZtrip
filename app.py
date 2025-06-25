@@ -104,6 +104,16 @@ def create_trip_api():
     #once submitted the form, users will be redirected back to the dashboard
     return redirect('/dashboard')
 
+@app.route('/api/trips/invite/<trip_id>', methods=['POST'])
+@login_needed
+def invite_friends(trip_id):
+    email_list = request.form['friend_emails']
+    mass_email(session['name'], 
+               db.get_trip_by_id(trip_id)['dest'], 
+               db.get_trip_by_id(trip_id)['desc'], 
+               email_list, 
+               trip_id)
+    return redirect(f'/trip/{trip_id}')
 
 
 @app.route('/trip/<int:trip_id>')
