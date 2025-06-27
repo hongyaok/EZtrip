@@ -6,14 +6,41 @@ from io import BytesIO
 from config import email, password
 import qrcode
 
-def mass_email(sender, location, desc, emails, trip_id):
+def mass_email(sender, location, desc, emails, trip_id, ver=0, action=None):
     emails = emails.split(',')
     for email_addr in emails:
         email_addr = email_addr.strip() 
         if email_addr: 
-            send_email(sender, location, desc, email_addr, trip_id)
+            if ver == 0:
+                send_email_invite(sender, location, desc, email_addr, trip_id)
+            elif ver == 1:
+                send_email_update(sender, location, desc, email_addr, trip_id, action)
 
-def send_email(sender, location, desc, recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port=587):
+def send_email_update(sender, location, desc, recipient_email, trip_id, action, smtp_server='smtp.gmail.com', smtp_port=587):
+    msg = MIMEMultipart()
+    msg['From'] = email
+    msg['To'] = recipient_email
+    msg['Subject'] = f"Trip Update for {location} from {sender}!"
+
+    main_mess = f"""
+        <html>
+            <body>
+                <p>There has been an update to your trip to <strong>{location}</strong>.</p>
+                <p>{action}</p>
+                <p>Best regards,<br>EZtrip Team</p>
+            </body>
+        </html>
+    """
+
+    msg.attach(MIMEText(main_mess, 'html'))
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(email, password)
+        server.send_message(msg)
+        server.quit()
+        print("done")
+
+def send_email_invite(sender, location, desc, recipient_email, trip_id, smtp_server='smtp.gmail.com', smtp_port=587):
     link = f"https://eztrip-vbi5.onrender.com/join/{trip_id}"  # test
     qr = qrcode.QRCode(
         version=1,

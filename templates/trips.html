@@ -6,7 +6,6 @@
     <title>{{ trip.trip_name }} - EZtrip</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
 </head>
 <body>
     <header>
@@ -44,6 +43,9 @@
                 </button>
                 <button class="btn btn-outline" onclick="showInviteModal()">
                     <i class="fas fa-user-plus"></i> Invite Friends
+                </button>
+                <button class="btn btn-outline" onclick="showUsersModal()">
+                    Participants
                 </button>
                 <button class="btn btn-outline" id="export-btn">
                     <i class="download"></i> Export
@@ -351,11 +353,28 @@
             </div>
         </div>
     </div>
+    <div id="usersModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <h3>Trip Participants</h3>
+                <p>Here are the users who are part of this trip:</p>
+                <ul class="user-list">
+                    {% for user in users %}
+                    <li>{{ user }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" onclick="closeUsersModal()">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- scripts start here -->
     <script src="{{url_for('static', filename='js/map.js')}}"></script>
     <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places&callback=initMap"></script>
     <script>
+    // to do: shift this to a separate file
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
 
@@ -548,6 +567,16 @@
             }
         });
     });
+
+    function showUsersModal(form) {
+        currentDeleteForm = form;
+        document.getElementById('usersModal').style.display = 'flex';
+    }
+
+    function closeUsersModal() {
+        document.getElementById('usersModal').style.display = 'none';
+        currentDeleteForm = null;
+    }
 
 
     </script>

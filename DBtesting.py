@@ -48,4 +48,5 @@ if __name__ == "__main__":
     # print("\n")
     # print(DB.vote_table_for_logs(2) )
 
-    print(DB.get_trip_conflicts(3))
+    # print(DB.get_trip_conflicts(3))
+    print(DB.get_list_of_users_in_trip(3, ver=1))

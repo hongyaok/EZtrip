@@ -135,15 +135,17 @@ def view_trip(trip_id):
     itinerary = db.get_trip_itinerary(trip_id)
     logs = db.get_trip_page_activities(trip_id)
     conflicts = db.get_trip_conflicts(trip_id)
+    users = db.get_list_of_users_in_trip(trip_id)
 
-    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}")
-    
+    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
+
     return render_template('trips.html',
                          trip=trip,
                          locations=locations,
                          itinerary=itinerary,
                          logs=logs,
                          conflicts=conflicts,
+                         users=users,
                          name=session['name'],
                          email=session['email'],
                          picture=session['picture'])
@@ -166,8 +168,13 @@ def add_location():
         lat=data.get('lat'),
         lng=data.get('lng')
     )
-    
+
+    email_list = DB.get_list_of_users_in_trip(data['trip_id'], ver=1)
+    action = f"A new location '{data['name']}' has been added to the trip."
+    trip = db.get_trip_by_id(data['trip_id'])
+
     if location_id:
+        mass_email(session['name'], trip['dest'], trip['desc'], email_list, data['trip_id'], action=action, ver=1)
         return jsonify({'success': True, 'location_id': location_id})
     else:
         return jsonify({'success': False, 'message': 'Failed to add location'})
@@ -175,12 +182,18 @@ def add_location():
 @app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST'])
 @login_needed
 def remove_location(trip_id, location_id):
-    print(f"Removing location with ID: {location_id} from trip {trip_id}")
+    # print(f"Removing location with ID: {location_id} from trip {trip_id}")
     result = db.remove_location(
         location_id=location_id,
         username=session['name']
     )
+    email_list = db.get_list_of_users_in_trip(trip_id, ver=1)
+    locName = DB.get_trip_location_by_id(location_id)
+    action = f"The location '{locName}' has been removed from the trip by {session['name']}."
+    trip = db.get_trip_by_id(trip_id)
+
     if result:
+        mass_email(session['name'], trip['dest'], trip['desc'], email_list, trip_id, action=action, ver=1)
         return redirect(f'/trip/{trip_id}') 
     else:
         return jsonify({'success': False, 'message': 'Failed to remove location'})

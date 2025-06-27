@@ -54,6 +54,18 @@ class DB:
         response=self.supabase.table('USERTRIP').insert(data).execute()
         return response.data if hasattr(response, 'data') else None
     
+    def get_list_of_users_in_trip(self, trip_id, ver=0):
+        response = self.supabase.table('USERTRIP').select('google_id').eq('trip_id', trip_id).execute()
+        if ver == 0: # 0 to get names
+            return [self.get_name_from_id(user['google_id']) for user in response.data] if response.data else []
+        elif ver == 1: # 1 to get emails
+            return [self.get_email_from_id(user['google_id']) for user in response.data] if response.data else []
+
+    def get_email_from_id(self, id):
+        response = self.supabase.table('USERS').select('email').eq('google_id', id).execute()
+        return response.data[0]['email'] if response.data else None
+
+
     def add_trip(self, google_id, trip_name, dest, theme, start_date, end_date, desc, privacy):
         data = {
             "trip_name": trip_name,
@@ -122,6 +134,10 @@ class DB:
         locations = response.data
         return locations
     
+    def get_trip_location_by_id(self, location_id):
+        response = self.supabase.table('LOCATIONS').select('*').eq('id', location_id).execute()
+        return response.data[0]['name'] if response.data else None
+
     def get_latest_location_id(self):
         response = self.supabase.table('LOCATIONS').select('id').order('id', desc=True).limit(1).execute()
         return response.data[0]['id'] if response.data else 0
