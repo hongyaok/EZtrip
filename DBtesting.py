@@ -1,5 +1,7 @@
 from supabase import create_client
 from DB.DB import DB
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 #file to test the supabase connection, just change if needed
 if __name__ == "__main__":
@@ -49,4 +51,5 @@ if __name__ == "__main__":
     # print(DB.vote_table_for_logs(2) )
 
     # print(DB.get_trip_conflicts(3))
-    print(DB.get_list_of_users_in_trip(3, ver=1))
+    # print(DB.get_list_of_users_in_trip(3, ver=1))
+    print(datetime.now(tz=ZoneInfo('Asia/Singapore')).isoformat())

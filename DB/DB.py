@@ -1,7 +1,7 @@
 from supabase import create_client
 from config import supabase_url, supabase_key, special_key
 from datetime import datetime
-
+from zoneinfo import ZoneInfo
 
 class DB:
     def __init__(self):
@@ -185,7 +185,7 @@ class DB:
         return response.data[0]['id'] if response.data else None
     
     def remove_location(self, location_id, username):
-        now_str = datetime.now().isoformat()
+        now_str = datetime.now(tz=ZoneInfo('Asia/Singapore')).isoformat()
         response = self.supabase.table('LOCATIONS').update({'removed': True, 'date_removed': now_str, 'removed_by': username}).eq('id', location_id).execute()
         return response.data[0]['id'] if response.data else None
     
