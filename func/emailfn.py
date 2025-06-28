@@ -7,7 +7,8 @@ from config import email, password
 import qrcode
 
 def mass_email(sender, location, desc, emails, trip_id, ver=0, action=None):
-    emails = emails.split(',')
+    if ver == 0:
+        emails = emails.split(',')
     for email_addr in emails:
         email_addr = email_addr.strip() 
         if email_addr: 
@@ -17,6 +18,7 @@ def mass_email(sender, location, desc, emails, trip_id, ver=0, action=None):
                 send_email_update(sender, location, desc, email_addr, trip_id, action)
 
 def send_email_update(sender, location, desc, recipient_email, trip_id, action, smtp_server='smtp.gmail.com', smtp_port=587):
+    link = f"https://eztrip-vbi5.onrender.com/"
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = recipient_email
@@ -27,6 +29,8 @@ def send_email_update(sender, location, desc, recipient_email, trip_id, action, 
             <body>
                 <p>There has been an update to your trip to <strong>{location}</strong>.</p>
                 <p>{action}</p>
+                <p>For more details, please visit: <a href="{link}">{link}</a></p>
+                
                 <p>Best regards,<br>EZtrip Team</p>
             </body>
         </html>

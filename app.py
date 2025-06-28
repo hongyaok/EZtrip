@@ -135,7 +135,7 @@ def view_trip(trip_id):
     itinerary = db.get_trip_itinerary(trip_id)
     logs = db.get_trip_page_activities(trip_id)
     conflicts = db.get_trip_conflicts(trip_id)
-    users = db.get_list_of_users_in_trip(trip_id)
+    users = db.get_list_of_users_in_trip(trip_id = trip_id)
 
     print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
@@ -169,7 +169,7 @@ def add_location():
         lng=data.get('lng')
     )
 
-    email_list = DB.get_list_of_users_in_trip(data['trip_id'], ver=1)
+    email_list = db.get_list_of_users_in_trip(trip_id=data['trip_id'], ver=1)
     action = f"A new location '{data['name']}' has been added to the trip."
     trip = db.get_trip_by_id(data['trip_id'])
 
@@ -187,8 +187,8 @@ def remove_location(trip_id, location_id):
         location_id=location_id,
         username=session['name']
     )
-    email_list = db.get_list_of_users_in_trip(trip_id, ver=1)
-    locName = DB.get_trip_location_by_id(location_id)
+    email_list = db.get_list_of_users_in_trip(trip_id=trip_id, ver=1)
+    locName = db.get_trip_location_by_id(location_id=location_id)
     action = f"The location '{locName}' has been removed from the trip by {session['name']}."
     trip = db.get_trip_by_id(trip_id)
 
