@@ -102,10 +102,41 @@ TRIPS:
     - privacy: varchar
 ```
 
+`LOCATIONS` table schema
+```
+LOCATIONS:
+    - id: int4, primary key, auto-increment
+    - trip_id: int4
+    - name: text
+    - description: text
+    - category: text
+    - end_time: time
+    - start_time: time
+    - created_at: timestamp
+    - date: date
+    - suggested_by: text
+    - removed: boolean, default false
+    - date_removed: timestamp
+    - removed_by: text
+    - lat: numeric
+    - lng: numeric
+```
+
+`VOTES` table schema
+```
+VOTES:
+    - id: int8, primary key, auto-increment
+    - created_at: timestamp
+    - location_id: int8
+    - user_id: numeric
+```
+
+
 ## Database class
 
 Our database is initialised as a `DB` class stored within the DB.py file in the DB folder. The class currently supports the following methods:
 
+`User Management Methods`
 ```
 DB.get_user(google_id) 
     -> returns row from USERS table with matching google_id
@@ -113,21 +144,96 @@ DB.get_user(google_id)
 DB.check_user(google_id) 
     -> returns True if the google_id exists in USERS
 
-DB.add_user(google_id,name,email,picture) 
-    -> adds the user into USERS
+DB.get_name_from_id(google_id)
+    -> returns username from USERS table with matching google_id
 
+DB.get_email_from_id(google_id)
+    -> returns email from USERS table with matching google_id
+
+DB.add_user(google_id, name, email, picture, isAdmin=False) 
+    -> adds the user into USERS table with optional admin role
+```
+
+`Trip Management Methods`
+```
 DB.get_latest_id_from_trips() 
-    -> returns the latest trip_id from TRIPS
+    -> returns the latest trip_id from TRIPS table
 
 DB.add_user_to_trip(google_id, trip_id) 
-    -> adds google_id and trip_id into USERTRIP
+    -> adds google_id and trip_id into USERTRIP table
+
+DB.get_list_of_users_in_trip(trip_id, ver=0)
+    -> returns list of users in trip (ver=0 for names, ver=1 for emails)
 
 DB.add_trip(google_id, trip_name, dest, theme, start_date, end_date, desc, privacy)
-    -> adds the trip into TRIPS table
+    -> adds the trip into TRIPS table and automatically adds creator to trip
 
 DB.get_all_trips_for_user(google_id)
     -> joins the TRIPS and USERTRIP table by trip_id and finds all rows that has google_id
 
+DB.get_trip_by_id(trip_id)
+    -> returns trip details from TRIPS table with matching trip_id
+
+DB.user_has_access_to_trip(user_id, trip_id)
+    -> returns True if user has access to the specified trip
+```
+
+`Location Management Methods`
+```
+DB.get_trip_locations(trip_id, user_id)
+    -> returns all locations for a specific trip
+
+DB.get_trip_location_by_id(location_id)
+    -> returns location name by location ID
+
+DB.get_latest_location_id()
+    -> returns the highest location ID from LOCATIONS table
+
+DB.get_latest_location()
+    -> returns the most recently added location
+
+DB.add_location(trip_id, name, category, description, date, start_time, end_time, user, lat, lng)
+    -> adds a new location/activity to LOCATIONS table
+
+DB.remove_location(location_id, username)
+    -> marks location as removed with timestamp and removing user
+
+DB.get_location_by_id(location_id)
+    -> returns complete location details by ID
+```
+
+`Activity Logs`
+```
+DB.get_trip_page_activities(trip_id)
+    -> returns activity log including suggestions, removals, and votes according to latest (in desc order)
+
+DB.vote_table_for_logs(trip_id)
+    -> returns voting activities formatted for activity logs
+```
+
+`Voting management`
+```
+DB.get_location_votes(location_id)
+    -> returns count of votes for a specific location
+
+DB.check_if_user_voted(location_id, user_id)
+    -> returns True if user has already voted for the location
+
+DB.upvote_on_location(location_id, user_id)
+    -> adds a vote for the location (prevents duplicate voting)
+
+DB.remove_vote_in_location(location_id, user_id)
+    -> removes user's vote from location (for testing/admin purposes)
+```
+
+`Itinerary and conflict management`
+```
+DB.get_trip_itinerary(trip_id)
+    -> returns organized itinerary grouped by date with activities sorted by time
+
+DB.get_trip_conflicts(trip_id)
+    -> returns list of conflicting activities (overlapping times on same date)
+    -> includes vote counts for each conflicting location using DB.get_location_votes
 ```
 
 ## Side Note
