@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, abort
 from werkzeug.utils import secure_filename
 import uuid
 import os
@@ -6,6 +6,7 @@ from auth.auth import auth, login_needed
 from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
+from func.to_ics import convert_to_ics, clear_all_ics
 
 db = DB() 
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
@@ -136,6 +137,7 @@ def view_trip(trip_id):
     logs = db.get_trip_page_activities(trip_id)
     conflicts = db.get_trip_conflicts(trip_id)
     users = db.get_list_of_users_in_trip(trip_id = trip_id)
+    download_fname = convert_to_ics(itinerary, username=session['name'])
 
     print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
@@ -145,6 +147,7 @@ def view_trip(trip_id):
                          itinerary=itinerary,
                          logs=logs,
                          conflicts=conflicts,
+                         download_fname=download_fname,
                          users=users,
                          name=session['name'],
                          email=session['email'],
@@ -216,7 +219,15 @@ def vote_location(trip_id, location_id):
     else:
         return jsonify({'success': False})
 
-
+@app.route('/download/<path:filename>', methods=['GET'])
+@login_needed
+def download_file(filename):
+    try:
+        return send_file(filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error: {e}")
+        abort(404)
 
 if __name__ == '__main__':
+    clear_all_ics()
     app.run(debug=True)

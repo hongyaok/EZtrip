@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ics.py - http://git.io/lLljaA
+BEGIN:VEVENT
+DESCRIPTION:Jubilee Bus Station\, Utkoor - Mogdumpur Rd\, Gandhi Nagar\, Nehru Nagar Colony\, West Marredpally\, Secunderabad\, Telangana 500026\, India - JBS BUS STOP STAND
+DTEND:20250628T230300Z
+DTSTART:20250628T220300Z
+SUMMARY:JBS BUS STOP STAND\, Jubilee Bus Station\, Utkoor - Mogdumpur Road\, Gandhi Nagar\, Nehru Nagar Colony\, West Marredpally\, Secunderabad\, Telangana\, India
+UID:904bf456-ec21-43b6-a604-9490b87ed0f8@904b.org
+END:VEVENT
+BEGIN:VEVENT
+DESCRIPTION:Monte Testaccio\, 00153 Rome\, Metropolitan City of Rome Capital\, Italy - Monte Testaccio
+DTEND:20250628T230400Z
+DTSTART:20250628T220400Z
+SUMMARY:Testaccio\, Rome\, Metropolitan City of Rome Capital\, Italy
+UID:202930db-2a58-49cc-bda4-42a3001accef@2029.org
+END:VEVENT
+END:VCALENDAR

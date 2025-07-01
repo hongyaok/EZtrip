@@ -47,9 +47,9 @@
                 <button class="btn btn-outline" onclick="showUsersModal()">
                     Participants
                 </button>
-                <button class="btn btn-outline" id="export-btn">
+                <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', filename=download_fname) }}" download>
                     <i class="download"></i> Export
-                </button>
+                </a>
             </div>
         </div>
 
