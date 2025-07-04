@@ -34,6 +34,9 @@
                     <span><i class="map-marker-alt"></i> {{trip.dest}}</span>
                     <span><i class="calendar"></i> {{trip.formatted_start}} - {{trip.formatted_end}}</span>
                     <span><i class="tag"></i> {{trip.theme}}</span>
+                    <button class="btn" onclick="showEditModal()" id="edit-trip-btn" title="Edit Trip" style="vertical-align: middle; background-color: white;">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
                 </div>
                 <p class="trip-description">{{trip.desc}}</p>
             </div>
@@ -48,8 +51,11 @@
                     Participants
                 </button>
                 <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', filename=download_fname) }}" download>
-                    <i class="download"></i> Export
+                    <i class="download"></i> Export Trip
                 </a>
+                <button class="btn btn-outline" onclick="showOthersModal()">
+                    ...
+                </button>
             </div>
         </div>
 
@@ -345,6 +351,11 @@
                                 required></textarea>
                         <small class="form-text">Separate multiple email addresses with commas</small>
                     </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-outline" onclick="copyText('{{ trip.trip_id }}')">
+                            <i class="fas fa-copy"></i> Copy Invite Link
+                        </button>
+                    </div>
                     <div class="clearfix">
                         <button type="button" class="cancelbtn" onclick="closeInviteModal()">Cancel</button>
                         <button type="submit" class="btn btn-primary">Send Invitations</button>
@@ -365,6 +376,48 @@
                 </ul>
                 <div class="clearfix">
                     <button type="button" class="cancelbtn" onclick="closeUsersModal()">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="othersModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <button class="btn btn-outline" style="background: #dc3545; color: white;" onclick="showLeaveModal()">
+                    <i class="leave"></i> Leave Trip
+                </button>
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" onclick="closeOthersModal()">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="leaveModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <h3>Are you sure?</h3>
+                <p>Are you sure you want to leave this trip? You will no longer have access to its itinerary and activities. You will need to get a friend to add you back!</p>
+                <form id="leaveTripForm" action="/{{ trip.trip_id }}/leave" method="POST">
+                    <div class="clearfix">
+                        <button type="button" class="btn btn-outline" onclick="closeLeaveModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Leave Trip</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <h3>{{ trip.trip_name }}</h3>
+                <form id="editTripForm" action="/{{ trip.trip_id }}/edit" method="POST">
+                    <div class="form-group">
+                        <h>coming soon...</h>
+                    </div>
+                </form>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -569,15 +622,43 @@
     });
 
     function showUsersModal(form) {
-        currentDeleteForm = form;
         document.getElementById('usersModal').style.display = 'flex';
     }
 
     function closeUsersModal() {
         document.getElementById('usersModal').style.display = 'none';
-        currentDeleteForm = null;
     }
 
+    function showOthersModal(form) {
+        document.getElementById('othersModal').style.display = 'flex';
+    }
+
+    function closeOthersModal() {
+        document.getElementById('othersModal').style.display = 'none';
+    }
+
+    function showEditModal(form) {
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function showLeaveModal(form) {
+        document.getElementById('leaveModal').style.display = 'flex';
+    }
+
+    function closeLeaveModal() {
+        document.getElementById('leaveModal').style.display = 'none';
+    }
+
+    function copyText(id) {
+        /* Copy text into clipboard */
+        navigator.clipboard.writeText
+            ("https://eztrip-vbi5.onrender.com/join/" + id);
+        alert("Copied to clipboard!");
+    }
 
     </script>
 

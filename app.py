@@ -228,6 +228,13 @@ def download_file(filename):
         print(f"Error: {e}")
         abort(404)
 
+@app.route('/<int:trip_id>/leave', methods=['POST'])
+@login_needed
+def leave_trip(trip_id):
+    google_id = session['user_id']
+    result = db.remove_user_from_trip(google_id, trip_id)
+    return redirect('/dashboard')
+
 if __name__ == '__main__':
     clear_all_ics()
     app.run(debug=True)

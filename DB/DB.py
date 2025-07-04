@@ -46,13 +46,31 @@ class DB:
             return response.data[0]['trip_id']
         return None
     
+    def check_if_user_in_trip(self, google_id, trip_id): # check if user is in trip
+        response = self.supabase.table('USERTRIP').select('*').eq('google_id', google_id).eq('trip_id', trip_id).execute()
+        return len(response.data) > 0
+    
+    def remove_user_from_trip(self, google_id, trip_id): # remove user from trip
+        if self.check_if_user_in_trip(google_id, trip_id):
+            response = self.supabase.table('USERTRIP').delete().eq('google_id', google_id).eq('trip_id', trip_id).execute()
+            try:
+                return response.data
+            except Exception as e:
+                print(f"error removing user from trip: {e}")
+                return None
+    
     def add_user_to_trip(self, google_id, trip_id): # after user accepts invite, add them to the trip
-        data = {
-            "google_id": google_id,
-            "trip_id": trip_id
-        }
-        response=self.supabase.table('USERTRIP').insert(data).execute()
-        return response.data if hasattr(response, 'data') else None
+        if not self.check_if_user_in_trip(google_id, trip_id):
+            data = {
+                "google_id": google_id,
+                "trip_id": trip_id
+            }
+            response=self.supabase.table('USERTRIP').insert(data).execute()
+        try:
+            return response.data
+        except Exception as e:
+            print(f"error adding user to trip: {e}")
+            return None
     
     def get_list_of_users_in_trip(self, trip_id, ver=0):
         response = self.supabase.table('USERTRIP').select('google_id').eq('trip_id', trip_id).execute()
