@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCESS DENIED - EZTRIP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar container">
+            <a href="/dashboard" class="logo">
+                <i class="map-marked-alt"></i>
+                EZtrip
+            </a>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/create-trip">Create Trip</a>
+            </div>
+            <div class="user-profile">
+                <img src="{{ picture }}" alt="Profile" class="profile-pic">
+                <span>{{name}}</span>
+                <a href="/auth/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="no-access">
+            <h1>Access Denied</h1>
+            {% if error_msg %}
+                <p>ERROR: {{ error_msg }}</p>
+            {% endif %}
+            <p>You do not have permission to access this page. Either the trip has been deleted or you are not a participant.</p>
+            <p>If you believe this is an error, please contact the trip organizer directly.</p>
+            <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    </main>
+</body>
+</html>

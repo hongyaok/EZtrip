@@ -11,8 +11,10 @@ from func.to_ics import convert_to_ics, clear_all_ics
 db = DB() 
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
-app.secret_key = os.urandom(24) #key for sess
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # use for development
+### USED FOR AUTH DO NOT DELETE ###
+app.secret_key = os.urandom(24)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' 
+####################################
 
 app.register_blueprint(auth, url_prefix='/auth') # register the auth blueprint
 
@@ -116,16 +118,19 @@ def invite_friends(trip_id):
                trip_id)
     return redirect(f'/trip/{trip_id}')
 
+@app.route('/denied')
+def access_denied():
+    return render_template('no_access.html', name=session['name'], email=session['email'], picture=session['picture'])
 
 @app.route('/trip/<int:trip_id>')
 @login_needed
 def view_trip(trip_id):
     trip = db.get_trip_by_id(trip_id)
     if not trip:
-        return redirect('/dashboard')
+        return redirect('/denied')
     
     if not db.user_has_access_to_trip(session['user_id'], trip_id):
-        return redirect('/dashboard')
+        return redirect('/denied')
     
     start_date = datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
     end_date = datetime.fromisoformat(trip['end_date'].replace('Z', '+00:00'))
@@ -137,21 +142,27 @@ def view_trip(trip_id):
     logs = db.get_trip_page_activities(trip_id)
     conflicts = db.get_trip_conflicts(trip_id)
     users = db.get_list_of_users_in_trip(trip_id = trip_id)
-    download_fname = convert_to_ics(itinerary, username=session['name'])
 
     print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
-    return render_template('trips.html',
-                         trip=trip,
-                         locations=locations,
-                         itinerary=itinerary,
-                         logs=logs,
-                         conflicts=conflicts,
-                         download_fname=download_fname,
-                         users=users,
-                         name=session['name'],
-                         email=session['email'],
-                         picture=session['picture'])
+    download_fname = convert_to_ics(itinerary, username=session['name'])
+    print(f"\n\n\nfname: {download_fname}\n\n\n")
+
+    try:
+        return render_template('trips.html',
+                            trip=trip,
+                            locations=locations,
+                            itinerary=itinerary,
+                            logs=logs,
+                            conflicts=conflicts,
+                            download_fname=download_fname,
+                            users=users,
+                            name=session['name'],
+                            email=session['email'],
+                            picture=session['picture'])
+    except Exception as e:
+        print(f"error in viewing trip: {e}")
+        return render_template('no_access.html', error_msg = e, name=session['name'], email=session['email'], picture=session['picture'])
 
 @app.route('/api/locations', methods=['POST'])
 @login_needed
