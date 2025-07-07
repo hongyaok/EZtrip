@@ -1441,3 +1441,16 @@ header {
 #inviteModal .btn.btn-primary:hover {
     background-color: #0056b3;
 }
+
+.chat-modal .chat-messages {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+}
+.chat-bubble {
+  background: #e6f0ff;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  max-width: 80%;
+}

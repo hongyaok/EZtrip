@@ -185,13 +185,14 @@ class DB:
         new.sort(key=lambda x: x['created_at'], reverse=True)
         return new
 
-    def add_location(self, trip_id, name, category, description, date, start_time, end_time, user, lat, lng):
+    def add_location(self, trip_id, name, category, description, start_date, end_date, start_time, end_time, user, lat, lng):
         data = {
             'trip_id': trip_id,
             'name': name,
             'description': description,
             'category': category,
-            'date': date,
+            'start_date': start_date,
+            'end_date': end_date,  # Assuming start_date and end_date are the same for a single day activity
             'start_time': start_time,
             'end_time': end_time,
             'suggested_by': user,
@@ -241,7 +242,8 @@ class DB:
             item['id'] = item['location_id']
             item['description'] = ''
             item['category'] = ''
-            item['date'] = ''
+            item['start_date'] = ''
+            item['end_date'] = ''
             item['start_time'] = ''
             item['end_time'] = ''
             item['removed'] = False
@@ -275,7 +277,7 @@ class DB:
             .select('*')
             .eq('trip_id', trip_id)
             .eq('removed', False)
-            .order('date')
+            .order('start_date')
             .order('start_time')
             .execute()
         )
@@ -286,7 +288,7 @@ class DB:
         for item in response.data:
             # print(item)
             # print("\n")
-            day = item['date']
+            day = item['start_date']
             if day not in itinerary:
                 itinerary[day] = {'date': day, 'activities': []}
             itinerary[day]['activities'].append(item)
@@ -300,7 +302,7 @@ class DB:
             .select('*')
             .eq('trip_id', trip_id)
             .eq('removed', False) 
-            .order('date')
+            .order('start_date')
             .order('start_time')
             .execute()
         )
@@ -310,7 +312,7 @@ class DB:
 
         locations_by_date = {}
         for loc in locations:
-            date = loc['date']
+            date = loc['start_date']
             if date not in locations_by_date:
                 locations_by_date[date] = []
             locations_by_date[date].append(loc)
@@ -368,8 +370,21 @@ class DB:
         #             temp.append(location)
 
         # return conflicts
-    
 
+    def add_comment_to_location(self, location_id, username, comment):
+        # print("adding comment to location")
+        data = {
+            'location_id': location_id,
+            'username': username,
+            'comment': comment
+        }
+        response = self.supabase.table('COMMENTS').insert(data).execute()
+        return response.data[0]['id'] if response.data else None
+    
+    def get_comments_for_location(self, location_id):
+        response = self.supabase.table('COMMENTS').select('*').eq('location_id', location_id).order('created_at').execute()
+        comments = response.data
+        return comments
 
 
 # for testing purposes

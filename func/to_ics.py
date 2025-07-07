@@ -9,8 +9,8 @@ def convert_to_ics(itinerary, username='EZtrip'):
             for activity in day_info['activities']:
                 event = Event()
                 event.name = activity['name']
-                event.begin = f"{activity['date']} {activity['start_time']}"
-                event.end = f"{activity['date']} {activity['end_time']}"
+                event.begin = f"{activity['start_date']} {activity['start_time']}"
+                event.end = f"{activity['end_date']} {activity['end_time']}"
                 event.description = activity['description']
                 cal.events.add(event)
         print(cal) #test
@@ -26,6 +26,7 @@ def convert_to_ics(itinerary, username='EZtrip'):
         return None
 
 def clear_all_ics(ics_dir = 'icsFiles'):
+    print(f"\n&&&&&&&&&&&&&&&&&&&&\ncleared all .ics files\n&&&&&&&&&&&&&&&&&&&&\n")
     try:
         if os.path.exists(ics_dir):
             for file in os.listdir(ics_dir):
