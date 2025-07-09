@@ -190,7 +190,7 @@
                             <option value="{{date}}">{{date}}</option>
                             {% endfor %}
                         </select>
-                        <button class="btn btn-outline btn-small" id="optimize-route-btn">
+                        <button class="btn btn-outline btn-small" id="optimize-route-btn" onclick="showOptimizeModal()">
                             <i class="fas fa-route"></i> Optimize Route
                         </button>
                     </div>
@@ -222,6 +222,7 @@
                                         <span class="category-badge category-{{activity.category}}">{{activity.category.title()}}</span>
                                     </div>
                                     <p class="activity-description">{{activity.description}}</p>
+                                    <div class="route-info" id="route-info-{{activity.id}}" style="display: none;"></div>
                                     <div class="activity-meta">
                                         <small>Suggested by <strong>{{activity.suggested_by}}</strong></small>
 
@@ -423,9 +424,34 @@
         </div>
     </div>
 
+    <!--route optimization modal-->
+    <div id="optimizeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <h3>Optimize Trip Routes</h3>
+                <p>Find the best transportation methods between your scheduled locations</p>
+                <div id="transportFilters"></div>
+                <div id="optimizeLoadingSection" class="optimize-loading" style="display: none;">
+                    <p>Optimizing your routes...</p>
+                    <p>This may take a moment while we search for the best paths</p>
+                </div>
+
+                <div id="optimizeErrorSection" class="optimize-error" style="display: none;">
+                    <p>Sorry, we couldn't optimize your routes, Please try again.</p>
+                </div>
+
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" onclick="closeOptimizeModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="startOptimization()">Optimize Routes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- scripts start here -->
     <script src="{{url_for('static', filename='js/map.js')}}"></script>
-    <script src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places&callback=initMap"></script>
+    <script src="{{url_for('static', filename='js/route-optimizer.js')}}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places,geometry&callback=initMap"></script>
     <script>
     // to do: shift this to a separate file
     document.getElementById('locationForm').addEventListener('submit', function(e) {
