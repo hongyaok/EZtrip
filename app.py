@@ -118,7 +118,7 @@ def invite_friends(trip_id):
                trip_id)
     return redirect(f'/trip/{trip_id}')
 
-@app.route('/denied')
+@app.route('/denied') #use directly for debug only
 def access_denied():
     return render_template('no_access.html', name=session['name'], email=session['email'], picture=session['picture'])
 
@@ -175,7 +175,8 @@ def add_location():
         name=data['name'],
         category=data['category'],
         description=data['description'],
-        date=data['date'],
+        start_date=data['start_date'],
+        end_date=data['end_date'],
         start_time=data['start_time'],
         end_time=data['end_time'],
         user=session['name'],
@@ -245,6 +246,37 @@ def leave_trip(trip_id):
     google_id = session['user_id']
     result = db.remove_user_from_trip(google_id, trip_id)
     return redirect('/dashboard')
+
+### commenting feature
+
+@app.route('/api/activities/<int:loc_id>/comments', methods=['POST'])
+@login_needed
+def add_comment(loc_id):
+    data = request.get_json()
+    comment = data['comment']
+    username = session['name']
+
+    if not comment:
+        return jsonify({'success': False, 'message': 'Comment cannot be empty'})
+
+    result = db.add_comment_to_location(
+        location_id=loc_id,
+        comment=comment,
+        username=username
+    )
+
+    if result:
+        return jsonify({'success': True, 'message': 'Comment added successfully'})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to add comment'})
+    
+@app.route('/api/activities/<int:loc_id>/comments', methods=['GET'])
+@login_needed
+def get_comments(loc_id):
+    comments = db.get_comments_for_location(loc_id)
+    print(comments)
+    # print(jsonify(comments))
+    return jsonify(comments)
 
 if __name__ == '__main__':
     clear_all_ics()
