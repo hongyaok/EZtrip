@@ -1441,3 +1441,190 @@ header {
 #inviteModal .btn.btn-primary:hover {
     background-color: #0056b3;
 }
+
+.smart-preferences {
+  margin: 20px 0;
+}
+
+.smart-preferences h4 {
+  color: #4285F4;
+  margin-bottom: 15px;
+}
+
+.preference-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.preference-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
+}
+
+.preference-option:hover {
+  border-color: #4285F4;
+  background: #f8f9fa;
+}
+
+.preference-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.preference-option label {
+  font-size: 14px;
+  cursor: pointer;
+  color: #333;
+}
+
+.route-options-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.transport-option-card {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.transport-option-card:hover {
+  border-color: #4285F4;
+  background: #f0f8ff;
+}
+
+.transport-option-card.fastest-option {
+  border-color: #4caf50;
+  background: #f1f8e9;
+}
+
+.transport-option-card.preferred-option {
+    border-color: #ff9800;
+    background: #FFF3E0;
+}
+
+.transport-option-card.dimmed-option {
+  opacity: 0.5;
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.transport-option-card.dimmed-option:hover {
+  opacity: 0.7;
+}
+
+.option-header {
+  margin-bottom: 5px;
+}
+
+.option-icon {
+  font-size: 20px;
+  margin-bottom: 3px;
+  display: block;
+}
+
+.option-method {
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.fastest-badge {
+  font-size: 9px;
+  color: #4caf50;
+  font-weight: bold;
+  display: block;
+}
+
+.preferred-badge {
+  font-size: 9px;
+  color: #ff9800;
+  font-weight: bold;
+  display: block;
+}
+
+.option-time {
+  font-weight: bold;
+  color: #4285F4;
+  font-size: 12px;
+  display: block;
+}
+
+.option-distance {
+  font-size: 10px;
+  color: #666;
+  display: block;
+}
+
+.route-info {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 8px 0;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  font-size: 20px;
+}
+
+@keyframes spin {
+  from {transform: rotate(0deg);}
+  to {transform: rotate(360deg);}
+}
+
+@media (max-width: 480px) {
+  .route-options-container {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+  }
+  .transport-option-card {
+    padding: 4px;
+  }
+
+  .option-method {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 768px) {
+    .preference-options {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .route-options-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        padding: 8px;
+    }
+
+    .transport-option-card {
+        padding: 6px;
+    }
+
+    .option-icon {
+        font-size: 18px;
+    }
+
+    .option-method {
+        font-size: 10px;
+    }
+}
