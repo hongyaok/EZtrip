@@ -7,6 +7,7 @@ from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
 from func.to_ics import convert_to_ics, clear_all_ics
+from func.gemini import GeminiYapper
 
 db = DB() 
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
@@ -278,6 +279,58 @@ def get_comments(loc_id):
     # print(jsonify(comments))
     return jsonify(comments)
 
+@app.route('/api/chat/start', methods=['POST'])
+@login_needed
+def start_chat():
+    try:
+        data = request.get_json()
+        trip_id = data.get('trip_id')
+        location = data.get('location', 'your destination')
+                
+        if 'chat_instances' not in session:
+            session['chat_instances'] = {}
+        
+        welcome_message = planner.start(location)
+        
+        session['chat_instances'][trip_id] = True
+        
+        return jsonify({
+            'success': True,
+            'message': welcome_message
+        })
+        
+    except Exception as e:
+        print(f"Error starting chat: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to start chat'
+        })
+
+@app.route('/api/chat/reply', methods=['POST'])
+@login_needed
+def chat_reply():
+    try:
+        data = request.get_json()
+        trip_id = data.get('trip_id')
+        location = data.get('location', 'your destination')
+        chat_history = data.get('chat_history', [])
+                
+        response = planner.reply(chat_history, location)
+        
+        return jsonify({
+            'success': True,
+            'message': response
+        })
+        
+    except Exception as e:
+        print(f"Error in chat reply: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to get response'
+        })
+
+
 if __name__ == '__main__':
     clear_all_ics()
+    planner = GeminiYapper()
     app.run(debug=True)

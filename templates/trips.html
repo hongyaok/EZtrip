@@ -53,6 +53,11 @@
                 <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', filename=download_fname) }}" download>
                     <i class="download"></i> Export Trip
                 </a>
+                <div class="trip-assistant-container">
+                    <button id="tripAssistantBtn" class="trip-assistant-btn">
+                        AI Trip Assistant
+                    </button>
+                </div>
                 <button class="btn btn-outline" onclick="showOthersModal()">
                     ...
                 </button>
@@ -337,6 +342,26 @@
     </main>
 
     <!-- modals/popups start here -->
+    <div id="tripAssistantModal" class="modal" style="display: none;">
+        <div class="modal-content chat-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-robot"></i> Trip Assistant</h3>
+                <span class="close" id="closeChatModal">&times;</span>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about your trip..." maxlength="500">
+                    <button id="sendChatBtn" type="button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="inviteModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="container">
@@ -484,8 +509,137 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places,geometry&callback=initMap"></script>
     <script>
     // to do: shift this to a separate file
+    document.addEventListener('DOMContentLoaded', function() {
+        const tripAssistantBtn = document.getElementById('tripAssistantBtn');
+        const tripAssistantModal = document.getElementById('tripAssistantModal');
+        const closeChatModal = document.getElementById('closeChatModal');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        let chatHistory = [];
+        let isFirstMessage = true;
 
-    // Open comment modal and load comments for the activity
+        // Open modal
+        tripAssistantBtn.addEventListener('click', function() {
+            tripAssistantModal.style.display = 'flex';
+            if (isFirstMessage) {
+                initializeChat();
+                isFirstMessage = false;
+            }
+            chatInput.focus();
+        });
+
+        closeChatModal.addEventListener('click', function() {
+            tripAssistantModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === tripAssistantModal) {
+                tripAssistantModal.style.display = 'none';
+            }
+        });
+
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        sendChatBtn.addEventListener('click', sendMessage);
+
+        function initializeChat() {
+            const tripDestination = '{{ trip.dest }}' || 'your destination';
+            
+            fetch('/api/chat/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    trip_id: '{{ trip.trip_id }}',
+                    location: tripDestination
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessageToChat(data.message, 'assistant');
+                }
+            })
+            .catch(error => {
+                console.error('Error initializing chat:', error);
+                addMessageToChat('Hello! I\'m your trip assistant. How can I help you plan your trip?', 'assistant');
+            });
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessageToChat(message, 'user');
+            chatHistory.push({role: 'user', content: message});
+            
+            chatInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send to backend
+            fetch('/api/chat/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    trip_id: '{{ trip.trip_id }}',
+                    location: '{{ trip.dest }}',
+                    chat_history: chatHistory
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTypingIndicator();
+                if (data.success) {
+                    addMessageToChat(data.message, 'assistant');
+                    chatHistory.push({role: 'assistant', content: data.message});
+                } else {
+                    addMessageToChat('Sorry, I encountered an error. Please try again.', 'assistant');
+                }
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                console.error('Error sending message:', error);
+                addMessageToChat('Sorry, I encountered an error. Please try again.', 'assistant');
+            });
+        }
+
+        function addMessageToChat(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-bubble ${sender}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+    });
+
+
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.comment-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -516,7 +670,6 @@
             .catch(err => alert('Failed to post comment.'));
         });
 
-        // Close modal on background click
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('commentModal');
             if (event.target === modal) closeCommentModal();
