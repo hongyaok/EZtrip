@@ -9,7 +9,11 @@ from func.emailfn import mass_email
 from func.to_ics import convert_to_ics, clear_all_ics
 from func.gemini import GeminiYapper
 
+### init connections ###
 db = DB() 
+planner = GeminiYapper()
+#########################
+
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 ### USED FOR AUTH DO NOT DELETE ###
@@ -332,5 +336,4 @@ def chat_reply():
 
 if __name__ == '__main__':
     clear_all_ics()
-    planner = GeminiYapper()
     app.run(debug=True)
