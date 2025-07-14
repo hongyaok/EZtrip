@@ -757,6 +757,21 @@ header {
   }
 }
 
+.report-issue {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .user-img {
   width: 32px;
   height: 32px;
@@ -773,6 +788,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    overflow: auto;
 }
 
 .trip-info h1 {
@@ -899,6 +915,7 @@ header {
     border-radius: 0.5rem;
     box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
     padding: 1.5rem;
+    overflow: auto;
 }
 
 .panel-header {
@@ -1096,6 +1113,7 @@ header {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: auto;
 }
 
 /* Scrollable activities list */
@@ -1123,10 +1141,10 @@ header {
     background: #a8a8a8;
 }
 
-/* Map panel */
 .map-panel {
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .map-section h3 {
@@ -1140,12 +1158,12 @@ header {
     border-radius: 8px;
 }
 
-/* Itinerary timetable styles */
 .itinerary-panel {
     background: white;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: auto;
 }
 
 .itinerary-header {
@@ -1279,6 +1297,7 @@ header {
     
     .locations-panel, .map-panel {
         height: 400px;
+        overflow: auto;
     }
     
     .timeline-item {
@@ -1693,11 +1712,10 @@ header {
 .chat-modal {
     width: 500px;
     max-width: 90vw;
-    height: 600px;
-    max-height: 80vh;
+    height: 60vh;
     display: flex;
     flex-direction: column;
-    padding: 0;
+    position: absolute;
 }
 
 .modal-header {
@@ -1730,6 +1748,7 @@ header {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    height: 0rem;
 }
 
 .chat-messages {
@@ -1739,7 +1758,8 @@ header {
     background: #f8f9fa;
     border-radius: 8px;
     margin-bottom: 15px;
-    max-height: 400px;
+    height: 70rem;
+    width: 25rem;
 }
 
 .chat-bubble {
@@ -1756,6 +1776,7 @@ header {
     color: white;
     margin-left: auto;
     text-align: right;
+    width: fit-content
 }
 
 .chat-bubble.assistant {
@@ -1844,3 +1865,4 @@ header {
         height: 70vh;
     }
 }
+
