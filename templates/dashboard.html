@@ -15,6 +15,20 @@
                 <a href="/dashboard" class="logo">
                     EZtrip
                 </a>
+                <div class="hamburger-menu" onclick="toggleSidebar()" aria-label="Open navigation" tabindex="0" style="display:none;">
+                    &#9776;
+                </div>
+                <nav class="sidebar" id="sidebar" style="display:none;">
+                    <div class="sidebar-header">
+                        <span class="close-sidebar" onclick="toggleSidebar()" aria-label="Close navigation" tabindex="0">&times;</span>
+                        <span class="sidebar-logo">EZtrip</span>
+                    </div>
+                    <ul class="sidebar-links">
+                        <li><a href="/dashboard">Dashboard</a></li>
+                        <li><a href="/create-trip">Create Trip</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </nav>
                 <div class="nav-links">
                     <a href="/dashboard" class="active">Dashboard</a>
                     <a href="/create-trip">Create Trip</a>
@@ -69,5 +83,31 @@
         </div>
     </main>
 
+    <script>
+    function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+        if (sidebar.style.display === 'block') {
+            sidebar.style.display = 'none';
+            document.body.style.overflow = '';
+        } else {
+            sidebar.style.display = 'block';
+            document.body.style.overflow = 'hidden'; 
+        }
+    }
+    window.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.querySelector('.hamburger-menu');
+        if (
+            sidebar &&
+            sidebar.style.display === 'block' &&
+            !sidebar.contains(event.target) &&
+            !hamburger.contains(event.target)
+        ) {
+            sidebar.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    </script>
 </body>
 </html>

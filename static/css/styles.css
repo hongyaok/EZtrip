@@ -1827,7 +1827,6 @@ header {
     40% { transform: scale(1); }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .trip-assistant-container {
         bottom: 20px;
@@ -1843,4 +1842,117 @@ header {
         width: 95vw;
         height: 70vh;
     }
+}
+
+.sidebar, .hamburger-menu {
+  display: none;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 75vw;
+  max-width: 320px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+  z-index: 2000;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.close-sidebar {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #4285F4;
+}
+.sidebar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4285F4;
+}
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar-links li {
+  margin-bottom: 1.5rem;
+}
+.sidebar-links a {
+  color: #202124;
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.sidebar-links a:hover {
+  color: #4285F4;
+}
+
+.hamburger-menu {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #4285F4;
+  background: none;
+  border: none;
+  margin-left: 1rem;
+  z-index: 2100;
+}
+
+@media (max-width: 480px) {
+  .navbar, .nav-links, .auth-buttons {
+    display: none !important;
+  }
+  .hamburger-menu {
+    display: block !important;
+  }
+  .sidebar {
+    display: block;
+    transform: translateX(0);
+  }
+  .container, .main-content {
+    padding: 0 0.5rem;
+  }
+  .side-panel {
+    display: none !important;
+  }
+  .main-content {
+    width: 100% !important;
+  }
+  .btn, .vote-button, .remove-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  .activities-list, .trips-grid {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .trip-content, .top-panels, .features-grid, .trips-grid {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  .feature-card, .trip-card, .create-trip-card {
+    padding: 1rem !important;
+    min-height: unset !important;
+  }
+  .footer {
+    position: static !important;
+  }
+}
+
+body.sidebar-open::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1500;
 }
