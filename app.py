@@ -337,7 +337,9 @@ def chat_reply():
 @login_needed
 def edit_trip(trip_id):
     trip = db.get_trip_by_id(trip_id)
-    if not trip or not db.user_has_access_to_trip(session['user_id'], trip_id):
+    if not trip:
+        return redirect('/denied')
+    if not db.user_has_access_to_trip(session['user_id'], trip_id):
         return redirect('/denied')
 
     data = request.form
@@ -357,4 +359,3 @@ def edit_trip(trip_id):
 if __name__ == '__main__':
     clear_all_ics()
     app.run(debug=True)
-    # app.run(debug=True, host='0.0.0.0', port=9171) #run on network
