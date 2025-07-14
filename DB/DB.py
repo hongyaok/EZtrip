@@ -78,6 +78,15 @@ class DB:
             return [self.get_name_from_id(user['google_id']) for user in response.data] if response.data else []
         elif ver == 1: # 1 to get emails
             return [self.get_email_from_id(user['google_id']) for user in response.data] if response.data else []
+        elif ver == 2: # 2 to get img
+            return [self.get_img_from_id(user['google_id']) for user in response.data] if response.data else []
+        
+    def get_img_from_id(self, google_id):
+        if not google_id:
+            return []
+        response = self.supabase.table('USERS').select('user_img').eq('google_id', google_id).execute()
+        return response.data[0]['user_img'] if response.data else None
+        
 
     def get_email_from_id(self, id):
         response = self.supabase.table('USERS').select('email').eq('google_id', id).execute()
@@ -128,13 +137,11 @@ class DB:
         if user_trips.data:
             trip_ids = [trip['trip_id'] for trip in user_trips.data]
             for trip_id in trip_ids:
-                all_trips.extend((
-                    self.supabase.from_('TRIPS')
-                    .select('*')
-                    .eq('trip_id', trip_id)
-                    .execute()
-                ).data)
-
+                all_trips.extend((self.supabase.from_('TRIPS').select('*').eq('trip_id', trip_id).execute()).data)
+                trip_id = all_trips[-1]['trip_id']  # Ensure trip_id is included in the trip data
+                all_users = self.get_list_of_users_in_trip(trip_id, 2) # use 2 to get img
+                all_trips[-1]['user_imgs'] = all_users
+                print(all_trips[-1])  # debug
             return all_trips
         
         return []

@@ -6,12 +6,12 @@
     <title>{{ trip.trip_name }} - EZtrip</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
 </head>
 <body>
     <header>
         <nav class="navbar container">
             <a href="/dashboard" class="logo">
-                <i class="map-marked-alt"></i>
                 EZtrip
             </a>
             <div class="nav-links">
@@ -371,7 +371,7 @@
                     <div class="form-group">
                         <label for="friend-emails">Email Addresses:</label>
                         <textarea id="friend-emails" name="friend_emails" class="form-control" rows="4" 
-                                placeholder="john@apple.com, sarah@samsung.com, mike@google.com" 
+                                placeholder="john@eztrip.com, sarah@eztrip.com, mike@eztrip.com" 
                                 required></textarea>
                         <small class="form-text">Separate multiple email addresses with commas</small>
                     </div>

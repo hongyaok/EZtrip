@@ -46,6 +46,7 @@ def dashboard():
             del session['trip_inv']
 
         trips = db.get_all_trips_for_user(session['user_id'])
+        print(trips) # debug
 
         for trip in trips:
             start_date =datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))

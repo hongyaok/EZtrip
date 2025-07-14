@@ -6,13 +6,13 @@
     <title>EZtrip - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
 </head>
 <body>
     <header>
         <div class="container">
             <div class="navbar">
                 <a href="/dashboard" class="logo">
-                    <i class="map-marked-alt"></i>
                     EZtrip
                 </a>
                 <div class="nav-links">
@@ -42,9 +42,14 @@
                 <div class="trip-header">
                     <h3>{{trip['trip_name']}}</h3>
                 </div>
+                <div class="trip-users">
+                    {% for img in trip['user_imgs'] %}
+                    <img src="{{ img }}" alt="User Image" class="user-img">
+                    {% endfor %}
+                </div>
                 
                 <div class="trip-info">
-                    <p class="destination">{{trip['dest']}}</p>
+                    <p class="destination">Destination: {{trip['dest']}}</p>
                     <p class="dates">{{trip['start_date'][:10]}} to {{trip['end_date'][:10]}}</p>
                 </div>
                 
