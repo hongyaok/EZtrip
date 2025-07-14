@@ -151,9 +151,6 @@ def view_trip(trip_id):
 
     print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
-    download_fname = convert_to_ics(itinerary, username=session['name'])
-    print(f"\n\n\nfname: {download_fname}\n\n\n")
-
     try:
         return render_template('trips.html',
                             trip=trip,
@@ -161,7 +158,6 @@ def view_trip(trip_id):
                             itinerary=itinerary,
                             logs=logs,
                             conflicts=conflicts,
-                            download_fname=download_fname,
                             users=users,
                             name=session['name'],
                             email=session['email'],
@@ -237,11 +233,14 @@ def vote_location(trip_id, location_id):
     else:
         return jsonify({'success': False})
 
-@app.route('/download/<path:filename>', methods=['GET'])
+@app.route('/download/<int:trip_id>', methods=['GET'])
 @login_needed
-def download_file(filename):
+def download_file(trip_id):
+    itinerary = db.get_trip_itinerary(trip_id)
+    download_fname = convert_to_ics(itinerary, username=session['name'])
+    print(f"\n\n\nfname: {download_fname}\n\n\n")
     try:
-        return send_file(filename, as_attachment=True)
+        return send_file(download_fname, as_attachment=True)
     except Exception as e:
         print(f"Error: {e}")
         abort(404)
@@ -334,6 +333,28 @@ def chat_reply():
             'message': 'Failed to get response'
         })
 
+@app.route('/<int:trip_id>/edit', methods=['GET', 'POST'])
+@login_needed
+def edit_trip(trip_id):
+    trip = db.get_trip_by_id(trip_id)
+    if not trip:
+        return redirect('/denied')
+    if not db.user_has_access_to_trip(session['user_id'], trip_id):
+        return redirect('/denied')
+
+    data = request.form
+    updated_trip = {
+        'trip_name': data['title'],
+        'dest': data['destination'],
+        'theme': data['theme'],
+        'start_date': data['start_date'],
+        'end_date': data['end_date'],
+        'desc': data['description'],
+    }
+
+    print(f"updated_trip: {updated_trip}")
+
+    return redirect(f'/trip/{trip_id}')
 
 if __name__ == '__main__':
     clear_all_ics()

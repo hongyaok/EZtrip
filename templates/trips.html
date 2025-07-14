@@ -50,7 +50,7 @@
                 <button class="btn btn-outline" onclick="showUsersModal()">
                     Participants
                 </button>
-                <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', filename=download_fname) }}" download>
+                <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', trip_id=trip.trip_id) }}" download>
                     <i class="download"></i> Export Trip
                 </a>
                 <div class="trip-assistant-container">
@@ -433,13 +433,38 @@
     <div id="editModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="container">
-                <h3>{{ trip.trip_name }}</h3>
+                <h3>Edit Trip: {{ trip.trip_name }}</h3>
                 <form id="editTripForm" action="/{{ trip.trip_id }}/edit" method="POST">
                     <div class="form-group">
-                        <h>coming soon...</h>
+                        <label for="destination">Destination:</label>
+                        <input type="text" id="destination" name="destination" class="form-control" value="{{ trip.dest }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="theme">Trip Theme:</label>
+                        <select id="theme" name="theme" class="form-control">
+                            <option value="" disabled>Select a theme</option>
+                            <option value="adventure" {% if trip.theme == 'adventure' %}selected{% endif %}>Adventure</option>
+                            <option value="relaxation" {% if trip.theme == 'relaxation' %}selected{% endif %}>Relaxation</option>
+                            <option value="food" {% if trip.theme == 'food' %}selected{% endif %}>Food Tour</option>
+                            <option value="other" {% if trip.theme == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group date-group">
+                        <div class="date-input">
+                            <label for="start-date">Start Date:</label>
+                            <input type="date" id="start-date" name="start_date" class="form-control" value="{{ trip.start_date[:10] }}">
+                        </div>
+                        <div class="date-input">
+                            <label for="end-date">End Date:</label>
+                            <input type="date" id="end-date" name="end_date" class="form-control" value="{{ trip.end_date[:10] }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="4" class="form-control">{{ trip.desc }}</textarea>
                     </div>
                 </form>
-                <div class="clearfix">
+                <div class="form-actions">
                     <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
@@ -460,20 +485,20 @@
     <div id="commentModal" class="modal" style="display: none;">
         <div class="modal-content chat-modal">
             <div class="container">
-            <h3>Comments</h3>
-            <div id="chatMessages" class="chat-messages" style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; margin-bottom: 10px; padding: 10px;">
-                <!-- Comments will be loaded here -->
-            </div>
-            <form id="chatForm">
-                <input type="hidden" id="commentActivityId" name="activity_id" value="">
-                <div class="form-group">
-                <input type="text" id="chatInput" class="form-control" placeholder="Type your comment..." required>
+                <h3 style="margin-top: 1rem;">Comments</h3>
+                <div id="commentMessages" class="chat-messages" style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; margin-bottom: 10px; padding: 10px; margin-top: 1rem;">
+                    <!-- Comments will be loaded here -->
                 </div>
-                <div class="clearfix">
-                <button type="button" class="btn btn-outline" onclick="closeCommentModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Send</button>
-                </div>
-            </form>
+                <form id="commentForm">
+                    <input type="hidden" id="commentActivityId" name="activity_id" value="">
+                    <div class="form-group">
+                        <input type="text" id="commentInput" class="form-control" placeholder="Type your comment..." required>
+                    </div>
+                    <div class="clearfix">
+                        <button type="button" class="btn btn-outline" onclick="closeCommentModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -651,10 +676,10 @@
         });
 
         // Submit new comment
-        document.getElementById('chatForm').addEventListener('submit', function(e) {
+        document.getElementById('commentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const activityId = document.getElementById('commentActivityId').value;
-            const comment = document.getElementById('chatInput').value.trim();
+            const comment = document.getElementById('commentInput').value.trim();
             if (!comment) return;
 
             fetch(`/api/activities/${activityId}/comments`, {
@@ -664,12 +689,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('chatInput').value = '';
+                document.getElementById('commentInput').value = '';
                 loadComments(activityId);
             })
             .catch(err => alert('Failed to post comment.'));
         });
 
+        // Close modal on background click
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('commentModal');
             if (event.target === modal) closeCommentModal();
@@ -677,28 +703,28 @@
     });
 
     function loadComments(activityId) {
-        const chatMessages = document.getElementById('chatMessages');
-        chatMessages.innerHTML = '<em>Loading...</em>';
+        const commentMessages = document.getElementById('commentMessages');
+        commentMessages.innerHTML = '<em>Loading...</em>';
         fetch(`/api/activities/${activityId}/comments`)
             .then(response => response.json())
             .then(comments => {
                 if (!comments.length) {
-                    chatMessages.innerHTML = '<p style="color: #888;">No comments yet.</p>';
+                    commentMessages.innerHTML = '<p style="color: #888;">No comments yet.</p>';
                     return;
             }
-            chatMessages.innerHTML = comments.map(c =>
+            commentMessages.innerHTML = comments.map(c =>
                 `<div class="chat-bubble">
                 <strong>${c.username}:</strong> ${c.comment}
                 <div style="font-size: 0.8em; color: #aaa;">${new Date(c.created_at).toLocaleString()}</div>
                 </div>`
             ).join('');
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            commentMessages.scrollTop = commentMessages.scrollHeight;
             });
     }
 
     function closeCommentModal() {
         document.getElementById('commentModal').style.display = 'none';
-        document.getElementById('chatMessages').innerHTML = '';
+        document.getElementById('commentMessages').innerHTML = '';
     }
 
 
