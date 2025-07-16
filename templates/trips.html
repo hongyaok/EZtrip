@@ -238,7 +238,6 @@
                                     <div class="activity-meta">
                                         <small>Suggested by <strong>{{activity.suggested_by}}</strong></small>
 
-                                        <!--Locate and remove buttons for each locations-->
                                         <div class="activity-buttons" style="margin-top: 10px;">
                                             <button class="btn btn-outline btn-small locate-btn"
                                                     style="background: #007bff; color: white; margin-right: 5px"
@@ -250,11 +249,11 @@
                                             <button class="btn btn-outline btn-small comment-btn"data-activity-id="{{activity.id}}">
                                                 <i class="fas fa-comments"></i> Comment
                                             </button>
-                                            <form class="activity-meta" action="/{{activity.trip_id}}/remove/{{activity.id}}" method="POST">
+                                            <a class="activity-meta" href="/{{activity.trip_id}}/remove/{{activity.id}}">
                                                 <button class="btn btn-outline btn-small remove-btn" style="background: #dc3545; color: white" type="submit">
                                                     <i class="fas fa-trash"></i> Remove   
                                                 </button>
-                                            </form>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -319,11 +318,11 @@
                                             Currently <strong style="color: red;">{{conflict.votes}}</strong> votes
                                         </small>
                                     </form>
-                                    <form class="activity-meta" action="/{{conflict.trip_id}}/remove/{{conflict.id}}" method="POST">
+                                    <a class="activity-meta" href="/{{conflict.trip_id}}/remove/{{conflict.id}}">
                                         <button class="btn btn-outline btn-small remove-btn" style="background: #dc3545; color: white" type="submit">
                                             <i class="fas fa-trash"></i> Remove   
                                         </button>
-                                    </form>
+                                    </a>
                                 </div>
                             </div>
                             {% endfor %}
@@ -505,6 +504,18 @@
             </div>
         </div>
     </div>
+    <div id="successModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="container">
+                <h3>Success!</h3>
+                <p>Your location has been added successfully.</p>
+                <div class="clearfix">
+                    <button type="button" class="btn btn-outline" onclick="window.location.reload()">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     <!--route optimization modal-->
@@ -741,7 +752,7 @@
 
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
-
+        document.getElementById('loadingModal').style.display = 'flex';
         
         let lat = null;
         let lng = null;
@@ -783,7 +794,8 @@
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            window.location.reload();
+            // show popup message
+            document.getElementById('successModal').style.display = 'flex';
         })
         .catch(error => {
             console.error('Error:', error);

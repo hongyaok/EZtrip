@@ -196,7 +196,7 @@ def add_location():
     else:
         return jsonify({'success': False, 'message': 'Failed to add location'})
     
-@app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST'])
+@app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST', 'GET'])
 @login_needed
 def remove_location(trip_id, location_id):
     # print(f"Removing location with ID: {location_id} from trip {trip_id}")
