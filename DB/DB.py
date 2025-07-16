@@ -2,6 +2,7 @@ from supabase import create_client
 from config import supabase_url, supabase_key, special_key
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from DB.conflicts import detect_conflicts, Event
 
 class DB:
     def __init__(self):
@@ -309,39 +310,43 @@ class DB:
 
         conflicts = []
         locations = response.data
-
-        locations_by_date = {}
+        new_locations = []
         for loc in locations:
-            date = loc['start_date']
-            if date not in locations_by_date:
-                locations_by_date[date] = []
-            locations_by_date[date].append(loc)
+            event = Event(loc)
+            new_locations.append(event)
+        conflicts = detect_conflicts(new_locations)
 
-        for date, day_locations in locations_by_date.items():
-            day_locations.sort(key=lambda x: x['start_time'])
+        # locations_by_date = {}
+        # for loc in locations:
+        #     date = loc['start_date']
+        #     if date not in locations_by_date:
+        #         locations_by_date[date] = []
+        #     locations_by_date[date].append(loc)
 
-            active_events = []
+        # for date, day_locations in locations_by_date.items():
+        #     day_locations.sort(key=lambda x: x['start_time'])
 
-            for current_event in day_locations:
-                #help filter out events that have ended
-                active_events = [event for event in active_events if event['end_time'] > current_event['start_time']]
+        #     active_events = []
 
-                #if the previous events are still running
-                if active_events:
-                    if current_event not in conflicts:
-                        #add current event(new event we are processing) into conflict
-                        conflicts.append(current_event)         
+        #     for current_event in day_locations:
+        #         #help filter out events that have ended
+        #         active_events = [event for event in active_events if event['end_time'] > current_event['start_time']]
+
+        #         #if the previous events are still running
+        #         if active_events:
+        #             if current_event not in conflicts:
+        #                 #add current event(new event we are processing) into conflict
+        #                 conflicts.append(current_event)         
                     
-                    #add all active events to conflicts
-                    for active_event in active_events:
-                        if active_event not in conflicts:
-                            conflicts.append(active_event)
+        #             #add all active events to conflicts
+        #             for active_event in active_events:
+        #                 if active_event not in conflicts:
+        #                     conflicts.append(active_event)
                 
-                active_events.append(current_event)
+        #         active_events.append(current_event)
         for conflict in conflicts:
             loc= conflict['id']
             conflict['votes'] = self.get_location_votes(loc)
-
         return conflicts
 
         # locations = response.data
