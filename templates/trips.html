@@ -350,7 +350,6 @@
             </div>
             <div class="chat-container">
                 <div class="chat-messages" id="chatMessages">
-                    <!-- Chat messages will appear here -->
                 </div>
                 <div class="chat-input-container">
                     <input type="text" id="chatInput" placeholder="Ask me anything about your trip..." maxlength="500">
@@ -468,11 +467,11 @@
                         <label for="description">Description:</label>
                         <textarea id="description" name="description" rows="4" class="form-control">{{ trip.desc }}</textarea>
                     </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
                 </form>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
             </div>
         </div>
     </div>

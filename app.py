@@ -46,7 +46,7 @@ def dashboard():
             del session['trip_inv']
 
         trips = db.get_all_trips_for_user(session['user_id'])
-        print(trips) # debug
+        # print(trips) # debug
 
         for trip in trips:
             start_date =datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
@@ -84,17 +84,17 @@ def create_trip_api():
     owner_name =session['name']
 
     #Check if data is to able to flow from HTML to Flask correctly (testing - can be removed once checked)
-    print("New trip has been created")
-    print("Trip name: ", trip_title)
-    print("Travelling to: ", trip_destination)
-    print("Theme of the trip: ", trip_theme)
-    print("Starting date: ",trip_start_date)
-    print ("Ending date: ", trip_end_date)
-    print("Description: ", trip_description )
-    print("Privacy setting: ", trip_privacy)
-    print("Friends to invite: ", other_friends_emails)
-    print("Created by: ", owner_name)
-    print("Creator ID: ", owner_id)
+    # print("New trip has been created")
+    # print("Trip name: ", trip_title)
+    # print("Travelling to: ", trip_destination)
+    # print("Theme of the trip: ", trip_theme)
+    # print("Starting date: ",trip_start_date)
+    # print ("Ending date: ", trip_end_date)
+    # print("Description: ", trip_description )
+    # print("Privacy setting: ", trip_privacy)
+    # print("Friends to invite: ", other_friends_emails)
+    # print("Created by: ", owner_name)
+    # print("Creator ID: ", owner_id)
     
     trip_id=db.add_trip(
         google_id=owner_id,
@@ -143,13 +143,13 @@ def view_trip(trip_id):
     trip['formatted_start'] = start_date.strftime('%b %d, %Y')
     trip['formatted_end'] = end_date.strftime('%b %d, %Y')
     
-    locations = db.get_trip_locations(trip_id, session['user_id'])
-    itinerary = db.get_trip_itinerary(trip_id)
-    logs = db.get_trip_page_activities(trip_id)
-    conflicts = db.get_trip_conflicts(trip_id)
-    users = db.get_list_of_users_in_trip(trip_id = trip_id)
+    locations = db.get_trip_locations(trip_id, session['user_id']) # O(n)
+    itinerary = db.get_trip_itinerary(trip_id) # O(n)
+    logs = db.get_trip_page_activities(trip_id) # O(n)
+    conflicts = db.get_trip_conflicts(trip_id) # O(n^2)
+    users = db.get_list_of_users_in_trip(trip_id = trip_id) # O(n)
 
-    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
+    # print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
     try:
         return render_template('trips.html',
@@ -170,7 +170,7 @@ def view_trip(trip_id):
 @login_needed
 def add_location():
     data = request.get_json()
-    print(data)
+    # print(data)
 
     location_id = db.add_location(
         trip_id=data['trip_id'],
@@ -226,7 +226,7 @@ def vote_location(trip_id, location_id):
         user_id=session['user_id']
     )
 
-    print(result)
+    # print(result)
     
     if result:
         return redirect(f'/trip/{trip_id}')
@@ -279,7 +279,7 @@ def add_comment(loc_id):
 @login_needed
 def get_comments(loc_id):
     comments = db.get_comments_for_location(loc_id)
-    print(comments)
+    # print(comments)
     # print(jsonify(comments))
     return jsonify(comments)
 
@@ -344,7 +344,6 @@ def edit_trip(trip_id):
 
     data = request.form
     updated_trip = {
-        'trip_name': data['title'],
         'dest': data['destination'],
         'theme': data['theme'],
         'start_date': data['start_date'],
@@ -352,7 +351,8 @@ def edit_trip(trip_id):
         'desc': data['description'],
     }
 
-    print(f"updated_trip: {updated_trip}")
+    # print(f"updated_trip: {updated_trip}")
+    db.edit_trip(updated_trip, trip_id)
 
     return redirect(f'/trip/{trip_id}')
 
