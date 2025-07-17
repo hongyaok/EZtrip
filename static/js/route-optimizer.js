@@ -1,5 +1,6 @@
 let googleDirectionsService;
 let isGoogleMapsReady = false;
+let globalRouteData = {};
 
 function initializeGoogleMaps() {
     console.log('Setting up Google Maps...');
@@ -23,9 +24,7 @@ function showOptimizeModal() {
         return ;
     }
 
-    //show the options to the user
-    createSmartPreferenceModal();
-    document.getElementById('optimizeModal').style.display = 'flex';
+    startOptimization();
 }
 
 //Close the modal
@@ -33,153 +32,52 @@ function closeOptimizeModal() {
     document.getElementById('optimizeModal').style.display = 'none';
 }
 
-//create the smart preference model for users
-function createSmartPreferenceModal() {
-    const modal = document.getElementById('optimizeModal');
-
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="container">
-                <h3>Smart Route Optimization</h3>
-                <p>Select your preferred transportation methods.</p>
-
-                <div class="smart-preferences">
-                    <h4>Your Transportation Preferences:</h4>
-                    <div class="preference-options">
-                        <div class="preference-option">
-                            <input type="checkbox" id="pref-walking" value="WALKING" checked>
-                            <label for="pref-walking">🚶‍♂️ Walking</label>
-                        </div>
-                         <div class="preference-option">
-                            <input type="checkbox" id="pref-public" value="TRANSIT" checked>
-                            <label for="pref-public">🚌 Public Transport</label>
-                        </div>
-                         <div class="preference-option">
-                            <input type="checkbox" id="pref-driving" value="DRIVING" checked>
-                            <label for="pref-driving">🚗 Driving</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="clearfix">
-                    <button type="button" class="cancelbtn" onclick="closeOptimizeModal()">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="startSmartOptimization()">Optimize with Preferences</button>
-                </div>
-            </div>
-        </div>  
-    `;
-}
 
 //start optimising with smart recommendations
-async function startSmartOptimization() {
-    console.log('Starting smart optimization');
+async function startOptimization() {
+    console.log('Starting route optimization');
 
-    try {
-        //get the users' preferences first
-        const userPreferences = getUserPreferences();
-        console.log('User preferences:', userPreferences);
-
-        //close the modal and show the loading 
-        closeOptimizeModal();
+    try{
         showGlobalLoadingMessage();
 
-        //get all the days inside the itinerary
         const dayElements = document.querySelectorAll('.day-section');
 
         if (dayElements.length == 0) {
-            throw new Error('No trip days found. Please add some locations first');
+            throw new Error('No trip days found. Please add some location first');
         }
+
         console.log(`Found ${dayElements.length} days to optimize`);
 
+        const routeData = {};
+
         //process each day
-        for (let i=0; i<dayElements.length; i++) {
+        for (let i = 0; i <dayElements.length; i++) {
             const dayElement = dayElements[i];
             const date = dayElement.getAttribute('data-date');
 
             if (!date) continue;
 
-            console.log(`optimizing day ${i+1}: ${date}`);
+            console.log(`Processing day: ${date}`);
 
-            //get the activities for the day
             const activities = getActivitiesForDay(dayElement);
 
             if (activities.length < 2) {
-                console.log(`Day ${date} has less than 2 activities, skipping...`);
+                console.log(`Day ${date} has less than 2 activities, skipping`);
                 continue;
             }
 
-            //optimize the particular day with recommendations
-            await optimizeDayWithPreferences(date, activities, userPreferences);
+            routeData[date] = await calculateAllRoutesForDay(activities);
         }
+
         hideGlobalLoadingMessage();
-        showSuccessMessage();
+        displayRouteOptimizationModal(routeData);
     } catch(error) {
-        console.error('Error during optimization:', error)
+        console.error('Error during opitimization', error);
         hideGlobalLoadingMessage();
         alert('Error: ' + error.message);
     }
 }
 
-//get users' preference
-function getUserPreferences() {
-    const preferences = [];
-    const checkboxes = document.querySelectorAll('.preference-option input[type="checkbox"]:checked');
-
-    checkboxes.forEach(checkbox => {
-        preferences.push(checkbox.value);
-    });
-    return preferences;
-}
-
-//optimize each day with smart preferences
-async function optimizeDayWithPreferences(date, activities, userPreferences) {
-    console.log(`Calculating smart recommendations for ${activities.length} activities on ${date}`);
-
-    //process each route within the day
-    for (let i=0; i <activities.length - 1; i++) {
-        const fromActivity = activities[i];
-        const toActivity = activities[i+1];
-
-        console.log(`Route from ${fromActivity.name} to ${toActivity.name}`);
-
-        //calculate all transport methods for this route segment
-        const allRouteOptions = await calculateAllTransportMethods(fromActivity, toActivity);
-
-        //display options with our smart recommendation
-        displaySmartRouteOptions(fromActivity.id, allRouteOptions, userPreferences);
-    }
-}
-
-//calculate all 4 transport methods for each individual route
-async function calculateAllTransportMethods(fromActivity, toActivity) {
-    console.log('Calculating all transport methods');
-
-    const transportMethods = ['DRIVING', 'TRANSIT', 'WALKING'];
-    const routePromises = [];
-
-    for (const method of transportMethods) {
-        const promise = getRouteFromGoogle(fromActivity, toActivity, method);
-        routePromises.push(promise);
-    }
-    const results = await Promise.all(routePromises);
-
-    //filter the failed routes and orgainise the result
-    const routeOptions = {
-        driving: results[0],
-        transit: results[1],
-        walking: results[2],
-    };
-
-    //remove null results
-    Object.keys(routeOptions).forEach(key => {
-        if (routeOptions[key] === null) {
-            delete routeOptions[key];
-        }
-    });
-
-    console.log(`Got ${Object.keys(routeOptions).length} valid route options`);
-    return routeOptions;
-}
 
 //get data from google maps API
 function getRouteFromGoogle(fromActivity, toActivity, method) {
@@ -234,122 +132,222 @@ function getRouteFromGoogle(fromActivity, toActivity, method) {
     });
 }
 
-//display the route options with recommendations
-function displaySmartRouteOptions(fromActivityId, routeOptions, userPreferences) {
-    const routeElement = document.getElementById(`route-info-${fromActivityId}`);
+async function calculateAllRoutesForDay(activities) {
+    console.log(`Calculating routes for ${activities.length} activities`);
 
-    if (!routeElement || Object.keys(routeOptions).length == 0){
-        return;
-    }
+    const routes = [];
 
-    //find the fastest option
-    const allOptions = Object.values(routeOptions);
-    const fastestOption = allOptions.reduce((fastest, current) =>
-        current.minutes < fastest.minutes? current : fastest
-    );
+    for(let i = 0; i < activities.length - 1; i++) {
+        const fromActivity = activities[i];
+        const toActivity = activities[i+1];
 
-    //Filter options to only show preferred transport methods
-    const filteredOptions = allOptions.filter(option => 
-        userPreferences.includes(option.rawMethod)
-    );
+        console.log(`Route from ${fromActivity.name} to ${toActivity.name}`);
 
-    // If no preferred options are available, show all options (just in case)
-    const optionsToShow = filteredOptions.length > 0 ? filteredOptions : allOptions;
+        //help to calculate all 3 transport modes
+        const [driving, walking, transit] = await Promise.all([
+            getRouteFromGoogle(fromActivity, toActivity, 'DRIVING'),
+            getRouteFromGoogle(fromActivity, toActivity, 'WALKING'),
+            getRouteFromGoogle(fromActivity, toActivity, 'TRANSIT'),
+        ]);
 
-    //create html to show the options 
-    let optionsHTML = '<div class="route-options-container">';
-    
-    //sort by travel time - use optionsToShow instead of allOptions
-    const sortedOptions = optionsToShow.sort((a,b) => a.minutes - b.minutes);
+        //create the options object
+        const options = {
+            driving: driving,
+            walking: walking,
+            transit: transit
+        };
 
-    sortedOptions.forEach((option)=> {
-        const isFastest = option.minutes == fastestOption.minutes;
+        //find the fastest option if possible
+        const validOptions = Object.entries(options).filter(([_, data]) => data !== null);
+        let selectedMode = 'DRIVING'; //default choice
 
-        let cardClass = 'transport-option-card';
-        let badges = '';
-
-        if (isFastest) {
-            cardClass += ' fastest-option';
-            badges += '<span class="fastest-badge">⚡FASTEST</span>';
+        if (validOptions.length > 0) {
+            const fastest = validOptions.reduce((min, [mode, data]) => {
+                return data.minutes < min.minutes ? { mode, minutes: data.minutes } : min;
+            }, { mode: validOptions[0][0], minutes: validOptions[0][1].minutes });
+            
+            selectedMode = fastest.mode.toUpperCase();
         }
 
-        optionsHTML += `
-            <div class="${cardClass}" onclick="showRouteDetails('${option.method}', '${option.formattedTime}', '${option.distance}', \`${option.directions}\`, '${option.fromLocation}', '${option.toLocation}')">
-                <div class="option-header">
-                    <span class="option-icon">${option.icon}</span>
-                    <span class="option-method">${option.method}</span>
-                    ${badges}
+        routes.push({
+            from: fromActivity.name,
+            to: toActivity.name,
+            options: options,
+            selected: selectedMode
+        });
+    }
+    return routes;
+}
+
+function displayRouteOptimizationModal(routeData) {
+    //store route data for later access
+    globalRouteData = routeData;
+
+    //create our modal structure
+    const modal = document.getElementById('optimizeModal');
+
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="container">
+                <h3>Optimize Trip Routes</h3>
+                <div id="route-sections-container">
                 </div>
-                <div class="option-details">
-                    <span class="option-time">${option.formattedTime}</span>
-                    <span class="option-distance">${option.distance}</span>
+                <div class="clearfix">
+                    <button type="button" class="cancelbtn" onclick="closeOptimizeModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="closeOptimizeModal()">Done</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const container = document.getElementById('route-sections-container');
+    let html = '';
+
+    Object.entries(routeData).forEach(([date, routes]) => {
+        html += `
+            <div class="date-section">
+                <h4>${date}</h4>
+                ${routes.map((route, index) => createRouteSection(route, date, index)).join('')}
+            </div>
+            `;
+    });
+    container.innerHTML = html;
+
+    //show modal 
+    document.getElementById('optimizeModal').style.display = 'flex';
+}
+
+function createRouteSection(route, date, index) {
+    const sectionId = `route-${date.replace(/\s+/g, '-')}-${index}`;
+
+    return `
+        <div class="route-section">
+            <div class="route-header" onclick="toggleRouteDetails('${sectionId}')">
+                <span class="route-path">${route.from} -> ${route.to}</span>
+            </div>
+            <div class="transport-options">
+                ${createTransportButtons(route, sectionId)}
+            </div>
+            <div id="${sectionId}-details" class="route-details" style="display: none;">
+            </div>
+        </div>
+    `;
+}
+
+function createTransportButtons(route, sectionId) {
+    const transportModes = [
+        { key: 'driving', icon: '🚗', label: 'Driving' },
+        { key: 'walking', icon: '🚶', label: 'Walking' },
+        { key: 'transit', icon: '🚌', label: 'Transit' }
+    ];
+
+    return transportModes.map(mode => {
+        const routeData = route.options[mode.key];
+        const isSelected = route.selected.toLowerCase() === mode.key;
+        const isDisabled = !routeData;
+
+        if (isDisabled) {
+            return `
+                <button class="transport-option disabled" disabled>
+                    ${mode.icon} N/A
+                </button>
+            `;
+        }
+        return `
+            <button class="transport-option ${isSelected? 'selected' : ''}" 
+                    onclick="selectTransportMode('${sectionId}', '${mode.key}', event)">
+                ${mode.icon} ${routeData.formattedTime}
+            </button>
+        `;
+    }).join('');
+}
+
+function selectTransportMode(sectionId, mode, event) {
+    //prvent triggering route details toggle
+    event.stopPropagation();
+
+    //update button selection
+    const section = document.querySelector(`#${sectionId}-details`).parentElement;
+    const buttons = section.querySelectorAll('.transport-option'); 
+
+    buttons.forEach(btn => btn.classList.remove('selected'));
+    event.target.classList.add('selected');
+
+    //if the details are open, update them
+    const detailsDiv = document.getElementById(`${sectionId}-details`);
+    if (detailsDiv.style.display !== 'none') {
+        updateRouteDetails(sectionId, mode);
+    }
+}
+
+function  toggleRouteDetails(sectionId) {
+    const detailsDiv = document.getElementById(`${sectionId}-details`);
+
+    if (detailsDiv.style.display === 'none') {
+        //find the selected transport mode
+        const section = detailsDiv.parentElement;
+        const selectedButton = section.querySelector('.transport-option.selected');
+
+        if (selectedButton) {
+            const buttonText = selectedButton.textContent;
+            let mode = 'driving' //default option
+
+            if (buttonText.includes('🚗')) mode = 'driving';
+            else if (buttonText.includes('🚶')) mode = 'walking';
+            else if (buttonText.includes('🚌')) mode = 'transit';
+
+                updateRouteDetails(sectionId, mode);
+        }
+
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+}
+
+function updateRouteDetails(sectionId, mode) {
+    const detailsDiv = document.getElementById(`${sectionId}-details`);
+
+    //extract route data
+    const routeData = getRouteDataFromSection(sectionId, mode);
+
+    if (routeData && routeData.directions) {
+        let modeDisplayName = mode.toUpperCase();
+        if (mode === 'transit') {
+            modeDisplayName = "PUBLIC TRANSPORT"
+        }
+
+        detailsDiv.innerHTML = `
+            <div style="margin: 0; padding: 0; text-align: left;">
+                <div style="margin: 0 0 3px 0; padding: 0; text-align: left;">
+                    <strong style="font-size: 1.1em; color: #333; text-align: left; display: block;">${modeDisplayName} DIRECTIONS:</strong>
+                    <div style="margin: 0 0 3px 0; padding: 0; text-align: left; color: #666; font-size: 1.1em;">
+                        <div style="margin: 0; padding: 0;"><strong>Duration:</strong> ${routeData.formattedTime}</div>
+                        <div style="margin: 0; padding: 0;"><strong>Distance:</strong> ${routeData.distance}</div>
+                    </div>
+                </div>
+                <div style="margin: 0; padding: 0; line-height: 1.5; font-family: monospace; font-size: 1.2em; margin: 0; padding: 0; text-align: left;">
+                    ${routeData.directions.replace(/\n/g, '<br>')}
                 </div>
             </div>
         `;
-    });
+    } else {
+        let modeDisplayName = mode.toUpperCase();
+        if (mode === 'transit') {
+            modeDisplayName = "PUBLIC TRANSPORT"
+        }
 
-    optionsHTML += '</div>';
-
-    //display the options
-    routeElement.innerHTML = optionsHTML;
-    routeElement.style.display ='block';
-}
-
-//show the detailed info when user clicks on an option
-function showRouteDetails(method, minutes, distance, directions, fromLocation, toLocation) {
-    //create a popup
-    const popup = document.createElement('div');
-    popup.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border: 2px solid #333;
-        padding: 20px;
-        max-width: 600px;
-        max-height: 700px;
-        overflow-y: auto;
-        z-index: 10000;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        detailsDiv.innerHTML = `
+        <div style="margin: 0; padding: 0; text-align: left;">
+            <div style="margin: 0 0 3px 0; padding: 0; text-align: left;">
+                <strong style="font-size: 1.1em; color: #333; text-align: left; display: block;">${modeDisplayName} DIRECTIONS:</strong>
+            </div>
+            <div style="margin: 0; padding: 0; color: #999; font-size: 1.1em; text-align: left;">
+                Directions not available for this route.
+            </div>
+        </div>
     `;
-
-    //create overlay background 
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-    `;
-
-    popup.innerHTML = `
-        <h3>${method} Route Details </h3>
-        <p><strong>From:</strong> ${fromLocation}</p>
-        <p><strong>To:</strong> ${toLocation}</p>
-        <p><strong>Duration:</strong> ${minutes}</p>
-        <p><strong>Distance:</strong> ${distance}</p>
-        <hr>
-        <pre style="white-space: pre-wrap; font-family: Arial; font-size: 14px; line-height: 1.4;">${directions}</pre>
-        <br>
-        <button onclick="closePopup()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
-    `;
-
-    //close popup 
-    overlay.onclick = function() {
-        closePopup();
-    };
-
-    //Add to page
-    document.body.appendChild(overlay);
-    document.body.appendChild(popup);
-
-    window.currentPopup = popup;
-    window.currentOverlay = overlay;
+    }
 }
 
 function closePopup() {
@@ -361,6 +359,21 @@ function closePopup() {
         document.body.removeChild(window.currentOverlay);
         window.currentOverlay = null;
     }
+}
+
+//helper function to retrieve route data
+function getRouteDataFromSection(sectionId, mode) {
+    //extract the date and route index from section id
+    const parts = sectionId.split('-');
+    const routeIndex = parseInt(parts[parts.length - 1]);
+
+    //find the route data in the global storage
+    for (const [date, routes] of Object.entries(globalRouteData)) {
+        if (routes[routeIndex] && routes[routeIndex].options[mode]){
+            return routes[routeIndex].options[mode];
+        }
+    }
+    return null;
 }
 
 //helper function to get activities from each day
