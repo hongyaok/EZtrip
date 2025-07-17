@@ -167,32 +167,69 @@ def view_trip(trip_id):
 @app.route('/api/locations', methods=['POST'])
 @login_needed
 def add_location():
-    data = request.get_json()
-    print(data)
+    try:
+        data = request.get_json()
 
-    location_id = db.add_location(
-        trip_id=data['trip_id'],
-        name=data['name'],
-        category=data['category'],
-        description=data['description'],
-        start_date=data['start_date'],
-        end_date=data['end_date'],
-        start_time=data['start_time'],
-        end_time=data['end_time'],
-        user=session['name'],
-        lat=data.get('lat'),
-        lng=data.get('lng')
-    )
+        trip_id = data['trip_id']
+        name = data['name']
+        category = data['category']
+        description = data['description']
+        start_date = data['start_date']
+        end_date = data['end_date']
+        start_time = data['start_time']
+        end_time = data['end_time']
+        lat = data.get('lat')
+        lng = data.get('lng')
 
-    email_list = db.get_list_of_users_in_trip(trip_id=data['trip_id'], ver=1)
-    action = f"A new location '{data['name']}' has been added to the trip."
-    trip = db.get_trip_by_id(data['trip_id'])
+        location_id = db.add_location(
+            trip_id=trip_id,
+            name=name,
+            category=category,
+            description=description,
+            start_date=start_date,
+            end_date=end_date,
+            start_time=start_time,
+            end_time=end_time,
+            user=session['name'],
+            lat=lat,
+            lng=lng
+        )
 
-    if location_id:
-        mass_email(session['name'], trip['dest'], trip['desc'], email_list, data['trip_id'], action=action, ver=1)
-        return jsonify({'success': True, 'location_id': location_id})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to add location'})
+        print("Location ID created:", location_id) 
+
+        if location_id:
+            email_list = db.get_list_of_users_in_trip(trip_id=trip_id, ver=1)
+            action = f"A new location '{name}' has been added to the trip."
+            trip = db.get_trip_by_id(trip_id)
+
+            mass_email(session['name'], trip['dest'], trip['desc'], email_list, trip_id, action=action, ver=1)
+            
+            # Return the location data that the frontend need
+            location_data = {
+                'id': location_id,
+                'name': name,
+                'category': category,
+                'description': description,
+                'start_date': start_date,
+                'end_date': end_date,
+                'start_time': start_time,
+                'end_time': end_time,
+                'suggested_by': session['name'],
+                'lat': lat,
+                'lng': lng,
+                'trip_id': trip_id
+            }
+            
+            return jsonify({
+                'success': True, 
+                'location': location_data,
+                'message': 'Location added successfully'
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Failed to add location'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'})
     
 @app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST'])
 @login_needed
