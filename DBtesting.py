@@ -52,4 +52,5 @@ if __name__ == "__main__":
 
     # print(DB.get_trip_conflicts(3))
     # print(DB.get_list_of_users_in_trip(3, ver=1))
-    print(datetime.now(tz=ZoneInfo('Asia/Singapore')).isoformat())
+    # print(datetime.now(tz=ZoneInfo('Asia/Singapore')).isoformat())
+    print(DB.get_trip_locations(2, 1))

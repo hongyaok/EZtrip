@@ -2,6 +2,7 @@ from supabase import create_client
 from config import supabase_url, supabase_key, special_key
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from DB.conflicts import detect_conflicts, Event
 
 class DB:
     def __init__(self):
@@ -74,15 +75,15 @@ class DB:
     
     def get_list_of_users_in_trip(self, trip_id, ver=0):
         response = self.supabase.table('USERTRIP').select('google_id').eq('trip_id', trip_id).execute()
-        if ver == 0: # 0 to get names
-            return [self.get_name_from_id(user['google_id']) for user in response.data] if response.data else []
-        elif ver == 1: # 1 to get emails
-            return [self.get_email_from_id(user['google_id']) for user in response.data] if response.data else []
+        google_ids = [user['google_id'] for user in response.data] if response.data else []
+        if not google_ids:
+            return []
+        
+        keywords = {0: 'username', 1: 'email', 2: 'user_img'}
+        keyword = keywords.get(ver, 'username')
 
-    def get_email_from_id(self, id):
-        response = self.supabase.table('USERS').select('email').eq('google_id', id).execute()
-        return response.data[0]['email'] if response.data else None
-
+        users_response = self.supabase.table('USERS').select('google_id', keyword).in_('google_id', google_ids).execute()
+        return [user[keyword] for user in users_response.data] if users_response.data else []
 
     def add_trip(self, google_id, trip_name, dest, theme, start_date, end_date, desc, privacy):
         data = {
@@ -118,26 +119,26 @@ class DB:
         # First get the trip IDs for the user
         user_trips = (
             self.supabase.from_('USERTRIP')
-            .select('trip_id')
+            .select("trip_id ,TRIPS(*)")
             .eq('google_id', google_id)
             .execute()
         )
-        #print(f"User trips: {user_trips.data}") #debug
-        
-        all_trips = []
-        if user_trips.data:
-            trip_ids = [trip['trip_id'] for trip in user_trips.data]
-            for trip_id in trip_ids:
-                all_trips.extend((
-                    self.supabase.from_('TRIPS')
-                    .select('*')
-                    .eq('trip_id', trip_id)
-                    .execute()
-                ).data)
+        # print(user_trips.data)  # debug
+        try:
+            all_trips = []
+            if user_trips.data:
+                for trip in user_trips.data:
+                    all_trips.append(trip['TRIPS'])
+                    trip_id = all_trips[-1]['trip_id']  # Ensure trip_id is included in the trip data
+                    all_users = self.get_list_of_users_in_trip(trip_id, 2) # use 2 to get img
+                    all_trips[-1]['user_imgs'] = all_users
+                    # print(all_trips[-1])  # debug
+                return all_trips
 
-            return all_trips
-        
-        return []
+            return []
+        except Exception as e:
+            print(f"error in get_all_trips_for_user: {e}")
+            return []
     
     def get_trip_by_id(self, trip_id):
         response= self.supabase.table('TRIPS').select('*').eq('trip_id', trip_id).execute()
@@ -261,10 +262,10 @@ class DB:
             # print(response.data) 
             if response.data:
                 print("Vote added successfully!")
-                print(response.data)
+                # print(response.data)
             else:
                 print("Error adding vote")
-                print(response)
+                # print(response)
         return True
         # # to do
         # pass
@@ -282,7 +283,7 @@ class DB:
             .execute()
         )
 
-        print(response.data)
+        # print(response.data)
 
         itinerary = {}
         for item in response.data:
@@ -309,39 +310,43 @@ class DB:
 
         conflicts = []
         locations = response.data
-
-        locations_by_date = {}
+        new_locations = []
         for loc in locations:
-            date = loc['start_date']
-            if date not in locations_by_date:
-                locations_by_date[date] = []
-            locations_by_date[date].append(loc)
+            event = Event(loc)
+            new_locations.append(event)
+        conflicts = detect_conflicts(new_locations)
 
-        for date, day_locations in locations_by_date.items():
-            day_locations.sort(key=lambda x: x['start_time'])
+        # locations_by_date = {}
+        # for loc in locations:
+        #     date = loc['start_date']
+        #     if date not in locations_by_date:
+        #         locations_by_date[date] = []
+        #     locations_by_date[date].append(loc)
 
-            active_events = []
+        # for date, day_locations in locations_by_date.items():
+        #     day_locations.sort(key=lambda x: x['start_time'])
 
-            for current_event in day_locations:
-                #help filter out events that have ended
-                active_events = [event for event in active_events if event['end_time'] > current_event['start_time']]
+        #     active_events = []
 
-                #if the previous events are still running
-                if active_events:
-                    if current_event not in conflicts:
-                        #add current event(new event we are processing) into conflict
-                        conflicts.append(current_event)         
+        #     for current_event in day_locations:
+        #         #help filter out events that have ended
+        #         active_events = [event for event in active_events if event['end_time'] > current_event['start_time']]
+
+        #         #if the previous events are still running
+        #         if active_events:
+        #             if current_event not in conflicts:
+        #                 #add current event(new event we are processing) into conflict
+        #                 conflicts.append(current_event)         
                     
-                    #add all active events to conflicts
-                    for active_event in active_events:
-                        if active_event not in conflicts:
-                            conflicts.append(active_event)
+        #             #add all active events to conflicts
+        #             for active_event in active_events:
+        #                 if active_event not in conflicts:
+        #                     conflicts.append(active_event)
                 
-                active_events.append(current_event)
+        #         active_events.append(current_event)
         for conflict in conflicts:
             loc= conflict['id']
             conflict['votes'] = self.get_location_votes(loc)
-
         return conflicts
 
         # locations = response.data
@@ -385,6 +390,12 @@ class DB:
         response = self.supabase.table('COMMENTS').select('*').eq('location_id', location_id).order('created_at').execute()
         comments = response.data
         return comments
+    
+    def edit_trip(self, new_data, trip_id):
+        print(f"Editing trip {trip_id} with data: {new_data}")
+        response = self.supabase.table('TRIPS').update(new_data).eq('trip_id', trip_id).execute()
+        return response.data[0] if response.data else None
+
 
 
 # for testing purposes

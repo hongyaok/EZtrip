@@ -7,8 +7,13 @@ from DB.DB import DB
 from datetime import datetime
 from func.emailfn import mass_email
 from func.to_ics import convert_to_ics, clear_all_ics
+from func.gemini import GeminiYapper
 
+### init connections ###
 db = DB() 
+planner = GeminiYapper()
+#########################
+
 app = Flask(__name__, static_folder = 'static', template_folder = 'templates') # set static and template folders
 
 ### USED FOR AUTH DO NOT DELETE ###
@@ -41,6 +46,7 @@ def dashboard():
             del session['trip_inv']
 
         trips = db.get_all_trips_for_user(session['user_id'])
+        # print(trips) # debug
 
         for trip in trips:
             start_date =datetime.fromisoformat(trip['start_date'].replace('Z', '+00:00'))
@@ -78,17 +84,17 @@ def create_trip_api():
     owner_name =session['name']
 
     #Check if data is to able to flow from HTML to Flask correctly (testing - can be removed once checked)
-    print("New trip has been created")
-    print("Trip name: ", trip_title)
-    print("Travelling to: ", trip_destination)
-    print("Theme of the trip: ", trip_theme)
-    print("Starting date: ",trip_start_date)
-    print ("Ending date: ", trip_end_date)
-    print("Description: ", trip_description )
-    print("Privacy setting: ", trip_privacy)
-    print("Friends to invite: ", other_friends_emails)
-    print("Created by: ", owner_name)
-    print("Creator ID: ", owner_id)
+    # print("New trip has been created")
+    # print("Trip name: ", trip_title)
+    # print("Travelling to: ", trip_destination)
+    # print("Theme of the trip: ", trip_theme)
+    # print("Starting date: ",trip_start_date)
+    # print ("Ending date: ", trip_end_date)
+    # print("Description: ", trip_description )
+    # print("Privacy setting: ", trip_privacy)
+    # print("Friends to invite: ", other_friends_emails)
+    # print("Created by: ", owner_name)
+    # print("Creator ID: ", owner_id)
     
     trip_id=db.add_trip(
         google_id=owner_id,
@@ -137,16 +143,13 @@ def view_trip(trip_id):
     trip['formatted_start'] = start_date.strftime('%b %d, %Y')
     trip['formatted_end'] = end_date.strftime('%b %d, %Y')
     
-    locations = db.get_trip_locations(trip_id, session['user_id'])
-    itinerary = db.get_trip_itinerary(trip_id)
-    logs = db.get_trip_page_activities(trip_id)
-    conflicts = db.get_trip_conflicts(trip_id)
-    users = db.get_list_of_users_in_trip(trip_id = trip_id)
+    locations = db.get_trip_locations(trip_id, session['user_id']) # O(n)
+    itinerary = db.get_trip_itinerary(trip_id) # O(n)
+    logs = db.get_trip_page_activities(trip_id) # O(n)
+    conflicts = db.get_trip_conflicts(trip_id) # O(n^2)
+    users = db.get_list_of_users_in_trip(trip_id = trip_id) # O(n)
 
-    print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
-
-    download_fname = convert_to_ics(itinerary, username=session['name'])
-    print(f"\n\n\nfname: {download_fname}\n\n\n")
+    # print(f"\ntrip: {trip}, \n\nlocations: {locations}, \n\nitinerary: {itinerary}, \n\nlogs: {logs}, \n\nconflicts: {conflicts}, \n\nusers: {users}")
 
     try:
         return render_template('trips.html',
@@ -155,7 +158,6 @@ def view_trip(trip_id):
                             itinerary=itinerary,
                             logs=logs,
                             conflicts=conflicts,
-                            download_fname=download_fname,
                             users=users,
                             name=session['name'],
                             email=session['email'],
@@ -169,6 +171,8 @@ def view_trip(trip_id):
 def add_location():
     try:
         data = request.get_json()
+    data = request.get_json()
+    # print(data)
 
         trip_id = data['trip_id']
         name = data['name']
@@ -231,7 +235,7 @@ def add_location():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Server error: {str(e)}'})
     
-@app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST'])
+@app.route('/<int:trip_id>/remove/<int:location_id>', methods=['POST', 'GET'])
 @login_needed
 def remove_location(trip_id, location_id):
     # print(f"Removing location with ID: {location_id} from trip {trip_id}")
@@ -261,18 +265,21 @@ def vote_location(trip_id, location_id):
         user_id=session['user_id']
     )
 
-    print(result)
+    # print(result)
     
     if result:
         return redirect(f'/trip/{trip_id}')
     else:
         return jsonify({'success': False})
 
-@app.route('/download/<path:filename>', methods=['GET'])
+@app.route('/download/<int:trip_id>', methods=['GET'])
 @login_needed
-def download_file(filename):
+def download_file(trip_id):
+    itinerary = db.get_trip_itinerary(trip_id)
+    download_fname = convert_to_ics(itinerary, username=session['name'])
+    print(f"\n\n\nfname: {download_fname}\n\n\n")
     try:
-        return send_file(filename, as_attachment=True)
+        return send_file(download_fname, as_attachment=True)
     except Exception as e:
         print(f"Error: {e}")
         abort(404)
@@ -311,9 +318,82 @@ def add_comment(loc_id):
 @login_needed
 def get_comments(loc_id):
     comments = db.get_comments_for_location(loc_id)
-    print(comments)
+    # print(comments)
     # print(jsonify(comments))
     return jsonify(comments)
+
+@app.route('/api/chat/start', methods=['POST'])
+@login_needed
+def start_chat():
+    try:
+        data = request.get_json()
+        trip_id = data.get('trip_id')
+        location = data.get('location', 'your destination')
+                
+        if 'chat_instances' not in session:
+            session['chat_instances'] = {}
+        
+        welcome_message = planner.start(location)
+        
+        session['chat_instances'][trip_id] = True
+        
+        return jsonify({
+            'success': True,
+            'message': welcome_message
+        })
+        
+    except Exception as e:
+        print(f"Error starting chat: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to start chat'
+        })
+
+@app.route('/api/chat/reply', methods=['POST'])
+@login_needed
+def chat_reply():
+    try:
+        data = request.get_json()
+        trip_id = data.get('trip_id')
+        location = data.get('location', 'your destination')
+        chat_history = data.get('chat_history', [])
+                
+        response = planner.reply(chat_history, location)
+        
+        return jsonify({
+            'success': True,
+            'message': response
+        })
+        
+    except Exception as e:
+        print(f"Error in chat reply: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to get response'
+        })
+
+@app.route('/<int:trip_id>/edit', methods=['GET', 'POST'])
+@login_needed
+def edit_trip(trip_id):
+    trip = db.get_trip_by_id(trip_id)
+    if not trip:
+        return redirect('/denied')
+    if not db.user_has_access_to_trip(session['user_id'], trip_id):
+        return redirect('/denied')
+
+    data = request.form
+    updated_trip = {
+        'dest': data['destination'],
+        'theme': data['theme'],
+        'start_date': data['start_date'],
+        'end_date': data['end_date'],
+        'desc': data['description'],
+    }
+
+    # print(f"updated_trip: {updated_trip}")
+    db.edit_trip(updated_trip, trip_id)
+
+    return redirect(f'/trip/{trip_id}')
 
 if __name__ == '__main__':
     clear_all_ics()
