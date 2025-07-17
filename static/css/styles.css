@@ -1455,189 +1455,124 @@ header {
   max-width: 80%;
 }
 
-.smart-preferences {
-  margin: 20px 0;
+.date-section {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
 }
 
-.smart-preferences h4 {
-  color: #4285F4;
+.date-section h4 {
+  color: #4285f4;
   margin-bottom: 15px;
+  font-size: 1.1em;
 }
 
-.preference-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.preference-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
+.route-section {
   border: 1px solid #ddd;
-  border-radius: 5px;
-  background: white;
-}
-
-.preference-option:hover {
-  border-color: #4285F4;
-  background: #f8f9fa;
-}
-
-.preference-option input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-}
-
-.preference-option label {
-  font-size: 14px;
+  border-radius:8px;
+  margin-bottom: 15px;
+  padding: 20px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.route-section:hover {
+  border-color: #4285F4;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+}
+
+.route-header {
+  font-size: 1.1em;
+  font-weight: 550;
+  margin-bottom: 15px;
   color: #333;
 }
 
-.route-options-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin: 10px 0;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 5px;
+#route-sections-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.route-directions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  font-size: 1.1em;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.route-directions strong {
+  color: #333;
+  font-weight: 600;
+  text-align: left;
+}
+
+.route-directions > div:last-child {
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+
+.transport-option {
+  padding: 8px 12px;
   border: 1px solid #ddd;
-}
-
-.transport-option-card {
+  border-radius: 20px;
   background: white;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  padding: 8px;
-  text-align: center;
   cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
 }
 
-.transport-option-card:hover {
+.transport-option.selected {
+  background: #4285F4;
+  color: white;
   border-color: #4285F4;
-  background: #f0f8ff;
+  font-weight: 500;
 }
 
-.transport-option-card.fastest-option {
-  border-color: #4caf50;
-  background: #f1f8e9;
+.transport-option:hover {
+  border-color: #4285F4;
+  background-color: #f8f9fa;
 }
 
-.transport-option-card.preferred-option {
-    border-color: #ff9800;
-    background: #FFF3E0;
-}
-
-.transport-option-card.dimmed-option {
-  opacity: 0.5;
+.transport-option.disabled {
   background: #f5f5f5;
+  color: #999;
   border-color: #ccc;
+  cursor: not-allowed;
 }
 
-.transport-option-card.dimmed-option:hover {
-  opacity: 0.7;
+.route-details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  font-family: monospace;
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: pre-wrap;
 }
 
-.option-header {
-  margin-bottom: 5px;
+#optimizeModal .modal-content {
+  width: 80%;
+  max-width: 900px;
+  min-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.option-icon {
-  font-size: 20px;
-  margin-bottom: 3px;
-  display: block;
-}
-
-.option-method {
-  font-size: 11px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 3px;
-}
-
-.fastest-badge {
-  font-size: 9px;
-  color: #4caf50;
-  font-weight: bold;
-  display: block;
-}
-
-.preferred-badge {
-  font-size: 9px;
-  color: #ff9800;
-  font-weight: bold;
-  display: block;
-}
-
-.option-time {
-  font-weight: bold;
-  color: #4285F4;
-  font-size: 12px;
-  display: block;
-}
-
-.option-distance {
-  font-size: 10px;
-  color: #666;
-  display: block;
-}
-
-.route-info {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 8px 0;
-}
-
-.loading-spinner {
-  animation: spin 1s linear infinite;
-  font-size: 20px;
-}
-
-@keyframes spin {
-  from {transform: rotate(0deg);}
-  to {transform: rotate(360deg);}
-}
-
-@media (max-width: 480px) {
-  .route-options-container {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
-  }
-  .transport-option-card {
-    padding: 4px;
-  }
-
-  .option-method {
-    font-size: 9px;
-  }
+#optimizeModal .container {
+  max-width: none;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
-    .preference-options {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .route-options-container {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px;
-        padding: 8px;
-    }
-
-    .transport-option-card {
-        padding: 6px;
-    }
-
-    .option-icon {
-        font-size: 18px;
-    }
-
-    .option-method {
-        font-size: 10px;
-    }
+  #optimizeModal .modal-content {
+    width: 95%;
+    min-width: auto;
+    max-height: 95vh;
+  }
+  #route-sections-container {
+    max-height: 75vh;
+  }
 }
