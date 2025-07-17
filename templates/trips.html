@@ -245,15 +245,14 @@
                                                     data-name="{{activity.name}}">
                                                 <i class="fas fa-map-marker-alt"></i> Locate
                                             </button>
-                                            <form class="activity-meta" action="/{{activity.trip_id}}/remove/{{activity.id}}" method="POST">
-                                            <button class="btn btn-outline btn-small comment-btn"data-activity-id="{{activity.id}}">
+                                            <button class="btn btn-outline btn-small comment-btn" data-activity-id="{{activity.id}}">
                                                 <i class="fas fa-comments"></i> Comment
                                             </button>
-                                            <a class="activity-meta" href="/{{activity.trip_id}}/remove/{{activity.id}}">
+                                            <form action="/{{activity.trip_id}}/remove/{{activity.id}}" method="POST" style="display: inline;">
                                                 <button class="btn btn-outline btn-small remove-btn" style="background: #dc3545; color: white" type="submit">
                                                     <i class="fas fa-trash"></i> Remove   
                                                 </button>
-                                            </a>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -349,6 +348,10 @@
                 <div class="clearfix">
                     <button type="button" class="cancelbtn" onclick="closeDeleteModal()">Cancel</button>
                     <button type="button" class="deletebtn" onclick="confirmDelete()">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="tripAssistantModal" class="modal" style="display: none;">
         <div class="modal-content chat-modal">
             <div class="modal-header">
@@ -563,22 +566,6 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places,geometry&callback=initMap"></script>
     <script>
 
-    document.getElementById('locationForm').addEventListener('submit', function(e) {
-        e.preventDefault(); 
-
-        // Get the submit button
-        const submitBtn = this.querySelector('button[type="submit"]');
-        
-        // Prevent multiple submissions
-        if (submitBtn.disabled) {
-            return; 
-        }
-        
-        // Disable button and show loading state
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        submitBtn.disabled = true;
-    // to do: shift this to a separate file
     document.addEventListener('DOMContentLoaded', function() {
         const tripAssistantBtn = document.getElementById('tripAssistantBtn');
         const tripAssistantModal = document.getElementById('tripAssistantModal');
@@ -783,16 +770,24 @@
 
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
-        document.getElementById('loadingModal').style.display = 'flex';
+
+        // Prevent multiple submissions
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn.disabled) return;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
         
         let lat = null;
         let lng = null;
 
-         if (currentPreviewPlace && currentPreviewPlace.geometry) {
-                lat = currentPreviewPlace.geometry.location.lat();
-                lng = currentPreviewPlace.geometry.location.lng();
-                console.log('Found coordinates from search:', lat, lng)
-            }
+         if (window.currentPreviewPlace && window.currentPreviewPlace.geometry) {
+            lat = window.currentPreviewPlace.geometry.location.lat();
+            lng = window.currentPreviewPlace.geometry.location.lng();
+            console.log('Found coordinates from search:', lat, lng)
+        } else {
+            console.log('No currentPreviewPlace found:', window.currentPreviewPlace);
+        }
 
         const formData = {
             name: document.getElementById('location-search').value,
@@ -807,7 +802,7 @@
             lng: lng
         };
 
-        console.log('Form data are being sent', formData)
+        console.log('Form data being sent - lat:', lat, 'lng:', lng)
 
         fetch('/api/locations', {
             method: 'POST',
@@ -819,8 +814,16 @@
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            // show popup message
-            document.getElementById('successModal').style.display = 'flex';
+            if (data.success && data.location) {
+                // Add marker to map
+                createPermanentMarker(data.location.lat, data.location.lng, data.location.name, data.location.id);
+                
+                // Reload to show in itinerary
+                window.location.reload();
+            } else {
+                console.error('Location data missing:', data);
+                window.location.reload();
+            }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -926,24 +929,6 @@
         }
         closeDeleteModal();
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const removeForms = document.querySelectorAll('form[action*="/remove/"]');
-        
-        removeForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                showDeleteModal(this);
-            });
-        });
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('deleteModal');
-            if (event.target === modal) {
-                closeDeleteModal();
-            }
-        }
-    });
 
     function showInviteModal() {
         document.getElementById('inviteModal').style.display = 'flex';

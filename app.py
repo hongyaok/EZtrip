@@ -82,19 +82,6 @@ def create_trip_api():
     #extract info of the person who is creating the trip
     owner_id =session['user_id']
     owner_name =session['name']
-
-    #Check if data is to able to flow from HTML to Flask correctly (testing - can be removed once checked)
-    # print("New trip has been created")
-    # print("Trip name: ", trip_title)
-    # print("Travelling to: ", trip_destination)
-    # print("Theme of the trip: ", trip_theme)
-    # print("Starting date: ",trip_start_date)
-    # print ("Ending date: ", trip_end_date)
-    # print("Description: ", trip_description )
-    # print("Privacy setting: ", trip_privacy)
-    # print("Friends to invite: ", other_friends_emails)
-    # print("Created by: ", owner_name)
-    # print("Creator ID: ", owner_id)
     
     trip_id=db.add_trip(
         google_id=owner_id,
@@ -171,8 +158,6 @@ def view_trip(trip_id):
 def add_location():
     try:
         data = request.get_json()
-    data = request.get_json()
-    # print(data)
 
         trip_id = data['trip_id']
         name = data['name']

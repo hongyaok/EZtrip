@@ -3,7 +3,7 @@ let map;
 let markers = [];   //use the array to store all the map markers
 let tripLocations = []  //for storing all the location data
 let previewMarker = null    //to show user's search preview
-let currentPreviewPlace = null;     //allow us to store the current searched place
+window.currentPreviewPlace = null;     //allow us to store the current searched place
 
 
 // enhancing our previous map 
@@ -52,7 +52,7 @@ function setupSearchBox() {
             const place = places[0];
 
             //Store the place for our form submission
-            currentPreviewPlace = place;
+            window.currentPreviewPlace = place;
             
             //show preview marker and ask user to confirm
             showLocationPreview(place);
@@ -192,7 +192,7 @@ function cancelLocationPreview() {
         previewMarker = null;
 
         //clear the current preview place
-        currentPreviewPlace = null;
+        window.currentPreviewPlace = null;
 
         //clear the form
         clearLocationForm();
@@ -629,66 +629,6 @@ document.addEventListener('DOMContentLoaded', function(){
             cancelLocationPreview();        //cancel any preview when closing the form
         });
     }
-
-//prevent page refresh 
-const locationForm = document.getElementById('locationForm');
-if(locationForm) {
-    locationForm.addEventListener('submit', function(e) {
-        e.preventDefault(); 
-
-        let lat = null;
-        let lng = null;
-
-        if (currentPreviewPlace && currentPreviewPlace.geometry) {
-            lat = currentPreviewPlace.geometry.location.lat();
-            lng = currentPreviewPlace.geometry.location.lng();
-        }
-
-        const formData = {
-            name: document.getElementById('location-search').value,
-            category: document.getElementById('location-category').value,
-            description: document.getElementById('location-description').value,
-            date: document.getElementById('locationDate').value,
-            start_time: document.getElementById('locationStartTime').value,
-            end_time: document.getElementById('locationEndTime').value,
-            trip_id: "{{ trip.trip_id }}",
-            lat: lat,
-            lng: lng
-        };
-
-        fetch('/api/locations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.location) {
-                //add marker 
-                if (typeof createPermanentMarker === 'function') {
-                    createPermanentMarker(data.location.lat, data.location.lng, data.location.name, data.location.id);
-                }
-                
-                //clear form and hide it
-                clearLocationForm();
-                hideAddLocationForm();
-                cancelLocationPreview();
-                
-                alert('Location added successfully!');
-                //refresh the page to show the added activity in itinerary
-                window.location.reload();
-            } else {
-                throw new Error(data.message || 'Failed to add location');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding location: ' + error.message);
-        });
-    });
-}
 
     //add to trip button functionality
     document.addEventListener('click', function(e) {
