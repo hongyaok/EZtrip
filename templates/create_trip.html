@@ -10,22 +10,20 @@
 </head>
 <body>
     <header>
-        <div class="container">
-            <div class="navbar">
-                <a href="/dashboard" class="logo">
-                    EZtrip
-                </a>
-                <div class="nav-links">
-                    <a href="/dashboard">Dashboard</a>
-                    <a href="/create-trip" class="active">Create Trip</a>
-                </div>
-                <div class="user-profile">
-                    <img src="{{ picture }}" alt="{{ name }}" class="profile-pic">
-                    <span>{{name}}</span>
-                    <a href="/auth/logout" class="btn btn-outline">Logout</a>
+        <nav class="navbar container">
+            <a href="/dashboard" class="logo">
+                EZtrip
+            </a>
+            <div class="user-profile" style="position: relative;">
+                <img src="{{ picture }}" alt="Profile" class="profile-pic">
+                <span id="userDropdownToggle" style="cursor: pointer;">{{name}} <i class="fas fa-caret-down"></i></span>
+                <div id="userDropdownMenu" class="dropdown-menu">
+                    <a href="/dashboard" class="dropdown-item" >Dashboard</a>
+                    <a href="/create-trip" class="dropdown-item" >Create Trip</a>
+                    <a href="/auth/logout" class="dropdown-item" >Logout</a>
                 </div>
             </div>
-        </div>
+        </nav>
     </header>
 
     <main class="container">
@@ -117,6 +115,19 @@
             </form>
         </div>
     </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('userDropdownToggle');
+        const menu = document.getElementById('userDropdownMenu');
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function() {
+            menu.style.display = 'none';
+        });
+    });
+    </script>
 
 </body>
 </html>

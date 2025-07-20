@@ -1471,6 +1471,7 @@ header {
   background: #f9f9f9;
   border-radius: 8px;
   padding: 10px;
+  overflow: auto;
 }
 .chat-bubble {
   background: #e6f0ff;
@@ -1601,29 +1602,29 @@ header {
     max-height: 75vh;
   }
 }
-    .preference-options {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
+  .preference-options {
+      grid-template-columns: 1fr;
+      gap: 8px;
+  }
 
-    .route-options-container {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px;
-        padding: 8px;
-    }
+  .route-options-container {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      padding: 8px;
+  }
 
-    .transport-option-card {
-        padding: 6px;
-    }
+  .transport-option-card {
+      padding: 6px;
+  }
 
-    .option-icon {
-        font-size: 18px;
-    }
+  .option-icon {
+      font-size: 18px;
+  }
 
-    .option-method {
-        font-size: 10px;
-    }
-}
+  .option-method {
+      font-size: 10px;
+  }
+
 
 /* Trip Assistant Button */
 .trip-assistant-container {
@@ -1673,6 +1674,7 @@ header {
     display: flex;
     flex-direction: column;
     position: absolute;
+    overflow: auto;
 }
 
 .modal-header {
@@ -1821,5 +1823,30 @@ header {
         width: 95vw;
         height: 80vh;
     }
+}
+
+.dropdown-menu {
+  display: none; 
+  position: absolute; 
+  right: 0; top: 100%; 
+  background: #fff; 
+  border: 1px solid #eee; 
+  min-width: 160px; 
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: block; 
+  padding: 10px;
+  text-decoration: none;
+  color: rgb(77, 77, 248);
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: #0077ff; 
+  box-shadow: 0 0 8px 2px #4285f4;
+  transition: background 0.3s, box-shadow 0.3s;
+  color: white
 }
 

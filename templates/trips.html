@@ -14,18 +14,22 @@
             <a href="/dashboard" class="logo">
                 EZtrip
             </a>
-            <div class="nav-links">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/create-trip">Create Trip</a>
-            </div>
-            <div class="user-profile">
+            <div class="user-profile" style="position: relative;">
                 <img src="{{ picture }}" alt="Profile" class="profile-pic">
-                <span>{{name}}</span>
-                <a href="/auth/logout" class="btn btn-outline">Logout</a>
+                <span id="userDropdownToggle" style="cursor: pointer;">{{name}} <i class="fas fa-caret-down"></i></span>
+                <div id="userDropdownMenu" class="dropdown-menu">
+                    <a href="/dashboard" class="dropdown-item" >Dashboard</a>
+                    <a href="/create-trip" class="dropdown-item" >Create Trip</a>
+                    <a href="/auth/logout" class="dropdown-item" >Logout</a>
+                </div>
             </div>
         </nav>
     </header>
-
+    <div class="trip-assistant-container">
+        <button id="tripAssistantBtn" class="trip-assistant-btn">
+            AI Trip Assistant
+        </button>
+    </div>
     <main class="container">
         <div class="trip-header">
             <div class="trip-info">
@@ -53,11 +57,6 @@
                 <a class="btn btn-outline" id="export-btn" href="{{ url_for('download_file', trip_id=trip.trip_id) }}" download>
                     <i class="download"></i> Export Trip
                 </a>
-                <div class="trip-assistant-container">
-                    <button id="tripAssistantBtn" class="trip-assistant-btn">
-                        AI Trip Assistant
-                    </button>
-                </div>
                 <button class="btn btn-outline" onclick="showOthersModal()">
                     ...
                 </button>
@@ -482,10 +481,6 @@
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
             </div>
         </div>
     </div>
@@ -565,6 +560,18 @@
     <script src="{{url_for('static', filename='js/route-optimizer.js')}}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCcAD8dYx5U0BQDDaJDcwgyf5ir0A11Cr8&libraries=places,geometry&callback=initMap"></script>
     <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('userDropdownToggle');
+        const menu = document.getElementById('userDropdownMenu');
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function() {
+            menu.style.display = 'none';
+        });
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         const tripAssistantBtn = document.getElementById('tripAssistantBtn');
