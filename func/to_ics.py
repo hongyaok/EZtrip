@@ -12,7 +12,6 @@ def convert_to_ics(itinerary, username='EZtrip'):
             for activity in day_info['activities']:
                 event = Event()
                 event.name = activity['name']
-                # Parse start and end datetime, localize to SG time
                 start_dt = datetime.strptime(f"{activity['start_date']} {activity['start_time']}", "%Y-%m-%d %H:%M:%S")
                 end_dt = datetime.strptime(f"{activity['end_date']} {activity['end_time']}", "%Y-%m-%d %H:%M:%S")
                 event.begin = sg_tz.localize(start_dt)
