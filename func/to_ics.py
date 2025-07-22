@@ -1,16 +1,22 @@
 from ics import Calendar, Event
 from datetime import datetime, time
 import os
+from pytz import timezone
 
 def convert_to_ics(itinerary, username='EZtrip'):
     try:
         cal = Calendar()
+        sg_tz = timezone('Asia/Singapore')
+        print(itinerary)
         for date_str, day_info in itinerary.items():
             for activity in day_info['activities']:
                 event = Event()
                 event.name = activity['name']
-                event.begin = f"{activity['start_date']} {activity['start_time']}"
-                event.end = f"{activity['end_date']} {activity['end_time']}"
+                # Parse start and end datetime, localize to SG time
+                start_dt = datetime.strptime(f"{activity['start_date']} {activity['start_time']}", "%Y-%m-%d %H:%M:%S")
+                end_dt = datetime.strptime(f"{activity['end_date']} {activity['end_time']}", "%Y-%m-%d %H:%M:%S")
+                event.begin = sg_tz.localize(start_dt)
+                event.end = sg_tz.localize(end_dt)
                 event.description = activity['description']
                 cal.events.add(event)
         print(cal) #test

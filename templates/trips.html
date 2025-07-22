@@ -784,7 +784,42 @@
         
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        
+        // Validate start and end datetimes
+
+        const startDate = document.getElementById('locationStartDate').value;
+        const endDate = document.getElementById('locationEndDate').value;
+        const startTime = document.getElementById('locationStartTime').value;
+        const endTime = document.getElementById('locationEndTime').value;
+
+
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+        const tripStartDateTime = new Date("{{ trip.start_date }}T00:00");
+        const tripEndDateTime = new Date("{{ trip.end_date }}T23:59");
+
+
+        if (startDateTime < tripStartDateTime || endDateTime > tripEndDateTime) {
+            showAlertModal();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add Location';
+            return;
+        }
+
+        if (endDateTime < startDateTime) {
+            showAlertModal();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add Location';
+            return;
+        }
+
+        if (isNaN(startDateTime) || isNaN(endDateTime)) {
+            showAlertModal();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add Location';
+            return;
+        }
+
+
         let lat = null;
         let lng = null;
 
