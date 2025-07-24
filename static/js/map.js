@@ -544,6 +544,11 @@ function locateActivityOnMap(lat, lng, name) {
     }
 
     if (existingMarker) {
+        const mapSection = document.getElementById('map');
+        if (mapSection) {
+            mapSection.scrollIntoView({behavior: 'instant', block:'center'});
+        }
+
         const markerPos = existingMarker.getPosition();
         map.setCenter(markerPos);
         map.setZoom(16);
