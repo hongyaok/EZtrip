@@ -189,7 +189,24 @@ function displayRouteOptimizationModal(routeData) {
     modal.innerHTML = `
         <div class="modal-content">
             <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3>Optimize Trip Routes</h3>
+                <div style="position: relative;">
+                        <span style="
+                            display: inline-block;
+                            width: 20px;
+                            height: 20px;
+                            background-color: #007bff;
+                            color: white;
+                            border-radius: 50%;
+                            text-align: center;
+                            line-height: 20px;
+                            font-size: 14px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        " title="Instructions:\nClick on different transport options to compare routes\nClick on route headers to view detailed directions">?</span>
+                    </div>
+                </div>
                 <div id="route-sections-container">
                 </div>
                 <div class="clearfix">
