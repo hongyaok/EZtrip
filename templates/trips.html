@@ -88,7 +88,6 @@
                         </select>
                     </div>
 
-                    <!--date field-->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="location-start-date">Start Date:</label>
@@ -100,7 +99,6 @@
                         </div>
                     </div>
 
-                    <!--time field-->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="location-start-time">Start Time:</label>
@@ -222,6 +220,7 @@
                                         {% if activity.end_time %}
                                         <span class="end-time">{{activity.end_time}}</span>
                                         {% endif %}
+                                        <span class="end-time">( {{activity.end_date}} )</span>
                                     {% else %}
                                         <span class="no-time">No time set</span>
                                     {% endif %}
@@ -295,6 +294,7 @@
                                         <span class="start-time">{{conflict.start_time}}</span>
                                         {% if conflict.end_time %}
                                         <span class="end-time">{{conflict.end_time}}</span>
+                                        <span class="end-time">( {{conflict.end_date}} )</span>
                                         {% endif %}
                                     {% else %}
                                         <span class="no-time">No time set</span>
@@ -484,9 +484,7 @@
             </div>
         </div>
     </div>
-            </div>
-        </div>
-    </div>
+
     <div id="alertModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="container">
@@ -530,8 +528,6 @@
     </div>
 
 
-
-    <!--route optimization modal-->
     <div id="optimizeModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="container">
@@ -566,7 +562,11 @@
         const menu = document.getElementById('userDropdownMenu');
         toggle.addEventListener('click', function(e) {
             e.stopPropagation();
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
         });
         document.addEventListener('click', function() {
             menu.style.display = 'none';
@@ -584,7 +584,6 @@
         let chatHistory = [];
         let isFirstMessage = true;
 
-        // Open modal
         tripAssistantBtn.addEventListener('click', function() {
             tripAssistantModal.style.display = 'flex';
             if (isFirstMessage) {
@@ -613,7 +612,7 @@
         sendChatBtn.addEventListener('click', sendMessage);
 
         function initializeChat() {
-            const tripDestination = '{{ trip.dest }}' || 'your destination';
+            const tripDestination = '{{ trip.dest }}';
             
             fetch('/api/chat/start', {
                 method: 'POST',
@@ -633,7 +632,7 @@
             })
             .catch(error => {
                 console.error('Error initializing chat:', error);
-                addMessageToChat('Hello! I\'m your trip assistant. How can I help you plan your trip?', 'assistant');
+                addMessageToChat('We are currently facing difficulties, please try again later.', 'assistant');
             });
         }
 
@@ -646,10 +645,8 @@
             
             chatInput.value = '';
             
-            // Show typing indicator
             showTypingIndicator();
 
-            // Send to backend
             fetch('/api/chat/reply', {
                 method: 'POST',
                 headers: {
@@ -668,13 +665,13 @@
                     addMessageToChat(data.message, 'assistant');
                     chatHistory.push({role: 'assistant', content: data.message});
                 } else {
-                    addMessageToChat('Sorry, I encountered an error. Please try again.', 'assistant');
+                    addMessageToChat('We are currently facing difficulties, please try again later.', 'assistant');
                 }
             })
             .catch(error => {
                 hideTypingIndicator();
                 console.error('Error sending message:', error);
-                addMessageToChat('Sorry, I encountered an error. Please try again.', 'assistant');
+                addMessageToChat('We are currently facing difficulties, please try again later.', 'assistant');
             });
         }
 
@@ -714,7 +711,6 @@
             });
         });
 
-        // Submit new comment
         document.getElementById('commentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const activityId = document.getElementById('commentActivityId').value;
@@ -734,7 +730,6 @@
             .catch(err => alert('Failed to post comment.'));
         });
 
-        // Close modal on background click
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('commentModal');
             if (event.target === modal) closeCommentModal();
@@ -778,14 +773,6 @@
     document.getElementById('locationForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
 
-        // Prevent multiple submissions
-        const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn.disabled) return;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        // Validate start and end datetimes
-
         const startDate = document.getElementById('locationStartDate').value;
         const endDate = document.getElementById('locationEndDate').value;
         const startTime = document.getElementById('locationStartTime').value;
@@ -794,9 +781,14 @@
 
         const startDateTime = new Date(`${startDate}T${startTime}`);
         const endDateTime = new Date(`${endDate}T${endTime}`);
-        const tripStartDateTime = new Date("{{ trip.start_date }}T00:00");
-        const tripEndDateTime = new Date("{{ trip.end_date }}T23:59");
+        const tripStartDateTime = new Date("{{ trip.start_date[:10] }}T00:00");
+        const tripEndDateTime = new Date("{{ trip.end_date[:10] }}T23:59");
 
+        // console.log("{{ trip.end_date[:10] }}T23:59")
+        // console.log('Start DateTime:', startDateTime, 
+        //               'End DateTime:', endDateTime,
+        //               'Trip Start DateTime:', tripStartDateTime,
+        //               'Trip End DateTime:', tripEndDateTime);
 
         if (startDateTime < tripStartDateTime || endDateTime > tripEndDateTime) {
             showAlertModal();
@@ -805,12 +797,27 @@
             return;
         }
 
-        if (endDateTime < startDateTime) {
+        else if (endDateTime < startDateTime) {
             showAlertModal();
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Add Location';
             return;
         }
+
+        else if (startDateTime < tripStartDateTime || startDateTime > tripEndDateTime) {
+            showAlertModal();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add Location';
+            return;
+        }
+
+        else if (endDateTime < tripStartDateTime || endDateTime > tripEndDateTime) {
+            showAlertModal();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Add Location';
+            return;
+        }
+
 
         if (isNaN(startDateTime) || isNaN(endDateTime)) {
             showAlertModal();
@@ -818,6 +825,12 @@
             submitBtn.innerHTML = 'Add Location';
             return;
         }
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn.disabled) return;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
 
         let lat = null;
@@ -857,10 +870,8 @@
         .then(data => {
             console.log('Success:', data);
             if (data.success && data.location) {
-                // Add marker to map
                 createPermanentMarker(data.location.lat, data.location.lng, data.location.name, data.location.id);
                 
-                // Reload to show in itinerary
                 window.location.reload();
             } else {
                 console.error('Location data missing:', data);
@@ -890,19 +901,11 @@
             const created = new Date(dateString);
             const diffInSeconds = Math.floor((now - created) / 1000);
             
-            if (diffInSeconds < 60) {
-                return 'Just now';
-            } else if (diffInSeconds < 3600) {
-                const minutes = Math.floor(diffInSeconds / 60);
-                return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-            } else if (diffInSeconds < 86400) {
-                const hours = Math.floor(diffInSeconds / 3600);
-                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-            } else {
-                const days = Math.floor(diffInSeconds / 86400);
-                return `${days} day${days > 1 ? 's' : ''} ago`;
-            }
-        }
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return Math.floor(diffInSeconds / 60) + ' min ago';
+            if (diffInSeconds < 86400) return Math.floor(diffInSeconds / 3600) + ' hr ago';
+            return Math.floor(diffInSeconds / 86400) + ' day ago';
+        }  
         
         function filterActivitiesByTime(days) {
             const activityCards = document.querySelectorAll('.activity-card');
@@ -1036,7 +1039,6 @@
     }
 
     function copyText(id) {
-        /* Copy text into clipboard */
         navigator.clipboard.writeText
             ("https://eztrip-vbi5.onrender.com/join/" + id);
         alert("Copied to clipboard!");

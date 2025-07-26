@@ -121,11 +121,33 @@
         const menu = document.getElementById('userDropdownMenu');
         toggle.addEventListener('click', function(e) {
             e.stopPropagation();
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
         });
         document.addEventListener('click', function() {
             menu.style.display = 'none';
         });
+    });
+
+    //check if start date is before end date
+    document.getElementById('start-date').addEventListener('change', function() {
+        const startDate = new Date(this.value);
+        const endDate = new Date(document.getElementById('end-date').value);
+        if (startDate > endDate) {
+            alert('Start date cannot be after end date.');
+            this.value = '';
+        }
+    });
+    document.getElementById('end-date').addEventListener('change', function() {
+        const endDate = new Date(this.value);
+        const startDate = new Date(document.getElementById('start-date').value);
+        if (startDate > endDate) {
+            alert('Start date cannot be after end date.');
+            this.value = '';
+        }
     });
     </script>
 
