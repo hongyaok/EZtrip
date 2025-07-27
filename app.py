@@ -255,7 +255,7 @@ def vote_location(trip_id, location_id):
     if result:
         return redirect(f'/trip/{trip_id}')
     else:
-        return jsonify({'success': False})
+        return redirect(f'/trip/{trip_id}')
 
 @app.route('/download/<int:trip_id>', methods=['GET'])
 @login_needed

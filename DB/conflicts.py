@@ -9,36 +9,48 @@ class Event:
         self.event_id = location_data['id']
         self.data = location_data
 
-        # Combine date and time into datetime objects
         self.start_datetime = datetime.strptime(f"{self.start_date} {self.start_time}", "%Y-%m-%d %H:%M:%S")
         self.end_datetime = datetime.strptime(f"{self.end_date} {self.end_time}", "%Y-%m-%d %H:%M:%S")
 
 def detect_conflicts(events):
-    time_points = []
-
-    # Create time points using datetime
+    events.sort(key = lambda x: x.start_datetime)
+    ret = []
+    S = set()
     for event in events:
-        time_points.append((event.start_datetime, "start", event.event_id))
-        time_points.append((event.end_datetime, "end", event.event_id))
+        for sec_event in events:
+            if event == sec_event: continue
+            if (event.start_datetime < sec_event.end_datetime and event.end_datetime > sec_event.start_datetime) or \
+                (sec_event.start_datetime < event.end_datetime and sec_event.end_datetime > event.start_datetime):
+                if event.event_id not in S:
+                    S.add(event.event_id)
+                    ret.append(event.data)
+                if sec_event.event_id not in S:
+                    S.add(sec_event.event_id)
+                    ret.append(sec_event.data)
+    return ret
 
-    # Sort time points
-    time_points.sort(key=lambda x: (x[0], x[1] == "start", x[2]))
+    # time_points = []
 
-    active_events = set()
-    conflicts = []
+    # for event in events:
+    #     time_points.append((event.start_datetime, "start", event.event_id))
+    #     time_points.append((event.end_datetime, "end", event.event_id))
 
-    # Sweep through time points
-    for time, event_type, event_id in time_points:
-        if event_type == "start":
-            if active_events:  # Conflict detected
-                conflicts.append(event.data)
-            active_events.add(event_id)
-        else:  # event_type == "end"
-            try:
-                active_events.remove(event_id)
-            except KeyError:
-                continue
-    if len(conflicts) == 1:
-        conflicts = []
+    # time_points.sort(key=lambda x: (x[0], x[1] == "start", x[2]))
 
-    return conflicts
+    # active_events = set()
+    # conflicts = []
+
+    # for time, event_type, event_id in time_points:
+    #     if event_type == "start":
+    #         if active_events:  
+    #             conflicts.append(event.data)
+    #         active_events.add(event_id)
+    #     else:  
+    #         try:
+    #             active_events.remove(event_id)
+    #         except KeyError:
+    #             continue
+    # if len(conflicts) == 1:
+    #     conflicts = []
+
+    # return conflicts
