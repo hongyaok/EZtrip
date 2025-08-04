@@ -1,29 +1,30 @@
+// sources
+// https://developers.google.com/maps/documentation/javascript/tutorials
+// https://developers.google.com/maps/documentation/routes/compute-route-over
+
 let googleDirectionsService;
 let isGoogleMapsReady = false;
 let globalRouteData = {};
 
 function initializeGoogleMaps() {
-    console.log('Setting up Google Maps...');
-
+    //console.log('Setting up Google Maps...');
     if (typeof google !== 'undefined' && google.maps) {
         googleDirectionsService = new google.maps.DirectionsService();
         isGoogleMapsReady = true;
-        console.log('Google Maps is ready')
+        //console.log('Google Maps is ready')
     } else {
-        console.log('Google maps is not ready');
+        //console.log('Google maps is not ready');
         setTimeout(initializeGoogleMaps, 1000)
     }
 }
 
 //function called when user clicks on the optimization button
 function showOptimizeModal() {
-    console.log('user clicked Optimize Route');
-
+    //console.log('user clicked Optimize Route');
     if (!isGoogleMapsReady) {
         alert('Please wait for a moment, Google Maps is still loading...');
         return ;
     }
-
     startOptimization();
 }
 
@@ -32,84 +33,61 @@ function closeOptimizeModal() {
     document.getElementById('optimizeModal').style.display = 'none';
 }
 
-
 //start optimising with smart recommendations
 async function startOptimization() {
-    console.log('Starting route optimization');
-
+    //console.log('Starting route optimization');
     try{
         showGlobalLoadingMessage();
-
         const dayElements = document.querySelectorAll('.day-section');
-
         if (dayElements.length == 0) {
             throw new Error('No trip days found. Please add some location first');
         }
-
-        console.log(`Found ${dayElements.length} days to optimize`);
-
+        //console.log(`Found ${dayElements.length} days to optimize`);
         const routeData = {};
-
-        //process each day
         for (let i = 0; i <dayElements.length; i++) {
             const dayElement = dayElements[i];
             const date = dayElement.getAttribute('data-date');
-
             if (!date) continue;
-
-            console.log(`Processing day: ${date}`);
-
+            //console.log(`Processing day: ${date}`);
             const activities = getActivitiesForDay(dayElement);
-
             if (activities.length < 2) {
-                console.log(`Day ${date} has less than 2 activities, skipping`);
+                //console.log(`Day ${date} has less than 2 activities, skipping`);
                 continue;
             }
-
             routeData[date] = await calculateAllRoutesForDay(activities);
         }
-
         hideGlobalLoadingMessage();
         displayRouteOptimizationModal(routeData);
     } catch(error) {
-        console.error('Error during opitimization', error);
+        //console.error('Error during opitimization', error);
         hideGlobalLoadingMessage();
         alert('Error: ' + error.message);
     }
 }
 
-
 //get data from google maps API
 function getRouteFromGoogle(fromActivity, toActivity, method) {
     return new Promise((resolve) => {
-        //check if have the coordinates
         if (!fromActivity.lat || !fromActivity.lng || !toActivity.lat || !toActivity.lng) {
-            console.warn(`missing coordinate fro ${fromActivity.name} or ${toActivity.name}`);
+            //console.warn(`missing coordinate fro ${fromActivity.name} or ${toActivity.name}`);
             resolve(null);
             return;
         }
-
-        //prep Google Maps request
         const request = {
             origin: new google.maps.LatLng(fromActivity.lat, fromActivity.lng),
             destination: new google.maps.LatLng(toActivity.lat, toActivity.lng),
             travelMode: google.maps.TravelMode[method]
         };
-
-        //for public transport
         if (method == 'TRANSIT') {
             request.transitOptions = {
                 modes: ['BUS', 'TRAIN'],
                 routingPreference: 'FEWER_TRANSFERS'
             };
         }
-
-        //call google maps api
         googleDirectionsService.route(request, function(response, status) {
             if (status == 'OK' && response.routes.length > 0) {
                 const route = response.routes[0];
                 const leg = route.legs[0];
-
                 const routeData = {
                     method: getMethodName(method),
                     icon: getMethodIcon(method),
@@ -121,11 +99,10 @@ function getRouteFromGoogle(fromActivity, toActivity, method) {
                     fromLocation: fromActivity.name,
                     toLocation: toActivity.name
                 };
-
-                console.log(`${method}: ${routeData.minutes} min, ${routeData.distance}`);
+                //console.log(`${method}: ${routeData.minutes} min, ${routeData.distance}`);
                 resolve(routeData);
             } else {
-                console.warn(`Google Maps error for ${method}: ${status}`);
+                //console.warn(`Google Maps error for ${method}: ${status}`);
                 resolve(null);
             }
         });
@@ -133,42 +110,30 @@ function getRouteFromGoogle(fromActivity, toActivity, method) {
 }
 
 async function calculateAllRoutesForDay(activities) {
-    console.log(`Calculating routes for ${activities.length} activities`);
-
+    //console.log(`Calculating routes for ${activities.length} activities`);
     const routes = [];
-
     for(let i = 0; i < activities.length - 1; i++) {
         const fromActivity = activities[i];
         const toActivity = activities[i+1];
-
-        console.log(`Route from ${fromActivity.name} to ${toActivity.name}`);
-
-        //help to calculate all 3 transport modes
+        //console.log(`Route from ${fromActivity.name} to ${toActivity.name}`);
         const [driving, walking, transit] = await Promise.all([
             getRouteFromGoogle(fromActivity, toActivity, 'DRIVING'),
             getRouteFromGoogle(fromActivity, toActivity, 'WALKING'),
             getRouteFromGoogle(fromActivity, toActivity, 'TRANSIT'),
         ]);
-
-        //create the options object
         const options = {
             driving: driving,
             walking: walking,
             transit: transit
         };
-
-        //find the fastest option if possible
         const validOptions = Object.entries(options).filter(([_, data]) => data !== null);
-        let selectedMode = 'DRIVING'; //default choice
-
+        let selectedMode = 'DRIVING';
         if (validOptions.length > 0) {
             const fastest = validOptions.reduce((min, [mode, data]) => {
                 return data.minutes < min.minutes ? { mode, minutes: data.minutes } : min;
             }, { mode: validOptions[0][0], minutes: validOptions[0][1].minutes });
-            
             selectedMode = fastest.mode.toUpperCase();
         }
-
         routes.push({
             from: fromActivity.name,
             to: toActivity.name,
@@ -180,12 +145,8 @@ async function calculateAllRoutesForDay(activities) {
 }
 
 function displayRouteOptimizationModal(routeData) {
-    //store route data for later access
     globalRouteData = routeData;
-
-    //create our modal structure
     const modal = document.getElementById('optimizeModal');
-
     modal.innerHTML = `
         <div class="modal-content">
             <div class="container">
@@ -216,10 +177,8 @@ function displayRouteOptimizationModal(routeData) {
             </div>
         </div>
     `;
-
     const container = document.getElementById('route-sections-container');
     let html = '';
-
     Object.entries(routeData).forEach(([date, routes]) => {
         html += `
             <div class="date-section">
@@ -229,14 +188,11 @@ function displayRouteOptimizationModal(routeData) {
             `;
     });
     container.innerHTML = html;
-
-    //show modal 
     document.getElementById('optimizeModal').style.display = 'flex';
 }
 
 function createRouteSection(route, date, index) {
     const sectionId = `route-${date.replace(/\s+/g, '-')}-${index}`;
-
     return `
         <div class="route-section">
             <div class="route-header" onclick="toggleRouteDetails('${sectionId}')">
@@ -257,12 +213,10 @@ function createTransportButtons(route, sectionId) {
         { key: 'walking', icon: '🚶', label: 'Walking' },
         { key: 'transit', icon: '🚌', label: 'Transit' }
     ];
-
     return transportModes.map(mode => {
         const routeData = route.options[mode.key];
         const isSelected = route.selected.toLowerCase() === mode.key;
         const isDisabled = !routeData;
-
         if (isDisabled) {
             return `
                 <button class="transport-option disabled" disabled>
@@ -280,17 +234,11 @@ function createTransportButtons(route, sectionId) {
 }
 
 function selectTransportMode(sectionId, mode, event) {
-    //prvent triggering route details toggle
     event.stopPropagation();
-
-    //update button selection
     const section = document.querySelector(`#${sectionId}-details`).parentElement;
     const buttons = section.querySelectorAll('.transport-option'); 
-
     buttons.forEach(btn => btn.classList.remove('selected'));
     event.target.classList.add('selected');
-
-    //if the details are open, update them
     const detailsDiv = document.getElementById(`${sectionId}-details`);
     if (detailsDiv.style.display !== 'none') {
         updateRouteDetails(sectionId, mode);
@@ -299,23 +247,17 @@ function selectTransportMode(sectionId, mode, event) {
 
 function  toggleRouteDetails(sectionId) {
     const detailsDiv = document.getElementById(`${sectionId}-details`);
-
     if (detailsDiv.style.display === 'none') {
-        //find the selected transport mode
         const section = detailsDiv.parentElement;
         const selectedButton = section.querySelector('.transport-option.selected');
-
         if (selectedButton) {
             const buttonText = selectedButton.textContent;
-            let mode = 'driving' //default option
-
+            let mode = 'driving'
             if (buttonText.includes('🚗')) mode = 'driving';
             else if (buttonText.includes('🚶')) mode = 'walking';
             else if (buttonText.includes('🚌')) mode = 'transit';
-
                 updateRouteDetails(sectionId, mode);
         }
-
         detailsDiv.style.display = 'block';
     } else {
         detailsDiv.style.display = 'none';
@@ -324,16 +266,12 @@ function  toggleRouteDetails(sectionId) {
 
 function updateRouteDetails(sectionId, mode) {
     const detailsDiv = document.getElementById(`${sectionId}-details`);
-
-    //extract route data
     const routeData = getRouteDataFromSection(sectionId, mode);
-
     if (routeData && routeData.directions) {
         let modeDisplayName = mode.toUpperCase();
         if (mode === 'transit') {
             modeDisplayName = "PUBLIC TRANSPORT"
         }
-
         detailsDiv.innerHTML = `
             <div style="margin: 0; padding: 0; text-align: left;">
                 <div style="margin: 0 0 3px 0; padding: 0; text-align: left;">
@@ -353,7 +291,6 @@ function updateRouteDetails(sectionId, mode) {
         if (mode === 'transit') {
             modeDisplayName = "PUBLIC TRANSPORT"
         }
-
         detailsDiv.innerHTML = `
         <div style="margin: 0; padding: 0; text-align: left;">
             <div style="margin: 0 0 3px 0; padding: 0; text-align: left;">
@@ -380,11 +317,8 @@ function closePopup() {
 
 //helper function to retrieve route data
 function getRouteDataFromSection(sectionId, mode) {
-    //extract the date and route index from section id
     const parts = sectionId.split('-');
     const routeIndex = parseInt(parts[parts.length - 1]);
-
-    //find the route data in the global storage
     for (const [date, routes] of Object.entries(globalRouteData)) {
         if (routes[routeIndex] && routes[routeIndex].options[mode]){
             return routes[routeIndex].options[mode];
@@ -397,12 +331,10 @@ function getRouteDataFromSection(sectionId, mode) {
 function getActivitiesForDay(dayElement) {
     const timelineItems = dayElement.querySelectorAll('.timeline-item');
     const activities = [];
-
     timelineItems.forEach(item => {
         const id = item.getAttribute('data-activity-id');
         const nameElement = item.querySelector('.activity-info h5');
         const locateButton = item.querySelector('.locate-btn');
-
         if (nameElement && locateButton) {
             const activity = {
                 id: id,
@@ -410,8 +342,6 @@ function getActivitiesForDay(dayElement) {
                 lat: parseFloat(locateButton.getAttribute('data-lat')),
                 lng: parseFloat(locateButton.getAttribute('data-lng'))
             };
-
-            //include those places/activites with valid coordinate
             if (!isNaN(activity.lat) && !isNaN(activity.lng)) {
                 activities.push(activity);
             }
@@ -419,6 +349,7 @@ function getActivitiesForDay(dayElement) {
     });
     return activities;
 }
+
 
 //helper function for transport methods
 function getMethodName(method) {
@@ -441,7 +372,6 @@ function getMethodIcon(method) {
 
 // UI functions
 function showGlobalLoadingMessage() {
-    //creating loading
     const overlay = document.createElement('div');
     overlay.id = 'optimization-loading';
     overlay.innerHTML = `
@@ -475,6 +405,7 @@ function showGlobalLoadingMessage() {
     `;
     document.body.appendChild(overlay)
 }
+ 
 
 function hideGlobalLoadingMessage() {
     const overlay = document.getElementById('optimization-loading');
@@ -501,25 +432,25 @@ function showSuccessMessage() {
         Optimized routes have been created. Clicked any transport option for details.
     </div>
     `;
-
     document.body.appendChild(notification);
-
     setTimeout(() => {
         notification.remove();
     }, 5000);
 }
 
+
+
+
 //initialise this when the page laod
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('route optimizer loading...');
+    //console.log('route optimizer loading');
     initializeGoogleMaps();
-    console.log('Ready.');
+    //console.log('Ready.');
 });
 
 //formatting of time 
 function formatDuration(seconds) {
     const totalMinutes = Math.round(seconds / 60);
-
     if (totalMinutes < 60) {
         return `${totalMinutes} min`;
     } else {
@@ -529,21 +460,19 @@ function formatDuration(seconds) {
     }
 }
 
+
+
+
 function getSimpleDirections(steps, travelMode) {
     if (!steps || steps.length === 0) return 'No directions available';
-    
     const directions = [];
-    
     if (travelMode === 'TRANSIT') {
         directions.push('🚌 PUBLIC TRANSPORT:');
         directions.push(''); 
-        
         steps.forEach((step, index) => {
             if (step.travel_mode === 'WALKING') {
                 const duration = Math.round(step.duration.value / 60);
                 const distance = step.distance ? step.distance.text : '';
-                
-                // Get walking instruction
                 let walkInstruction = 'Walk to destination';
                 if (step.instructions) {
                     walkInstruction = step.instructions
@@ -554,14 +483,11 @@ function getSimpleDirections(steps, travelMode) {
                         .replace(/&gt;/g, '>')
                         .trim();
                 }
-                
                 directions.push(`🚶‍♂️ Walk ${duration} min (${distance}):`);
                 directions.push(`   ${walkInstruction}`);
-                
             } else if (step.travel_mode === 'TRANSIT') {
                 const duration = Math.round(step.duration.value / 60);
                 const distance = step.distance ? step.distance.text : '';
-                
                 let transitInstruction = 'Take public transport';
                 if (step.instructions) {
                     transitInstruction = step.instructions
@@ -572,31 +498,30 @@ function getSimpleDirections(steps, travelMode) {
                         .replace(/&gt;/g, '>')
                         .trim();
                 }
-                
                 directions.push(`🚌 ${transitInstruction}:`);
                 directions.push(`   Journey time: ${duration} min`);
                 directions.push(`   Distance: ${distance}`);
-                
                 if (step.html_instructions) {
-                    console.log('HTML instructions:', step.html_instructions);
+                    //console.log('HTML instructions:', step.html_instructions);
                 }
             }
-            
-            // Add separator between steps (not after the last step)
             if (index < steps.length - 1) {
                 directions.push('');
                 directions.push('   ↓');
                 directions.push('');
             }
         });
-        
     } else {
-        // Handle walking and driving modes
-        const routeType = travelMode === 'WALKING' ? '🚶‍♂️ WALKING' : 
-                         travelMode === 'DRIVING' ? '🚗 DRIVING' : '🚴‍♂️ CYCLING';
+        let routeType;
+        if (travelMode === 'WALKING') {
+            routeType = '🚶‍♂️ WALKING';
+        } else if (travelMode === 'DRIVING') {
+            routeType = '🚗 DRIVING';
+        } else {
+            routeType = '🚴‍♂️ CYCLING';
+        }
         directions.push(`${routeType}:`);
         directions.push('');
-        
         steps.forEach((step, index) => {
             let instruction = 'Continue';
             if (step.instructions) {
@@ -608,22 +533,17 @@ function getSimpleDirections(steps, travelMode) {
                     .replace(/&gt;/g, '>')
                     .trim();
             }
-            
             const distance = step.distance ? step.distance.text : '';
             const timeInfo = travelMode === 'WALKING' ? 
                 ` (${Math.round(step.duration.value / 60)} min)` : '';
-            
             directions.push(`${index + 1}. ${instruction}`);
             if (distance) {
                 directions.push(`   Distance: ${distance}${timeInfo}`);
             }
-            
-            // Add spacing between steps for readability (not after the last step)
             if (index < steps.length - 1) {
                 directions.push('');
             }
         });
     }
-    
     return directions.join('\n');
 }

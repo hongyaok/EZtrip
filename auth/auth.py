@@ -1,3 +1,11 @@
+"""
+Sources
+https://google-auth.readthedocs.io/en/latest/reference/google.oauth2.id_token.htmlhttps://google-auth.readthedocs.io/en/latest/reference/google.oauth2.id_token.html
+https://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html
+https://youtu.be/BfYsdNaHrps?si=Ng9aF8jSGhUeR6Nt
+"""
+
+
 from flask import Blueprint, render_template, redirect, url_for, session, request
 import os
 from google_auth_oauthlib.flow import Flow
@@ -14,12 +22,12 @@ db = DB() # initialise connection to supabase
 def login_needed(f): 
     @wraps(f)
     # checks if a user if logged in
-    # if yes, continue to stated page
+    # if yes, continue to stated page (f)
     # else redirect to login page
-    def redirect_to_auth(*args, **kwargs):
+    def redirect_to_auth():
         if 'user_id' not in session:
             return redirect(url_for('auth.login'))
-        return f(*args, **kwargs) # calls the original function below where the @ is placed
+        return f() # calls the original function below where the @ is placed
     return redirect_to_auth
 
 @auth.route('/login') # when href '/login' is called in html
@@ -61,6 +69,7 @@ def google_login():
 
 @auth.route('/callback') # after 'returning' from google auth page
 def callback():
+    # print("callback called")
     try:
         # Retrieve state from session
         state =session['state']
@@ -87,14 +96,13 @@ def callback():
         flow.fetch_token(authorization_response=authorization_response)
         
         credentials = flow.credentials # get credentials from flow
-        
+        # print(credentials)
         id_info = id_token.verify_oauth2_token(   # make sure id is valid
             id_token=credentials._id_token,
             request=google_auth_requests.Request(),
             audience=ClientID
         )
         
-        # store user info in session
         session['user_id'] = id_info.get('sub')
         session['name'] = id_info.get('name')
         session['email'] = id_info.get('email')
